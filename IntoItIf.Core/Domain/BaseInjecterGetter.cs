@@ -19,17 +19,14 @@ namespace IntoItIf.Core.Domain
 
       internal static Option<bool> SetBaseMapperService(Option<IMapperService> mapperService)
       {
-         return _mapperService
-            .Combine(mapperService)
-            .Execute(
-               x =>
-               {
-                  var map = (_MapperService: x.Item1, MapperService: x.Item2);
-                  if (map._MapperService == null || map._MapperService.GetType() != map.MapperService.GetType())
-                  {
-                     map._MapperService = map.MapperService;
-                  }
-               });
+         var realClassMapperService = _mapperService.ReduceOrDefault();
+         var realMapperService = mapperService.ReduceOrDefault();
+         if (realClassMapperService == null || realClassMapperService.GetType() != realMapperService.GetType())
+         {
+            _mapperService = mapperService;
+         }
+
+         return true;
       }
 
       #endregion

@@ -21,17 +21,14 @@
 
       internal static Option<bool> SetBaseUnitOfWork(Option<BaseUnitOfWork> uow)
       {
-         return _unitOfWork
-            .Combine(uow)
-            .Execute(
-               x =>
-               {
-                  var map = (_UnitOfWork: x.Item1, UnitOfWork: x.Item2);
-                  if (map._UnitOfWork == null || map._UnitOfWork.GetType() != map.UnitOfWork.GetType())
-                  {
-                     map._UnitOfWork = map.UnitOfWork;
-                  }
-               });
+         var realClassUnitOfWork = _unitOfWork.ReduceOrDefault();
+         var realUnitOfWork = uow.ReduceOrDefault();
+         if (realClassUnitOfWork == null || realClassUnitOfWork.GetType() != realUnitOfWork.GetType())
+         {
+            _unitOfWork = uow;
+         }
+
+         return true;
       }
 
       #endregion
