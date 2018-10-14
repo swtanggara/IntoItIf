@@ -1,4 +1,4 @@
-Locale Emulator
+IntoItIf
 ===============
 [![GitHub](https://img.shields.io/github/license/swtanggara/IntoItIf.svg)](https://github.com/swtanggara/IntoItIf/blob/master/LICENSE)
 [![AppVeyor](https://img.shields.io/appveyor/ci/swtanggara/IntoItIf.svg)](https://ci.appveyor.com/project/swtanggara/intoitif)
