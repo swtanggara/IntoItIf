@@ -7,6 +7,8 @@ namespace IntoItIf.Core.Domain.Entities
       where TDto : BaseDto<TDto, TValidator>
       where TValidator : IDataValidator<TDto>, new()
    {
+      #region Constructors and Destructors
+
       protected BaseDto() : this(new TValidator())
       {
       }
@@ -15,9 +17,13 @@ namespace IntoItIf.Core.Domain.Entities
       {
       }
 
-      protected BaseDto(Option<IMapperService> mapperService, Option<IDataValidator<TDto>> validator) : base(mapperService, validator)
+      protected BaseDto(Option<IMapperService> mapperService, Option<IDataValidator<TDto>> validator) : base(
+         mapperService,
+         validator)
       {
       }
+
+      #endregion
    }
 
    public abstract class BaseDto<TDto> : IDto

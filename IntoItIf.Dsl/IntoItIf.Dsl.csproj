@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+     <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+     <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IntoItIf.Core\IntoItIf.Core.csproj" />
+    <ProjectReference Include="..\IntoItIf.Dal\IntoItIf.Dal.csproj" />
+  </ItemGroup>
+
+   <ItemGroup>
+      <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.13.0" />
+      <PackageReference Include="AutoMapper" Version="7.0.1" />
+      <PackageReference Include="BatMap" Version="1.1.3" />
+      <PackageReference Include="FastExpressionCompiler" Version="1.10.1" />
+      <PackageReference Include="FluentValidation" Version="8.0.100" />
+      <PackageReference Include="Mapster" Version="3.2.0" />
+      <PackageReference Include="TinyMapper" Version="3.0.2-beta" />
+      <PackageReference Include="Valit" Version="2.0.0" />
+   </ItemGroup>
+
+</Project>

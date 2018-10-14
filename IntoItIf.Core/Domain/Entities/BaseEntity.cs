@@ -4,20 +4,26 @@ namespace IntoItIf.Core.Domain.Entities
    using Options;
 
    public abstract class BaseEntity<TEntity, TValidator> : BaseEntity<TEntity>
-      where TEntity : BaseEntity<TEntity> 
+      where TEntity : BaseEntity<TEntity>
       where TValidator : IDataValidator<TEntity>, new()
    {
+      #region Constructors and Destructors
+
       protected BaseEntity() : this(new TValidator())
       {
-         
       }
+
       protected BaseEntity(Option<IDataValidator<TEntity>> validator) : base(validator)
       {
       }
 
-      protected BaseEntity(Option<IMapperService> mapperService, Option<IDataValidator<TEntity>> validator) : base(mapperService, validator)
+      protected BaseEntity(Option<IMapperService> mapperService, Option<IDataValidator<TEntity>> validator) : base(
+         mapperService,
+         validator)
       {
       }
+
+      #endregion
    }
 
    public abstract class BaseEntity<TEntity> : IEntity

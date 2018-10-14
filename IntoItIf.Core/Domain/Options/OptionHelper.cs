@@ -9,16 +9,6 @@ namespace IntoItIf.Core.Domain.Options
    {
       #region Public Methods and Operators
 
-      public static Task<Option<T>> GetOptionTask<T>(this T source)
-      {
-         return Task.FromResult(source.ToOption());
-      }
-
-      public static Task<Option<T>> GetOptionTask<T>(this Option<T> source)
-      {
-         return Task.FromResult(source);
-      }
-
       public static Option<(T1 Item1, T2 Item2)> Combine<T1, T2>(
          this Option<T1> item1,
          Option<T2> item2,
@@ -298,6 +288,16 @@ namespace IntoItIf.Core.Domain.Options
          {
             return Fail<bool>.Throw(ex);
          }
+      }
+
+      public static Task<Option<T>> GetOptionTask<T>(this T source)
+      {
+         return Task.FromResult(source.ToOption());
+      }
+
+      public static Task<Option<T>> GetOptionTask<T>(this Option<T> source)
+      {
+         return Task.FromResult(source);
       }
 
       public static Option<bool> IfExecute<T>(this Option<T> option, Func<T, bool> predicate, Action<T> action)
