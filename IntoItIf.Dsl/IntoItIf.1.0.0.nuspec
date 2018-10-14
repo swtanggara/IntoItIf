@@ -37,8 +37,4 @@
       <frameworkAssembly assemblyName="System.ComponentModel.Primitives" targetFramework=".NETFramework4.7.1" />
     </frameworkAssemblies>
   </metadata>
-  <files>
-    <file src="C:\projects\own\github\IntoItIf\IntoItIf.Dsl\bin\Release\net471\IntoItIf.Dsl.dll" target="lib\net471\IntoItIf.Dsl.dll" />
-    <file src="C:\projects\own\github\IntoItIf\IntoItIf.Dsl\bin\Release\netstandard2.0\IntoItIf.Dsl.dll" target="lib\netstandard2.0\IntoItIf.Dsl.dll" />
-  </files>
 </package>
