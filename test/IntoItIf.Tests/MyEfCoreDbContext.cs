@@ -1,5 +1,4 @@
-﻿#if NETSTANDARD2_0
-namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
    using Dal.DbContexts;
    using Microsoft.EntityFrameworkCore;
@@ -19,4 +18,3 @@ namespace IntoItIf.Dsl.Mediator.Helpers
       #endregion
    }
 }
-#endif

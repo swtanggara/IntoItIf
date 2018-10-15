@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+     <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+     <LangVersion>7.3</LangVersion>
+     <PackageLicenseUrl>https://github.com/swtanggara/IntoItIf/blob/master/LICENSE</PackageLicenseUrl>
+     <PackageProjectUrl>https://github.com/swtanggara/IntoItIf</PackageProjectUrl>
+     <RepositoryUrl>https://github.com/swtanggara/IntoItIf</RepositoryUrl>
+     <Description>IMapperService extensions for BatMap (https://github.com/DogusTeknoloji/BatMap)</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BatMap" Version="1.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IntoItIf.Dsl\IntoItIf.Dsl.csproj" />
+  </ItemGroup>
+
+</Project>

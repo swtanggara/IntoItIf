@@ -1,10 +1,10 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
    using System;
    using System.Threading.Tasks;
    using Core.Domain.Options;
-   using Entities.Args;
-   using Entities.Interceptors;
+   using Dsl.Entities.Args;
+   using Dsl.Entities.Interceptors;
 
    public class MyDeleteInterceptor : IDeleteInterceptor
    {

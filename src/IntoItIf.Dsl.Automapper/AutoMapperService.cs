@@ -1,11 +1,14 @@
-﻿namespace IntoItIf.Dsl.Mappers
+﻿// ReSharper disable SuspiciousTypeConversion.Global
+
+namespace IntoItIf.Dsl.Automapper
 {
-   using BatMap;
+   using AutoMapper;
+   using AutoMapper.Configuration;
    using Core.Domain;
    using Core.Domain.Entities;
    using Core.Domain.Options;
 
-   public class BatMapMapperService : IMapperService
+   public class AutoMapperService : IMapperService
    {
       #region Public Methods and Operators
 
@@ -16,15 +19,17 @@
             .Map(
                x =>
                {
+                  var config = new MapperConfigurationExpression();
                   foreach (var y in x)
                   {
                      var binds = y.GetBinds();
                      foreach (var bind in binds)
                      {
-                        bind.Execute(z => Mapper.RegisterMap(z.Source, z.Destination));
+                        bind.Execute(z => config.CreateMap(z.Source, z.Destination));
                      }
                   }
 
+                  Mapper.Initialize(config);
                   return true;
                });
       }

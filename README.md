@@ -1,4 +1,5 @@
 
+
 IntoItIf
 ===============
 [![GitHub](https://img.shields.io/github/license/swtanggara/IntoItIf.svg)](https://github.com/swtanggara/IntoItIf/blob/master/LICENSE)
@@ -9,9 +10,12 @@ It's kinda Unit of Work, Repository things, done intuitively in EF **AND** EF Co
 
 | Project | NuGet | Frameworks | Dependencies | NuGet Downloads |
 | ------- | ----- | ---------- | ------------ | --------------- |
-| IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Dal</li><li>IntoItIf.Core</li></ul> | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) |
-| IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Core</li></ul> | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) |
+| IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) | net471 and up, netstandard20 and up | IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) |
+| IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) | net471 and up, netstandard20 and up | IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) |
 | IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) | net471 and up, netstandard20 and up | None | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) |
+| IntoItIf.Dsl.AutoMapper | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.AutoMapper.svg)](https://www.nuget.org/packages/IntoItIf.Dsl.AutoMapper/) | net471 and up, netstandard20 and up | IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) |
+| IntoItIf.Dsl.BatMap | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.BatMap.svg)](https://www.nuget.org/packages/IntoItIf.Dsl.BatMap/) | net471 and up, netstandard20 and up | IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.BatMap.svg)](https://www.nuget.org/packages/IntoItIf.BatMap/) |
+| IntoItIf.Dsl.Mapster | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.Mapster.svg)](https://www.nuget.org/packages/IntoItIf.Dsl.Mapster/) | net471 and up, netstandard20 and up | IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Mapster.svg)](https://www.nuget.org/packages/IntoItIf.Mapster/) |
 
 ### Setting it Up
 You must setting up your `DbContext` class first, either by inheriting `EfCoreDbContext` (EF Core) or `EfDbContext` (EF):
@@ -94,7 +98,7 @@ public class MyMapperProfile : IMapperProfile
 And, lastly, at your *startup* class, inject the `IMapperService` like so:
 
 ```c#
-var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, MapsterMapperService, or TinyMapperService.
+var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, or MapsterMapperService
 mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
 DslInjecterGetter.SetBaseMapperService(mapperSvc);
 DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork()); // Or use EfUnitOfWork, if you are using EF6 or above.

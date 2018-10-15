@@ -1,17 +1,21 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+using System;
+using Xunit;
+
+namespace IntoItIf.Tests
 {
    using System.Threading;
    using Core.Domain;
    using Core.Domain.Options;
    using Dal.UnitOfWorks;
-   using Entities.Services;
-   using Mappers;
+   using Dsl;
+   using Dsl.Automapper;
+   using Dsl.Entities.Services;
+   using Dsl.Mediator.Helpers;
 
-   internal static class RequestHandlerHelper
+   public class UnitTest1
    {
-      #region Methods
-
-      private static void Client()
+      [Fact]
+      public void Test1()
       {
          Option<CancellationToken> ctok = CancellationToken.None;
          var dto = new MyDto();
@@ -48,9 +52,7 @@
          var mapperService = new AutoMapperService();
          mapperService.Initialize<IMapperProfile>(new MyMapperProfile());
          DslInjecterGetter.SetBaseMapperService(mapperService);
-         //DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyDbContext()));
+         DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyEfCoreDbContext()));
       }
-
-      #endregion
    }
 }

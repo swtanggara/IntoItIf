@@ -1,6 +1,5 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
-   using System.Collections.Generic;
    using Core.Domain.Entities;
 
    public class MyDto : BaseDto<MyDto, MyDtoFluentValidator>

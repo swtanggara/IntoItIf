@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
+   using System;
    using Core.Domain;
    using Core.Domain.Options;
 

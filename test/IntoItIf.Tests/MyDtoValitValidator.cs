@@ -1,6 +1,6 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
-   using Validators;
+   using Dsl.Validators;
    using Valit;
 
    public class MyDtoValitValidator : BaseValitValidator<MyDto>

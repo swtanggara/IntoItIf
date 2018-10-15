@@ -62,3 +62,6 @@ $revision = "{0:D4}" -f [convert]::ToInt32($revision, 10)
 exec { & dotnet pack .\src\IntoItIf.Core -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
 exec { & dotnet pack .\src\IntoItIf.Dal -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
 exec { & dotnet pack .\src\IntoItIf.Dsl -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
+exec { & dotnet pack .\src\IntoItIf.Dsl.AutoMapper -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
+exec { & dotnet pack .\src\IntoItIf.Dsl.BatMap -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
+exec { & dotnet pack .\src\IntoItIf.Dsl.Mapster -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }

@@ -6,17 +6,16 @@
       <PackageLicenseUrl>https://github.com/swtanggara/IntoItIf/blob/master/LICENSE</PackageLicenseUrl>
       <PackageProjectUrl>https://github.com/swtanggara/IntoItIf</PackageProjectUrl>
       <RepositoryUrl>https://github.com/swtanggara/IntoItIf</RepositoryUrl>
-      <Description>The interface of IntoItIf library, decorated by interceptors logic</Description>
+      <Description>IMapperService extensions for Mapster (https://github.com/MapsterMapper/Mapster)</Description>
    </PropertyGroup>
 
    <ItemGroup>
-      <ProjectReference Include="..\IntoItIf.Dal\IntoItIf.Dal.csproj" />
+     <ProjectReference Include="..\IntoItIf.Dsl\IntoItIf.Dsl.csproj" />
    </ItemGroup>
 
    <ItemGroup>
-      <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.13.0" />
-      <PackageReference Include="FluentValidation" Version="8.0.100" />
-      <PackageReference Include="Valit" Version="2.0.0" />
+      <PackageReference Include="FastExpressionCompiler" Version="1.10.1" />
+      <PackageReference Include="Mapster" Version="3.2.0" />
    </ItemGroup>
 
 </Project>

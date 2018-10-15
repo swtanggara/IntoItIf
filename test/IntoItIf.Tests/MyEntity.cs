@@ -1,4 +1,4 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
    using Core.Domain;
    using Core.Domain.Entities;

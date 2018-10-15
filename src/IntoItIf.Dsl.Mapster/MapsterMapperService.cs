@@ -1,14 +1,12 @@
-﻿// ReSharper disable SuspiciousTypeConversion.Global
-
-namespace IntoItIf.Dsl.Mappers
+﻿namespace IntoItIf.Dsl.Mapster
 {
-   using AutoMapper;
-   using AutoMapper.Configuration;
    using Core.Domain;
    using Core.Domain.Entities;
    using Core.Domain.Options;
+   using FastExpressionCompiler;
+   using global::Mapster;
 
-   public class AutoMapperService : IMapperService
+   public class MapsterMapperService : IMapperService
    {
       #region Public Methods and Operators
 
@@ -19,17 +17,16 @@ namespace IntoItIf.Dsl.Mappers
             .Map(
                x =>
                {
-                  var config = new MapperConfigurationExpression();
                   foreach (var y in x)
                   {
                      var binds = y.GetBinds();
                      foreach (var bind in binds)
                      {
-                        bind.Execute(z => config.CreateMap(z.Source, z.Destination));
+                        bind.Execute(z => TypeAdapterConfig.GlobalSettings.ForType(z.Source, z.Destination));
                      }
                   }
 
-                  Mapper.Initialize(config);
+                  TypeAdapterConfig.GlobalSettings.Compiler = y => y.CompileFast();
                   return true;
                });
       }
@@ -37,13 +34,13 @@ namespace IntoItIf.Dsl.Mappers
       public Option<TDto> ToDto<T, TDto>(Option<T> entity)
          where T : class, IEntity where TDto : class, IDto
       {
-         return Mapper.Map<T, TDto>(entity.ReduceOrDefault());
+         return entity.ReduceOrDefault().Adapt<T, TDto>();
       }
 
       public Option<T> ToEntity<TDto, T>(Option<TDto> dto)
          where TDto : class, IDto where T : class, IEntity
       {
-         return Mapper.Map<TDto, T>(dto.ReduceOrDefault());
+         return dto.ReduceOrDefault().Adapt<TDto, T>();
       }
 
       #endregion

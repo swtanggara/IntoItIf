@@ -1,8 +1,8 @@
-﻿namespace IntoItIf.Dsl.Mediator.Helpers
+﻿namespace IntoItIf.Tests
 {
    using System;
-   using Entities.Args;
-   using Entities.Interceptors;
+   using Dsl.Entities.Args;
+   using Dsl.Entities.Interceptors;
 
    public class MyCrudInterceptor : ICrudInterceptor
    {
