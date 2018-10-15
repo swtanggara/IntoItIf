@@ -88,12 +88,12 @@ It's quite daunting to setting it up huh? But wait, this is how you can utilize 
     Option<CancellationToken> ctok = CancellationToken.None;
     var dto = new MyDto();
     
-    Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
-    Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
-    ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
-    ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
-    ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
-    Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
+    var createResult = Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
+    var deleteResult = Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
+    var readLookupResult = ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
+    var readOneResult = ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
+    var readPagedResult = ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
+    var updateResult = Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
 
 Yes, of course, you will ask what `MyCreateInterceptor`, `MyDeleteInterceptor`, `MyReadLookupInterceptor`, 
 `MyReadOneInterceptor`, `MyReadOneInterceptor`, `MyReadPagedInterceptor`, and `MyUpdateInterceptor` are all about. It's your task to find it what they are....
