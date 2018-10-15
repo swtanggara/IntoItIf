@@ -19,6 +19,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntoItIf.Dal", "src\IntoItI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntoItIf.Dsl", "src\IntoItIf.Dsl\IntoItIf.Dsl.csproj", "{235F8B59-62B4-422E-BAAC-D4A3BA99A208}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{A61D32D7-4CE2-4570-864B-1344418A4860}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
+		Build.ps1 = Build.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
