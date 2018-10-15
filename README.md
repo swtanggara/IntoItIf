@@ -1,3 +1,4 @@
+
 IntoItIf
 ===============
 [![GitHub](https://img.shields.io/github/license/swtanggara/IntoItIf.svg)](https://github.com/swtanggara/IntoItIf/blob/master/LICENSE)
@@ -8,7 +9,7 @@ IntoItIf
 
 It's kinda Unit of Work, Repository things, done intuitively in EF **AND** EF Core.
 
-### How do I get started?
+### Setting it Up
 You must setting up your `DbContext` class first, either by inheriting `EfCoreDbContext` (EF Core) or `EfDbContext` (EF):
 
     public class MyDbContext : EfCoreDbContext // Inherit from EfDbContext if you are using EF6 or above
@@ -59,3 +60,40 @@ don't forget to define you `MyDto` validator class, by inheriting `BaseFluentVal
        
        protected override IValitator<MyDto> Valitator { get; }
     }
+
+next, create you `IMapperProfile` derived class to maps `MyEntity` to `MyDto` and vice-versa:
+
+    public class MyMapperProfile : IMapperProfile
+    {
+       public Option<(Type Source, Type Destination)>[] GetBinds()
+       {
+          return new Option<(Type Source, Type Destination)>[]
+          {
+             (typeof(MyEntity), typeof(MyDto)),
+             (typeof(MyDto), typeof(MyEntity)),
+          };
+       }
+    }
+
+And, lastly, at your *startup* class, inject the required services like so:
+
+    var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, MapsterMapperService, or TinyMapperService.
+    mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
+    DslInjecterGetter.SetBaseMapperService(mapperSvc);
+    DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyDbContext())); // Or use EfUnitOfWork, if you are using EF6 or above.
+
+### Usage
+It's quite daunting to setting it up huh? But wait, this is how you can utilize my charming library:
+
+    Option<CancellationToken> ctok = CancellationToken.None;
+    var dto = new MyDto();
+    
+    Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
+    Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
+    ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
+    ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
+    ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
+    Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
+
+Yes, of course, you will ask what `MyCreateInterceptor`, `MyDeleteInterceptor`, `MyReadLookupInterceptor`, 
+`MyReadOneInterceptor`, `MyReadOneInterceptor`, `MyReadPagedInterceptor`, and `MyUpdateInterceptor` are all about. It's your task to find it what they are....

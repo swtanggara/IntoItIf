@@ -11,7 +11,7 @@
    {
       #region Properties
 
-      protected abstract ValitRules<T> ValitRules { get; }
+      protected abstract IValitator<T> Valitator { get; }
 
       #endregion
 
@@ -22,7 +22,7 @@
          return toValidate.Map(
             x =>
             {
-               var result = ValitRules<T>.Create(ValitRules).For(x).Validate();
+               var result = Valitator.Validate(toValidate.ReduceOrDefault());
                return new ValidationResult(result.Succeeded, result.ErrorMessages.ToArray());
             });
       }

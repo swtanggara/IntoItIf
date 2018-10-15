@@ -4,7 +4,7 @@
    using Core.Domain.Options;
    using Dal.UnitOfWorks;
 
-   public class DslInjecterGetter : BaseInjecterGetter
+   public class DslInjecterGetter : InjecterGetter
    {
       #region Static Fields
 
@@ -19,7 +19,7 @@
          return _unitOfWork;
       }
 
-      internal static Option<bool> SetBaseUnitOfWork(Option<BaseUnitOfWork> uow)
+      public static Option<bool> SetBaseUnitOfWork(Option<BaseUnitOfWork> uow)
       {
          var realClassUnitOfWork = _unitOfWork.ReduceOrDefault();
          var realUnitOfWork = uow.ReduceOrDefault();

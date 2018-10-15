@@ -7,8 +7,6 @@ namespace IntoItIf.Core.Domain
    {
       #region Public Methods and Operators
 
-      void AddBind(Option<(Type Source, Type Destination)> bind);
-
       Option<(Type Source, Type Destination)>[] GetBinds();
 
       #endregion

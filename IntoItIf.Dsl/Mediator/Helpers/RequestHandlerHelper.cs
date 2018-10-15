@@ -1,8 +1,11 @@
 ﻿namespace IntoItIf.Dsl.Mediator.Helpers
 {
    using System.Threading;
+   using Core.Domain;
    using Core.Domain.Options;
+   using Dal.UnitOfWorks;
    using Entities.Services;
+   using Mappers;
 
    internal static class RequestHandlerHelper
    {
@@ -41,6 +44,11 @@
          Crud<MyEntity, MyDto, MyCrudInterceptor>.HandleReadOne(dto, ctok);
          Crud<MyEntity, MyDto, MyCrudInterceptor>.HandleReadPaged(1, 1, null, "Bla", ctok);
          Crud<MyEntity, MyDto, MyCrudInterceptor>.HandleUpdate(dto, ctok);
+
+         var mapperService = new AutoMapperService();
+         mapperService.Initialize<IMapperProfile>(new MyMapperProfile());
+         DslInjecterGetter.SetBaseMapperService(mapperService);
+         DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyDbContext()));
       }
 
       #endregion

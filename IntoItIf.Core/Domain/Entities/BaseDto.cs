@@ -32,7 +32,7 @@ namespace IntoItIf.Core.Domain.Entities
       #region Constructors and Destructors
 
       protected BaseDto(Option<IDataValidator<TDto>> validator) : this(
-         BaseInjecterGetter.GetBaseMapperService(),
+         InjecterGetter.GetBaseMapperService(),
          validator)
       {
       }

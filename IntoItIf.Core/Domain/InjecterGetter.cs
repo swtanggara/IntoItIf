@@ -2,7 +2,7 @@ namespace IntoItIf.Core.Domain
 {
    using Options;
 
-   public abstract class BaseInjecterGetter
+   public abstract class InjecterGetter
    {
       #region Static Fields
 
@@ -17,7 +17,7 @@ namespace IntoItIf.Core.Domain
          return _mapperService;
       }
 
-      internal static Option<bool> SetBaseMapperService(Option<IMapperService> mapperService)
+      public static Option<bool> SetBaseMapperService(Option<IMapperService> mapperService)
       {
          var realClassMapperService = _mapperService.ReduceOrDefault();
          var realMapperService = mapperService.ReduceOrDefault();
