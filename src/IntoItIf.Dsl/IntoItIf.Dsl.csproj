@@ -3,17 +3,7 @@
   <PropertyGroup>
      <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
      <LangVersion>7.3</LangVersion>
-     <Product>IntoItIf</Product>
-     <Description>It's kinda Unit of Work, Repository things, done intuitively in EF AND EF Core.</Description>
-     <PackageId>IntoItIf</PackageId>
-     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-     <Version>1.0.21</Version>
-     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-     <Company>Anggara Suwartana</Company>
-     <Authors>Anggara Suwartana</Authors>
-     <PackageReleaseNotes>what the heck 2</PackageReleaseNotes>
-     <FileVersion>1.0.21</FileVersion>
-     <AssemblyVersion>1.0.21</AssemblyVersion>
+     <VersionSuffix>$(VersionSuffix)</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
