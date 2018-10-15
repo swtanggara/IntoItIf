@@ -33,58 +33,68 @@ public class MyEntity : BaseEntity<MyEntity>
 
 next, define your `MyDto` class for mapping from `MyEntity`. This `MyDto` class must inherit from `IDto`, or better from `BaseDto<TDto, TValidator>` class:
 
-    public class MyDto: BaseDto<MyDto, MyDtoFluentValidator>
-    {
-       public int Id { get; set; }
-       public string Name { get; set; }
-    }
+```c#
+public class MyDto: BaseDto<MyDto, MyDtoFluentValidator>
+{
+   public int Id { get; set; }
+   public string Name { get; set; }
+}
+```
 
 don't forget to define you `MyDto` validator class, by inheriting `BaseFluentValidator<T>` (using [`FluentValidator`](https://github.com/JeremySkinner/FluentValidation)) or `BaseValitValidator<T>` (using [`Valit`](https://github.com/valit-stack/Valit)):
 
-    public class MyDtoFluentValidator: BaseFluentValidator<MyDto>
-    {
-       public MyDtoFluentValidator()
-       {
-          RulesFor(x => x.Id).NotEmpty();
-          RulesFor(x => x.Name).NotEmpty();
-       }
-    }
+```c#
+public class MyDtoFluentValidator: BaseFluentValidator<MyDto>
+{
+   public MyDtoFluentValidator()
+   {
+      RulesFor(x => x.Id).NotEmpty();
+      RulesFor(x => x.Name).NotEmpty();
+   }
+}
+```
 
 (`BaseValitValidator<T>` version):
 
-    public class MyDtoValitValidator : BaseValitValidator<MyDto>
-    {
-       public MyDtoValitValitator()
-       {
-          Valitator = ValitRules<MyDto>.Create()
-            .Ensure(x => x.Id, x => x.IsNonZero())
-            .Ensure(x => x.Name, x => x.Required())
-            .CreateValitator();
-       }
-       
-       protected override IValitator<MyDto> Valitator { get; }
-    }
+```c#
+public class MyDtoValitValidator : BaseValitValidator<MyDto>
+{
+   public MyDtoValitValitator()
+   {
+      Valitator = ValitRules<MyDto>.Create()
+        .Ensure(x => x.Id, x => x.IsNonZero())
+        .Ensure(x => x.Name, x => x.Required())
+        .CreateValitator();
+   }
+   
+   protected override IValitator<MyDto> Valitator { get; }
+}
+```
 
 next, create you `IMapperProfile` derived class to maps `MyEntity` to `MyDto` and vice-versa:
 
-    public class MyMapperProfile : IMapperProfile
-    {
-       public Option<(Type Source, Type Destination)>[] GetBinds()
-       {
-          return new Option<(Type Source, Type Destination)>[]
-          {
-             (typeof(MyEntity), typeof(MyDto)),
-             (typeof(MyDto), typeof(MyEntity)),
-          };
-       }
-    }
+```c#
+public class MyMapperProfile : IMapperProfile
+{
+   public Option<(Type Source, Type Destination)>[] GetBinds()
+   {
+      return new Option<(Type Source, Type Destination)>[]
+      {
+         (typeof(MyEntity), typeof(MyDto)),
+         (typeof(MyDto), typeof(MyEntity)),
+      };
+   }
+}
+```
 
 And, lastly, at your *startup* class, inject the `IMapperService` like so:
 
-    var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, MapsterMapperService, or TinyMapperService.
-    mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
-    DslInjecterGetter.SetBaseMapperService(mapperSvc);
-    DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork()); // Or use EfUnitOfWork, if you are using EF6 or above.
+```c#
+var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, MapsterMapperService, or TinyMapperService.
+mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
+DslInjecterGetter.SetBaseMapperService(mapperSvc);
+DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork()); // Or use EfUnitOfWork, if you are using EF6 or above.
+```
 
 ### Usage
 It's quite daunting to setting it up huh? But wait, this is how you can utilize my charming library:
