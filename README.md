@@ -7,11 +7,14 @@ IntoItIf
 
 It's kinda Unit of Work, Repository things, done intuitively in EF **AND** EF Core.
 
-| Project | NuGet | Frameworks | Dependencies |
-| ------- | ----- | ---------- | ------------ | 
+| Project | NuGet | Frameworks | Dependencies | NuGet Downloads |
+| ------- | ----- | ---------- | ------------ | --------------- |
 | IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Dal</li><li>IntoItIf.Core</li></ul> | 
+[![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) |
 | IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Core</li></ul> | 
+[![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) |
 | IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) | net471 and up, netstandard20 and up | None | 
+[![NuGet](https://img.shields.io/nuget/dt/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) |
 
 ### Setting it Up
 You must setting up your `DbContext` class first, either by inheriting `EfCoreDbContext` (EF Core) or `EfDbContext` (EF):
