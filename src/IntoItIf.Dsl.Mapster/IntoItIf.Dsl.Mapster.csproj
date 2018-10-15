@@ -6,7 +6,7 @@
       <PackageLicenseUrl>https://github.com/swtanggara/IntoItIf/blob/master/LICENSE</PackageLicenseUrl>
       <PackageProjectUrl>https://github.com/swtanggara/IntoItIf</PackageProjectUrl>
       <RepositoryUrl>https://github.com/swtanggara/IntoItIf</RepositoryUrl>
-      <Description>IMapperService extensions for Mapster (https://github.com/MapsterMapper/Mapster)</Description>
+      <Description>IMapperService extensions for Mapster</Description>
    </PropertyGroup>
 
    <ItemGroup>
