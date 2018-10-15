@@ -2,12 +2,16 @@
 IntoItIf
 ===============
 [![GitHub](https://img.shields.io/github/license/swtanggara/IntoItIf.svg)](https://github.com/swtanggara/IntoItIf/blob/master/LICENSE)
-[![AppVeyor](https://img.shields.io/appveyor/ci/swtanggara/IntoItIf.svg)](https://ci.appveyor.com/project/swtanggara/intoitif)
-[![NuGet](https://img.shields.io/nuget/v/IntoItIf.svg)](https://www.nuget.org/packages/IntoItIf/)
 [![Github All Releases](https://img.shields.io/github/downloads/swtanggara/IntoItIf/total.svg)](https://github.com/swtanggara/IntoItIf/releases)
 [![Github Releases](https://img.shields.io/github/downloads/swtanggara/IntoItIf/latest/total.svg)](https://github.com/swtanggara/IntoItIf/releases/latest)
 
 It's kinda Unit of Work, Repository things, done intuitively in EF **AND** EF Core.
+
+| Project | NuGet | Frameworks |
+| ------- | ----- | ---------- | 
+| IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) | <ul><li>net471 and up, netstandard20 and up</li></ul> |
+| IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) | <ul><li>net471 and up, netstandard20 and up</li></ul> |
+| IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) | <ul><li>net471 and up, netstandard20 and up</li></ul> |
 
 ### Setting it Up
 You must setting up your `DbContext` class first, either by inheriting `EfCoreDbContext` (EF Core) or `EfDbContext` (EF):
