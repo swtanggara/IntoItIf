@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-     <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
-     <LangVersion>7.3</LangVersion>
-  </PropertyGroup>
+   <PropertyGroup>
+      <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+      <LangVersion>7.3</LangVersion>
+   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\IntoItIf.Core\IntoItIf.Core.csproj" />
-    <ProjectReference Include="..\IntoItIf.Dal\IntoItIf.Dal.csproj" />
-  </ItemGroup>
+   <ItemGroup>
+      <ProjectReference Include="..\IntoItIf.Core\IntoItIf.Core.csproj" />
+      <ProjectReference Include="..\IntoItIf.Dal\IntoItIf.Dal.csproj" />
+   </ItemGroup>
 
    <ItemGroup>
       <PackageReference Include="AgileObjects.ReadableExpressions" Version="1.13.0" />
