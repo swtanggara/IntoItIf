@@ -2,6 +2,7 @@ IntoItIf
 ===============
 [![GitHub](https://img.shields.io/github/license/swtanggara/IntoItIf.svg)](https://github.com/swtanggara/IntoItIf/blob/master/LICENSE)
 [![AppVeyor](https://img.shields.io/appveyor/ci/swtanggara/IntoItIf.svg)](https://ci.appveyor.com/project/swtanggara/intoitif)
+[![NuGet](https://img.shields.io/nuget/v/IntoItIf.svg)](https://www.nuget.org/packages/IntoItIf/)
 [![Github All Releases](https://img.shields.io/github/downloads/swtanggara/IntoItIf/total.svg)](https://github.com/swtanggara/IntoItIf/releases)
 [![Github Releases](https://img.shields.io/github/downloads/swtanggara/IntoItIf/latest/total.svg)](https://github.com/swtanggara/IntoItIf/releases/latest)
 
