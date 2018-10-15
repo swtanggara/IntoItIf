@@ -11,7 +11,7 @@ It's kinda Unit of Work, Repository things, done intuitively in EF **AND** EF Co
 | ------- | ----- | ---------- | ------------ | 
 | IntoItIf.Dsl | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dsl.svg)](https://www.nuget.org/packages/IntoItIf.Dsl/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Dal</li><li>IntoItIf.Core</li></ul> | 
 | IntoItIf.Dal | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Dal.svg)](https://www.nuget.org/packages/IntoItIf.Dal/) | net471 and up, netstandard20 and up | <ul><li>IntoItIf.Core</li></ul> | 
-| IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) | net471 and up, netstandard20 and up | <ul><li>None</li></ul> | 
+| IntoItIf.Core | [![NuGet](https://img.shields.io/nuget/v/IntoItIf.Core.svg)](https://www.nuget.org/packages/IntoItIf.Core/) | net471 and up, netstandard20 and up | None | 
 
 ### Setting it Up
 You must setting up your `DbContext` class first, either by inheriting `EfCoreDbContext` (EF Core) or `EfDbContext` (EF):
