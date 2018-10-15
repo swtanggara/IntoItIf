@@ -7,13 +7,13 @@
      <Description>It's kinda Unit of Work, Repository things, done intuitively in EF AND EF Core.</Description>
      <PackageId>IntoItIf</PackageId>
      <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-     <Version>1.0.19</Version>
+     <Version>1.0.20</Version>
      <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
      <Company>Anggara Suwartana</Company>
      <Authors>Anggara Suwartana</Authors>
      <PackageReleaseNotes>Refactoring</PackageReleaseNotes>
-     <FileVersion>1.0.19</FileVersion>
-     <AssemblyVersion>1.0.19</AssemblyVersion>
+     <FileVersion>1.0.20</FileVersion>
+     <AssemblyVersion>1.0.20</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
