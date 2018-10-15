@@ -48,7 +48,7 @@
          var mapperService = new AutoMapperService();
          mapperService.Initialize<IMapperProfile>(new MyMapperProfile());
          DslInjecterGetter.SetBaseMapperService(mapperService);
-         DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyDbContext()));
+         //DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork(new MyDbContext()));
       }
 
       #endregion
