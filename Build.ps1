@@ -59,4 +59,6 @@ Invoke-MSBuild
 $revision = @{ $true = $env:APPVEYOR_BUILD_NUMBER; $false = 1 }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
 $revision = "{0:D4}" -f [convert]::ToInt32($revision, 10)
 
+exec { & dotnet pack .\src\IntoItIf.Core -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
+exec { & dotnet pack .\src\IntoItIf.Dal -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
 exec { & dotnet pack .\src\IntoItIf.Dsl -c Release -o ..\..\artifacts -p:PackageVersion=1.0.$revision }
