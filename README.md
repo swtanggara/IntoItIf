@@ -55,8 +55,8 @@ public class MyDtoFluentValidator: BaseFluentValidator<MyDto>
 {
    public MyDtoFluentValidator()
    {
-      RulesFor(x => x.Id).NotEmpty();
-      RulesFor(x => x.Name).NotEmpty();
+      RuleFor(x => x.Id).NotEmpty();
+      RuleFor(x => x.Name).NotEmpty();
    }
 }
 ```
@@ -101,8 +101,8 @@ And, lastly, at your *startup* class, inject the `IMapperService` like so:
 var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, or MapsterMapperService
 mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
 DslInjecterGetter.SetBaseMapperService(mapperSvc);
-var uow = new EfCoreUnitOfWork(new MyDbContext());
-DslInjecterGetter.SetBaseUnitOfWork(uow); // Or use EfUnitOfWork, if you are using EF6 or above.
+var uow = new EfCoreUnitOfWork(new MyDbContext()); // Or use EfUnitOfWork, if you are using EF6 or above.
+DslInjecterGetter.SetBaseUnitOfWork(uow);
 ```
 
 ### Usage
