@@ -17,9 +17,9 @@ namespace IntoItIf.Core.Domain
          Option<int> totalItemsCount)
       {
          var realSource = source.ReduceOrDefault() ?? throw new ArgumentNullException(nameof(source));
-         PageIndex = pageIndex.ReduceOrDefault();
-         PageSize = pageSize.ReduceOrDefault();
-         IndexFrom = indexFrom.ReduceOrDefault();
+         PageIndex = pageIndex.Reduce(PageQuery.DefaultIndexFrom.Id);
+         PageSize = pageSize.Reduce(PageQuery.DefaultPageSize);
+         IndexFrom = indexFrom.Reduce(PageQuery.DefaultIndexFrom);
          if (IndexFrom.Id > PageIndex)
          {
             throw new ArgumentException(

@@ -13,7 +13,7 @@
 
       public Task<Option<ValidationResult>> ValidateAsync(Option<T> toValidate)
       {
-         return Task.FromResult(new ValidationResult(true, null).ToOption());
+         return Validate(toValidate).GetOptionTask();
       }
    }
 }

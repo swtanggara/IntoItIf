@@ -3,7 +3,7 @@ namespace IntoItIf.Core.Domain
    using System.Collections.Generic;
    using System.Linq;
 
-   public abstract class ValueObject<T> : IInjectable
+   public abstract class ValueObject<T>
       where T : ValueObject<T>
    {
       #region Public Methods and Operators
