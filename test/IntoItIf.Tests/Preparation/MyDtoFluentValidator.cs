@@ -1,4 +1,4 @@
-﻿namespace IntoItIf.Tests
+﻿namespace IntoItIf.Tests.Preparation
 {
    using Dsl.Validators;
    using FluentValidation;

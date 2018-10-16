@@ -40,6 +40,11 @@ namespace IntoItIf.Core.Domain
             .Aggregate(1, (current, obj) => current * 23 + (obj?.GetHashCode() ?? 0));
       }
 
+      public override string ToString()
+      {
+         return $"({string.Join(", ", GetEqualityComponents())})";
+      }
+
       #endregion
 
       #region Methods

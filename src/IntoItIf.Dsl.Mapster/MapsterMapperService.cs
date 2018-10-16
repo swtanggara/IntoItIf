@@ -22,7 +22,8 @@
                      var binds = y.GetBinds();
                      foreach (var bind in binds)
                      {
-                        bind.Execute(z => TypeAdapterConfig.GlobalSettings.ForType(z.Source, z.Destination));
+                        bind.Execute(
+                           z => TypeAdapterConfig.GlobalSettings.NewConfig(z.Source, z.Destination));
                      }
                   }
 

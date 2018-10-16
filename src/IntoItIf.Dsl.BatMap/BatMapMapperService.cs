@@ -1,5 +1,6 @@
 ﻿namespace IntoItIf.Dsl.BatMap
 {
+   using System;
    using Core.Domain;
    using Core.Domain.Entities;
    using Core.Domain.Options;
@@ -38,7 +39,15 @@
       public Option<T> ToEntity<TDto, T>(Option<TDto> dto)
          where TDto : class, IDto where T : class, IEntity
       {
-         return Mapper.Map<TDto, T>(dto.ReduceOrDefault());
+         try
+         {
+            var result = Mapper.Map<TDto, T>(dto.ReduceOrDefault());
+            return result;
+         }
+         catch (Exception ex)
+         {
+            return Fail<T>.Throw(ex);
+         }
       }
 
       #endregion

@@ -26,10 +26,14 @@ namespace IntoItIf.Core.Domain.Entities
       #endregion
    }
 
-   public abstract class BaseEntity<TEntity> : IEntity
+   public abstract class BaseEntity<TEntity> : ValueObject<TEntity>, IEntity
       where TEntity : BaseEntity<TEntity>
    {
       #region Constructors and Destructors
+
+      protected BaseEntity() : this(new EmptyDataValidator<TEntity>())
+      {
+      }
 
       protected BaseEntity(Option<IDataValidator<TEntity>> validator) : this(
          InjecterGetter.GetBaseMapperService(),

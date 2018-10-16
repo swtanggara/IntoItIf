@@ -1,4 +1,4 @@
-﻿namespace IntoItIf.Tests
+﻿namespace IntoItIf.Tests.Preparation
 {
    using Dal.DbContexts;
    using Microsoft.EntityFrameworkCore;

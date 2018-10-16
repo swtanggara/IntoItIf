@@ -26,7 +26,7 @@ namespace IntoItIf.Core.Domain.Entities
       #endregion
    }
 
-   public abstract class BaseDto<TDto> : IDto
+   public abstract class BaseDto<TDto> : ValueObject<TDto>, IDto
       where TDto : BaseDto<TDto>
    {
       #region Constructors and Destructors

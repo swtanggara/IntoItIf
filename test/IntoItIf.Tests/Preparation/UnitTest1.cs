@@ -1,7 +1,4 @@
-using System;
-using Xunit;
-
-namespace IntoItIf.Tests
+namespace IntoItIf.Tests.Preparation
 {
    using System.Threading;
    using Core.Domain;
@@ -14,11 +11,10 @@ namespace IntoItIf.Tests
 
    public class UnitTest1
    {
-      [Fact]
       public void Test1()
       {
          Option<CancellationToken> ctok = CancellationToken.None;
-         var dto = new MyDto();
+         var dto = new MyDto(1, "Angga");
 
          new EntityCreateService<MyEntity, MyDto, MyCreateInterceptor>().CreateEntityAsync(dto, ctok);
          new EntityDeleteService<MyEntity, MyDto, MyDeleteInterceptor>().DeleteEntityAsync(dto, ctok);

@@ -1,4 +1,4 @@
-﻿namespace IntoItIf.Tests
+﻿namespace IntoItIf.Tests.Preparation
 {
    using System;
    using Dsl.Entities.Args;

@@ -1,14 +1,14 @@
-﻿namespace IntoItIf.Tests
+﻿namespace IntoItIf.Tests.Preparation
 {
    using System;
    using Dsl.Entities.Args;
    using Dsl.Entities.Interceptors;
 
-   public class MyUpdateInterceptor : IUpdateInterceptor
+   public class MyReadLookupInterceptor : IReadLookupInterceptor
    {
       #region Public Methods and Operators
 
-      public SaveInterceptorArgs<T, TDto> OpenForUpdate<T, TDto>()
+      public ReadLookupInterceptorArgs<T> OpenForReadLookup<T>()
       {
          throw new NotImplementedException();
       }
