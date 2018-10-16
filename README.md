@@ -1,5 +1,3 @@
-
-
 IntoItIf
 ===============
 [![AppVeyor](https://img.shields.io/appveyor/ci/swtanggara/IntoItIf.svg)](https://ci.appveyor.com/project/swtanggara/intoitif)
@@ -104,7 +102,8 @@ And, lastly, at your *startup* class, inject the `IMapperService` like so:
 var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, or MapsterMapperService
 mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
 DslInjecterGetter.SetBaseMapperService(mapperSvc);
-DslInjecterGetter.SetBaseUnitOfWork(new EfCoreUnitOfWork()); // Or use EfUnitOfWork, if you are using EF6 or above.
+var uow = new EfCoreUnitOfWork();
+DslInjecterGetter.SetBaseUnitOfWork(uow); // Or use EfUnitOfWork, if you are using EF6 or above.
 ```
 
 ### Usage
@@ -120,6 +119,28 @@ var readLookupResult = ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Hand
 var readOneResult = ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
 var readPagedResult = ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
 var updateResult = Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
+```
+
+And if you need transactional DB processing, you would do it like this:
+
+```c#
+using (var trx = uow.GetDbTransaction<MyDbContext>())
+{
+	try
+	{
+		var createResult = Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
+		var deleteResult = Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
+		var readLookupResult = ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
+		var readOneResult = ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
+		var readPagedResult = ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
+		var updateResult = Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
+		trx.Commit();
+	}
+	catch (Exception ex)
+	{
+		trx.Rollback();
+	}
+}
 ```
 
 Yes, of course, you will ask: what `MyCreateInterceptor`, `MyDeleteInterceptor`, `MyReadLookupInterceptor`, 
