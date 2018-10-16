@@ -126,20 +126,20 @@ And if you need transactional DB processing, you would do it like this:
 ```c#
 using (var trx = uow.GetDbTransaction<MyDbContext>())
 {
-	try
-	{
-		var createResult = Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
-		var deleteResult = Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
-		var readLookupResult = ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
-		var readOneResult = ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
-		var readPagedResult = ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
-		var updateResult = Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
-		trx.Commit();
-	}
-	catch (Exception ex)
-	{
-		trx.Rollback();
-	}
+   try
+   {
+      var createResult = Create<MyEntity, MyDto, MyCreateInterceptor>.Handle(dto, ctok);
+      var deleteResult = Delete<MyEntity, MyDto, MyDeleteInterceptor>.Handle(dto, ctok);
+      var readLookupResult = ReadLookup<MyEntity, MyDto, MyReadLookupInterceptor>.Handle(false, ctok);
+      var readOneResult = ReadOne<MyEntity, MyDto, MyReadOneInterceptor>.Handle(dto, ctok);
+      var readPagedResult = ReadPaged<MyEntity, MyDto, MyReadPagedInterceptor>.Handle(1, 1, null, "Bla", ctok);
+      var updateResult = Update<MyEntity, MyDto, MyUpdateInterceptor>.Handle(dto, ctok);
+      trx.Commit();
+   }
+   catch (Exception ex)
+   {
+      trx.Rollback();
+   }
 }
 ```
 
