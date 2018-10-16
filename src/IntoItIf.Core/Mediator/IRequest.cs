@@ -1,6 +1,7 @@
 ﻿namespace IntoItIf.Core.Mediator
 {
-   public interface IRequest<TResponse> : IBaseRequest
+   // ReSharper disable once UnusedTypeParameter
+   public interface IRequest<TResponse>
    {
    }
 
