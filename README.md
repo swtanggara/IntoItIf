@@ -102,7 +102,7 @@ And, lastly, at your *startup* class, inject the `IMapperService` like so:
 var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, or MapsterMapperService
 mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
 DslInjecterGetter.SetBaseMapperService(mapperSvc);
-var uow = new EfCoreUnitOfWork();
+var uow = new EfCoreUnitOfWork(new MyDbContext());
 DslInjecterGetter.SetBaseUnitOfWork(uow); // Or use EfUnitOfWork, if you are using EF6 or above.
 ```
 
