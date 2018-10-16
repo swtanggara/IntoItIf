@@ -97,8 +97,7 @@ public class MyMapperProfile : IMapperProfile
 And, lastly, at your *startup* class, inject the `IMapperService` like so:
 
 ```c#
-// Beware that BatMap and Mapster don't support mapping with class that not have public parameterless ctor, if you prefer Value-Object-
-// Pattern
+// Use AutoMapper if you want to support Value-Object pattern
 var mapperSvc = new AutoMapperService(); // Choose between AutoMapperService, BatMapMapperService, or MapsterMapperService
 mapperSvc.Initialize<IMapperProfile>(new MyMapperProfile());
 DslInjecterGetter.SetBaseMapperService(mapperSvc);
