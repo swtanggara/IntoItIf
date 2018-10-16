@@ -16,6 +16,10 @@ namespace IntoItIf.Dal.DbContexts
    {
       #region Constructors and Destructors
 
+      protected EfCoreDbContext()
+      {
+      }
+
       protected EfCoreDbContext(DbContextOptions options) : base(options)
       {
       }

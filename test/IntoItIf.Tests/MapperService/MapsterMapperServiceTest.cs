@@ -27,7 +27,7 @@
       #region Public Methods and Operators
 
       [Fact]
-      public void Mapster_DtoSeed_ToEntity_ShouldNotNull_And_ShouldBeSameAs_ExpectedEntity()
+      public void DtoSeed_ToEntity_ShouldNotNull_And_ShouldBeSameAs_ExpectedEntity()
       {
          var entity = MapperTestHelper.DtoSeed.ToEntity<MyEntity>();
          var reduced = entity.ReduceOrDefault();
@@ -38,7 +38,7 @@
       }
 
       [Fact]
-      public void Mapster_DtoSeed_ToEntity_ShouldNotNull_And_ShouldNotSameAs_UnexpectedEntity()
+      public void DtoSeed_ToEntity_ShouldNotNull_And_ShouldNotSameAs_UnexpectedEntity()
       {
          var entity = MapperTestHelper.DtoSeed.ToEntity<MyEntity>();
          var reduced = entity.ReduceOrDefault();
@@ -49,7 +49,7 @@
       }
 
       [Fact]
-      public void Mapster_EntitySeed_ToDto_ShouldNotNull_And_ShouldBeSameAs_ExpectedDto()
+      public void EntitySeed_ToDto_ShouldNotNull_And_ShouldBeSameAs_ExpectedDto()
       {
          var dto = MapperTestHelper.EntitySeed.ToDto<MyDto>();
          var reduced = dto.ReduceOrDefault();
@@ -60,7 +60,7 @@
       }
 
       [Fact]
-      public void Mapster_EntitySeed_ToDto_ShouldNotNull_And_ShouldNotSameAs_UnexpectedDto()
+      public void EntitySeed_ToDto_ShouldNotNull_And_ShouldNotSameAs_UnexpectedDto()
       {
          var dto = MapperTestHelper.EntitySeed.ToDto<MyDto>();
          var reduced = dto.ReduceOrDefault();
