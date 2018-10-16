@@ -1,8 +1,11 @@
+// ReSharper disable SuspiciousTypeConversion.Global
+
 #if NET471
 namespace IntoItIf.Dal.UnitOfWorks
 {
    using System;
    using System.Collections.Generic;
+   using System.Data.Entity;
    using System.Data.Entity.Infrastructure;
    using System.Linq;
    using System.Threading;
@@ -10,6 +13,7 @@ namespace IntoItIf.Dal.UnitOfWorks
    using Core.Domain.Options;
    using DbContexts;
    using Exceptions;
+   using IntoItIf.Dal.UnitOfWorks;
 
    public class EfUnitOfWork : BaseUnitOfWork
    {
@@ -78,6 +82,17 @@ namespace IntoItIf.Dal.UnitOfWorks
                   .Set<T>()
                   .SqlQuery(x.Sql, x.Parameters)
                   .ToListAsync(x.Ctok));
+      }
+
+      public override IUowDbTransaction GetDbTransaction<TContext>()
+      {
+         if (GetDbContext<TContext>() is DbContext dbContext)
+         {
+            var trx = dbContext.Database.BeginTransaction();
+            return new UowDbTransaction(trx);
+         }
+
+         throw new InvalidOperationException("Invalid DbContext when try to get IUowDbTransaction");
       }
 
       public override Option<int> SaveChanges()

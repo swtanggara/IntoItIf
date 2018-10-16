@@ -55,6 +55,9 @@ namespace IntoItIf.Dal.UnitOfWorks
          params Option<object>[] parameters)
          where T : class;
 
+      public abstract IUowDbTransaction GetDbTransaction<TContext>()
+         where TContext : class, IDbContext;
+
       public Option<BaseRepository<T>> GetRepository<T>()
          where T : class, IEntity
       {

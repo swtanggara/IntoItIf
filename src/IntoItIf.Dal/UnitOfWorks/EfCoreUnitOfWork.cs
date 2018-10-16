@@ -1,6 +1,6 @@
-#if NETSTANDARD2_0
-
 // ReSharper disable SuspiciousTypeConversion.Global
+
+#if NETSTANDARD2_0
 namespace IntoItIf.Dal.UnitOfWorks
 {
    using System;
@@ -82,6 +82,17 @@ namespace IntoItIf.Dal.UnitOfWorks
                   .Set<T>()
                   .FromSql(x.Sql, x.Parameters)
                   .ToListAsync(x.Ctok));
+      }
+
+      public override IUowDbTransaction GetDbTransaction<TContext>()
+      {
+         if (GetDbContext<TContext>() is DbContext dbContext)
+         {
+            var trx = dbContext.Database.BeginTransaction();
+            return new UowCoreDbTransaction(trx);
+         }
+
+         throw new InvalidOperationException("Invalid DbContext when try to get IUowDbTransaction");
       }
 
       public override Option<int> SaveChanges()
