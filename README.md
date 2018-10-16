@@ -55,8 +55,8 @@ public class MyDtoFluentValidator: BaseFluentValidator<MyDto>
 {
    public MyDtoFluentValidator()
    {
-      RulesFor(x => x.Id).NotEmpty();
-      RulesFor(x => x.Name).NotEmpty();
+      RuleFor(x => x.Id).NotEmpty();
+      RuleFor(x => x.Name).NotEmpty();
    }
 }
 ```
