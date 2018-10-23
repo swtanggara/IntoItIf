@@ -34,6 +34,12 @@
          throw new System.NotImplementedException();
       }
 
+      public Option<MongoRepository<T>> GetRepository<T>()
+         where T : class
+      {
+         return GetRepository<MongoRepository<T>, T>();
+      }
+
       protected override Option<TRepository> InitRepository<TRepository, T>()
       {
          throw new System.NotImplementedException();

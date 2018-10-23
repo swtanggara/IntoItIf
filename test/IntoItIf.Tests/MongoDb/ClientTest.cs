@@ -2,7 +2,8 @@
 {
    using System;
    using Base.Domain.Options;
-   using MongoDB.Bson;
+   using IntoItIf.MongoDb;
+   using IntoItIf.MongoDb.Service.Mediator.Helpers;
    using MongoDB.Driver;
    using Preparation.Mongo;
    using Shouldly;
@@ -26,15 +27,18 @@
       [Fact]
       public void ShouldConnect()
       {
-         var jadaStevens = new Contact
+         var jadaStevens = new DtoContact
          {
             FirstName = "Jada",
             LastName = "Stevens",
             Age = 30
          };
-         var result = _context.Set<Contact>().Execute(x => x.InsertOne(jadaStevens));
-         var indexBuilder = _context.GetPrimaryKeyProperties<Contact>();
-         result.ReduceOrDefault().ShouldBe(false);
+
+         var uow = new MongoUow(_context);
+      //   uow.Create<DtoContact, DtoContact, ContactCreateInterceptor>().Handle(jadaStevens);
+      //   var result = _context.Set<DtoContact>().Execute(x => x.InsertOne(jadaStevens));
+      //   var indexBuilder = _context.GetPrimaryKeyProperties<DtoContact>();
+      //   result.ReduceOrDefault().ShouldBe(false);
       }
    }
 }
