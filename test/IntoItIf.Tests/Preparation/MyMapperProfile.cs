@@ -1,8 +1,8 @@
 ﻿namespace IntoItIf.Tests.Preparation
 {
    using System;
-   using Core.Domain;
-   using Core.Domain.Options;
+   using Base.Domain.Options;
+   using Base.Mappers;
 
    public class MyMapperProfile : IMapperProfile
    {

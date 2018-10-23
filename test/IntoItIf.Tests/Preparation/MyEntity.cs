@@ -1,9 +1,10 @@
 ﻿namespace IntoItIf.Tests.Preparation
 {
    using System.Collections.Generic;
-   using Core.Domain;
-   using Core.Domain.Entities;
-   using Core.Domain.Options;
+   using Base.Domain.Entities;
+   using Base.Domain.Options;
+   using Base.Mappers;
+   using Base.Validations;
 
    public class MyEntity : BaseEntity<MyEntity>
    {

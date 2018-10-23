@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IntoItIf.Dsl.Automapper\IntoItIf.Dsl.Automapper.csproj" />
-    <ProjectReference Include="..\..\src\IntoItIf.Dsl.BatMap\IntoItIf.Dsl.BatMap.csproj" />
-    <ProjectReference Include="..\..\src\IntoItIf.Dsl.Mapster\IntoItIf.Dsl.Mapster.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.Base.AutoMapper\IntoItIf.Base.AutoMapper.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.Ef\IntoItIf.Ef.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
   </ItemGroup>
 
 </Project>

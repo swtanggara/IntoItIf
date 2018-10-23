@@ -1,6 +1,6 @@
 ﻿namespace IntoItIf.Tests.Preparation
 {
-   using Dsl.Validators;
+   using Base.Validations;
    using FluentValidation;
 
    public class MyDtoFluentValidator : BaseFluentValidator<MyDto>

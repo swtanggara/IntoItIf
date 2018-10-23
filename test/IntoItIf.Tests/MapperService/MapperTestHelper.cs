@@ -1,9 +1,7 @@
 ﻿namespace IntoItIf.Tests.MapperService
 {
-   using Core.Domain;
-   using Dsl.Automapper;
-   using Dsl.BatMap;
-   using Dsl.Mapster;
+   using Base.AutoMapper;
+   using Base.Services;
    using Preparation;
 
    internal class MapperTestHelper
@@ -22,22 +20,5 @@
          mapperSvc.Initialize<MyMapperProfile>(profile);
          InjecterGetter.SetBaseMapperService(mapperSvc);
       }
-
-      internal static void InitMapster()
-      {
-         var mapperSvc = new MapsterMapperService();
-         var profile = new MyMapperProfile();
-         mapperSvc.Initialize<MyMapperProfile>(profile);
-         InjecterGetter.SetBaseMapperService(mapperSvc);
-      }
-
-      internal static void InitBatMap()
-      {
-         var mapperSvc = new BatMapMapperService();
-         var profile = new MyMapperProfile();
-         mapperSvc.Initialize<MyMapperProfile>(profile);
-         InjecterGetter.SetBaseMapperService(mapperSvc);
-      }
-
    }
 }

@@ -1,6 +1,6 @@
 ﻿namespace IntoItIf.Tests.MapperService
 {
-   using Core.Domain.Options;
+   using Base.Domain.Options;
    using Preparation;
    using Shouldly;
    using Xunit;

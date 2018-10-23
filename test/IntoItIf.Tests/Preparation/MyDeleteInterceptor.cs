@@ -2,9 +2,9 @@
 {
    using System;
    using System.Threading.Tasks;
-   using Core.Domain.Options;
-   using Dsl.Entities.Args;
-   using Dsl.Entities.Interceptors;
+   using Base.Domain.Options;
+   using Base.Services.Entities.Args;
+   using Base.Services.Entities.Interceptors;
 
    public class MyDeleteInterceptor : IDeleteInterceptor
    {

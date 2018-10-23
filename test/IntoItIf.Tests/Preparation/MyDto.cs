@@ -1,8 +1,8 @@
 ﻿namespace IntoItIf.Tests.Preparation
 {
    using System.Collections.Generic;
-   using Core.Domain.Entities;
-   using Core.Domain.Options;
+   using Base.Domain.Entities;
+   using Base.Domain.Options;
 
    public class MyDto : BaseDto<MyDto, MyDtoFluentValidator>
    {

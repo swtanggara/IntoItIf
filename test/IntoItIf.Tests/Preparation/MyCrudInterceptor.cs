@@ -1,8 +1,8 @@
 ﻿namespace IntoItIf.Tests.Preparation
 {
    using System;
-   using Dsl.Entities.Args;
-   using Dsl.Entities.Interceptors;
+   using Base.Services.Entities.Args;
+   using Base.Services.Entities.Interceptors;
 
    public class MyCrudInterceptor : ICrudInterceptor
    {

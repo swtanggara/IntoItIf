@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+      <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
+      <LangVersion>7.3</LangVersion>
+      <Description>MongoDB unit-of-work, and repository of IntoItIf library</Description>
+      <PackageProjectUrl>https://github.com/swtanggara/IntoItIf</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/swtanggara/IntoItIf</RepositoryUrl>
+      <PackageLicenseUrl>https://github.com/swtanggara/IntoItIf/blob/master/LICENSE</PackageLicenseUrl>
+   </PropertyGroup>
+
+   <ItemGroup>
+     <PackageReference Include="MongoDB.Driver" Version="2.7.0" />
+   </ItemGroup>
+
+   <ItemGroup>
+      <ProjectReference Include="..\IntoItIf.Base\IntoItIf.Base.csproj" />
+   </ItemGroup>
+
+</Project>
