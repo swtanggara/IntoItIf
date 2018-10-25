@@ -3,6 +3,7 @@
    using System;
    using System.Collections.Generic;
    using MongoDB.Bson;
+   using MongoDB.Bson.Serialization;
    using MongoDB.Driver;
 
    public abstract class StartModelParameter
@@ -37,6 +38,11 @@
             var resultParameter = indexCreation.Invoke(startParameter);
             IndexModelParameters.Add(resultParameter);
          }
+      }
+
+      public void CreateMap(Action<BsonClassMap<T>> map)
+      {
+         BsonClassMap.RegisterClassMap(map);
       }
    }
 

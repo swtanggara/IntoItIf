@@ -11,6 +11,7 @@
    using Base.Domain.Options;
    using Base.Helpers;
    using MongoDB.Bson;
+   using MongoDB.Bson.Serialization;
    using MongoDB.Bson.Serialization.Attributes;
    using MongoDB.Driver;
 
@@ -253,16 +254,16 @@
          OnModelCreating(mongoIndexBuilder);
          var db = GetDatabase().ReduceOrDefault();
          _existingCollectionNames = db.ListCollectionNames().ToList();
-         foreach (var indexBuilder in mongoIndexBuilder.ModelDefinitions)
+         foreach (var modelDefinition in mongoIndexBuilder.ModelDefinitions)
          {
-            var key = indexBuilder.Key;
+            var key = modelDefinition.Key;
             if (!_existingCollectionNames.Contains(key.Name))
             {
                throw new InvalidOperationException(ThisIsNotCodeFirstStyleBro);
             }
 
-            if (!(indexBuilder.Value is StartModelParameter param) || param.Type != key) continue;
-            var collection = db.GetCollection<BsonDocument>(indexBuilder.Key.Name);
+            if (!(modelDefinition.Value is StartModelParameter param) || param.Type != key) continue;
+            var collection = db.GetCollection<BsonDocument>(modelDefinition.Key.Name);
             foreach (var indexModelParameter in param.IndexModelParameters)
             {
                collection.Indexes.CreateOne(
