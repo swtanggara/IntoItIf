@@ -16,12 +16,19 @@
 
    public abstract class MongoDataContext : IRelationalDataContext
    {
+      #region Constants
+
+      private const string ThisIsNotCodeFirstStyleBro =
+         "This is not Code-First style coding bro. Please create your collection first on MongoDB database";
+      private const double ImplicitSessionExpiringInSeconds = 10;
+
+      #endregion
+
       #region Fields
 
+      private readonly ClientSessionOptions _sessionOptions;
       private bool _disposed;
       private List<string> _existingCollectionNames;
-
-      private Option<IClientSessionHandle> _session;
 
       #endregion
 
@@ -32,16 +39,26 @@
          ConnectionString = connectionString;
          DbName = dbName;
          FindOptions = findOptions;
+         _sessionOptions = new ClientSessionOptions
+         {
+            DefaultTransactionOptions = new TransactionOptions(
+               ReadConcern.Snapshot,
+               ReadPreference.Nearest,
+               WriteConcern.WMajority)
+         };
          ModelBuilder = new MongoModelBuilder();
          BuildModel(ModelBuilder.ReduceOrDefault());
-         _session = None.Value;
+         ImplicitSession = None.Value;
+         ExplicitSession = None.Value;
       }
 
       #endregion
 
       #region Properties
 
+      internal Option<IClientSessionHandle> ExplicitSession { get; private set; }
       internal Option<FindOptions> FindOptions { get; }
+      internal Option<IClientSessionHandle> ImplicitSession { get; private set; }
       protected Option<string> ConnectionString { get; }
       protected Option<string> DbName { get; }
       protected Option<MongoModelBuilder> ModelBuilder { get; }
@@ -91,40 +108,6 @@
             .ReduceOrDefault();
       }
 
-      public Option<IClientSessionHandle> GetMongoSession()
-      {
-         if (!_session.IsSome())
-         {
-            _session = GetClient().Map(x => x.StartSession());
-         }
-         else
-         {
-            _session.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction());
-         }
-
-         return _session;
-      }
-
-      public async Task<Option<IClientSessionHandle>> GetMongoSessionAsync(Option<CancellationToken> ctok)
-      {
-         if (!_session.IsSome())
-         {
-            _session = await GetClient()
-               .Combine(ctok, true, CancellationToken.None)
-               .Map(x => (Client: x.Item1, Ctok: x.Item2))
-               .MapAsync(x => x.Client.StartSessionAsync(cancellationToken: x.Ctok))
-               .ConfigureAwait(false);
-         }
-         else
-         {
-            _session.IfExecute(
-               x => !x.IsInTransaction,
-               x => x.StartTransaction(new TransactionOptions(ReadConcern.Snapshot, writeConcern: WriteConcern.WMajority)));
-         }
-
-         return _session;
-      }
-
       public Option<IEnumerable<PropertyInfo>> GetPrimaryKeyProperties<T>()
          where T : class
       {
@@ -141,13 +124,13 @@
       public Option<IQueryable<T>> GetQuery<T>()
          where T : class
       {
-         IQueryable<T> result = Set<T>()
+         IQueryable<T> result = Collection<T>()
             .Map(x => x.AsQueryable())
             .ReduceOrDefault();
          return result.ToOption();
       }
 
-      public Option<IMongoCollection<T>> Set<T>()
+      public Option<IMongoCollection<T>> Collection<T>()
       {
          return GetDatabase()
             .Combine(ModelBuilder)
@@ -163,23 +146,105 @@
 
                   if (!_existingCollectionNames.Contains(type.Name))
                   {
-                     throw new InvalidOperationException(
-                        "This is not Code-First style coding bro. Please create your collection first on MongoDB database");
+                     throw new InvalidOperationException(ThisIsNotCodeFirstStyleBro);
                   }
 
-                  return x.Database.GetCollection<T>(
-                     typeof(T).Name,
-                     new MongoCollectionSettings
-                     {
-                        AssignIdOnInsert = true,
-                        GuidRepresentation = GuidRepresentation.Standard,
-                     });
+                  return x.Database.GetCollection<T>(typeof(T).Name);
                });
       }
 
       #endregion
 
       #region Methods
+
+      internal Option<IClientSessionHandle> GetExplicitMongoSession()
+      {
+         if (!ExplicitSession.IsSome())
+         {
+            ExplicitSession = GetClient()
+               .Map(
+                  x =>
+                  {
+                     var session = x.StartSession(_sessionOptions);
+                     session.StartTransaction();
+                     return session;
+                  });
+         }
+         else
+         {
+            ExplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
+         }
+
+         return ExplicitSession;
+      }
+
+      internal async Task<Option<IClientSessionHandle>> GetExplicitMongoSessionAsync(Option<CancellationToken> ctok)
+      {
+         if (!ExplicitSession.IsSome())
+         {
+            ExplicitSession = await GetClient()
+               .Combine(ctok, true, CancellationToken.None)
+               .Map(x => (Client: x.Item1, Ctok: x.Item2))
+               .MapAsync(async x =>
+               {
+                  var session = await x.Client.StartSessionAsync(_sessionOptions, x.Ctok);
+                  session.StartTransaction();
+                  return session;
+               })
+               .ConfigureAwait(false);
+         }
+         else
+         {
+            ExplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
+         }
+
+         return ExplicitSession;
+      }
+
+      internal Option<IClientSessionHandle> GetImplicitMongoSession()
+      {
+         if (!ImplicitSession.IsSome())
+         {
+            ImplicitSession = GetClient()
+               .Map(
+                  x =>
+                  {
+                     var session = MongoExpiringSession.Get(x, _sessionOptions, ImplicitSessionExpiringInSeconds);
+                     if (!session.IsInTransaction) session.StartTransaction();
+                     return session;
+                  });
+         }
+         else
+         {
+            ImplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
+         }
+
+         return ImplicitSession;
+      }
+
+      internal async Task<Option<IClientSessionHandle>> GetImplicitMongoSessionAsync(Option<CancellationToken> ctok)
+      {
+         if (!ImplicitSession.IsSome())
+         {
+            ImplicitSession = await GetClient()
+               .Combine(ctok, true, CancellationToken.None)
+               .Map(x => (Client: x.Item1, Ctok: x.Item2))
+               .MapAsync(
+                  async x =>
+                  {
+                     var session = await MongoExpiringSession.GetAsync(x.Client, _sessionOptions, ImplicitSessionExpiringInSeconds, x.Ctok);
+                     if (!session.IsInTransaction) session.StartTransaction();
+                     return session;
+                  })
+               .ConfigureAwait(false);
+         }
+         else
+         {
+            ImplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
+         }
+
+         return ImplicitSession;
+      }
 
       protected abstract void OnModelCreating(MongoModelBuilder modelBuilder);
 
@@ -193,8 +258,7 @@
             var key = indexBuilder.Key;
             if (!_existingCollectionNames.Contains(key.Name))
             {
-               throw new InvalidOperationException(
-                  "This is not Code-First style coding bro. Please create your collection first on MongoDB database");
+               throw new InvalidOperationException(ThisIsNotCodeFirstStyleBro);
             }
 
             if (!(indexBuilder.Value is StartModelParameter param) || param.Type != key) continue;
@@ -213,8 +277,10 @@
       {
          if (!_disposed && disposing)
          {
-            ModelBuilder.Combine(_session)
-               .Map(x => (IndexBuilder: x.Item1, Session: x.Item2))
+            ModelBuilder
+               .Combine(ImplicitSession)
+               .Combine(ExplicitSession)
+               .Map(x => (IndexBuilder: x.Item1.Item1, ImplicitSession: x.Item1.Item2, ExplicitSession: x.Item2))
                .Execute(
                   x =>
                   {
@@ -224,7 +290,8 @@
                         x.IndexBuilder.ModelDefinitions = null;
                      }
 
-                     x.Session?.Dispose();
+                     x.ImplicitSession?.Dispose();
+                     x.ExplicitSession?.Dispose();
                   });
          }
 
@@ -233,7 +300,7 @@
 
       private Option<MongoClient> GetClient()
       {
-         return ConnectionString.Map(x => new MongoClient(x));
+         return ConnectionString.Map(MongoClientSingleton.Get);
       }
 
       private Option<IMongoDatabase> GetDatabase()

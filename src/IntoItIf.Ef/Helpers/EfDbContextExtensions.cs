@@ -10,7 +10,7 @@ namespace IntoItIf.Ef.Helpers
    using Base.Domain.Options;
    using Base.UnitOfWork;
    using DbContexts;
-   using UnitOfWork.IntoItIf.Dal.UnitOfWorks;
+   using UnitOfWork;
 
    internal static class EfDbContextExtensions
    {

@@ -1,12 +1,10 @@
 ﻿namespace IntoItIf.Tests.MongoDb
 {
    using System;
-   using Base.Domain.Options;
+   using Base.Helpers;
    using IntoItIf.MongoDb;
-   using IntoItIf.MongoDb.Service.Mediator.Helpers;
    using MongoDB.Driver;
    using Preparation.Mongo;
-   using Shouldly;
    using Xunit;
    using Xunit.Abstractions;
 
@@ -27,18 +25,20 @@
       [Fact]
       public void ShouldConnect()
       {
-         var jadaStevens = new DtoContact
+         var jadaStevens = new People
          {
             FirstName = "Jada",
             LastName = "Stevens",
-            Age = 30
          };
 
          var uow = new MongoUow(_context);
-      //   uow.Create<DtoContact, DtoContact, ContactCreateInterceptor>().Handle(jadaStevens);
-      //   var result = _context.Set<DtoContact>().Execute(x => x.InsertOne(jadaStevens));
-      //   var indexBuilder = _context.GetPrimaryKeyProperties<DtoContact>();
-      //   result.ReduceOrDefault().ShouldBe(false);
+         var result = uow.SaveChangesForScopedAsync(
+               async x =>
+               {
+                  await x.SetOf<People>().AddAsync(jadaStevens);
+                  return await x.SetOf<People>().GetListAsync(y => y, y => y.FirstName == "Jada");
+               })
+            .ToSync();
       }
    }
 }

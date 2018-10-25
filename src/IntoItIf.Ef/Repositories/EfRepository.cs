@@ -19,7 +19,6 @@
    public sealed class EfRepository<T> : BaseRelationalRepository<T>
       where T : class
    {
-      private Option<ItsDbContext> ItsDbContext { get; }
       #region Constructors and Destructors
 
       public EfRepository(Option<ItsDbContext> dataContext) : base(dataContext.ReduceOrDefault())
@@ -36,84 +35,69 @@
 
       #endregion
 
+      #region Properties
+
+      private Option<ItsDbContext> ItsDbContext { get; }
+
+      #endregion
+
       #region Public Methods and Operators
 
-      public override Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate)
-      {
-         return predicate
-            .Combine(GetBaseQuery())
-            .Map(x => (Predicate: x.Item1, BaseQuery: x.Item2))
-            .IfMap(
-               x => x.Predicate == null,
-               x => x.BaseQuery.LongCount())
-            .ElseMap(
-               x => x.BaseQuery.LongCount(x.Predicate))
-            .Output;
-      }
-
-      public override async Task<Option<long>> LongCountAsync(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<CancellationToken> ctok)
-      {
-         return (await predicate
-            .Combine(GetBaseQuery())
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Predicate: x.Item1.Item1, BaseQuery: x.Item1.Item2, Ctok: x.Item2))
-            .IfMapAsync(
-               x => x.Predicate == null,
-               x => x.BaseQuery.ResolvedLongCountAsync(x.Ctok))
-            .ElseMapAsync(
-               x => x.BaseQuery.ResolvedLongCountAsync(x.Predicate, x.Ctok))).Output;
-      }
-
-      public override Option<Dictionary<string, object>> Create(Option<T> entity, Option<Func<T, string>> existMessageFunc)
+      public override Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc)
       {
          return ProcessCreateAndGetResult(GetValidatedEntityForInsert(entity), existMessageFunc);
       }
 
-      public override async Task<Option<Dictionary<string, object>>> CreateAsync(
+      public override async Task<Option<Dictionary<string, object>>> AddAsync(
          Option<T> entity,
-         Option<Func<T, string>> existMessageFunc,
+         Func<T, string> existMessageFunc,
          Option<CancellationToken> ctok)
       {
          return ProcessCreateAndGetResult(await GetValidatedEntityForInsertAsync(entity, ctok), existMessageFunc);
       }
 
-      public override Option<bool> Delete(Option<T> entity)
+      public override Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc)
       {
-         return ProcessDeleteAndGetResult(GetValidatedEntityForDelete(entity));
+         return ProcessUpdateAndGetResult(
+            GetValidatedEntityForUpdate(RelationalDataContext, GetBaseQuery(), entity),
+            existMessageFunc);
       }
 
-      public override async Task<Option<bool>> DeleteAsync(Option<T> entity, Option<CancellationToken> ctok)
+      public override async Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         Option<CancellationToken> ctok)
       {
-         return ProcessDeleteAndGetResult(await GetValidatedEntityForDeleteAsync(entity, ctok));
+         return ProcessUpdateAndGetResult(
+            await GetValidatedEntityForUpdateAsync(RelationalDataContext, GetBaseQuery(), entity, ctok),
+            existMessageFunc);
       }
 
-      public Option<T> GetFirstOrDefault(Option<Expression<Func<T, bool>>> predicate, Option<bool> disableTracking)
+      public Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, Option<bool> disableTracking)
       {
-         return GetFirstOrDefault(predicate: predicate, None.Value, disableTracking);
+         return GetFirstOrDefault(predicate: predicate, null, disableTracking: disableTracking);
       }
 
       public Option<T> GetFirstOrDefault(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking)
       {
-         return GetFirstOrDefault(predicate, orderBy, None.Value, disableTracking);
+         return GetFirstOrDefault(predicate, orderBy, null, disableTracking);
       }
 
       public override Option<T> GetFirstOrDefault(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
          return GetFirstOrDefault(predicate, orderBy, include, None.Value);
       }
 
       public Option<T> GetFirstOrDefault(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
          var validatedQuery = GetValidatedFirstOrDefaultQuery(
@@ -127,45 +111,40 @@
       }
 
       public Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
       {
-         return GetFirstOrDefault(selector, predicate, None.Value, disableTracking);
+         return GetFirstOrDefault(selector, predicate, null, disableTracking);
       }
 
       public Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking)
       {
-         return GetFirstOrDefault(selector, predicate, orderBy, None.Value, disableTracking);
+         return GetFirstOrDefault(selector, predicate, orderBy, null, disableTracking);
       }
 
       public override Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetFirstOrDefault(selector, predicate, orderBy, include, None.Value);
+         return GetFirstOrDefault(selector, predicate, orderBy, include, null);
       }
 
       public Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
-         var validatedQuery = selector.Combine(
-               GetValidatedFirstOrDefaultQuery(
-                  GetBaseQuery(),
-                  predicate,
-                  include,
-                  orderBy,
-                  disableTracking))
+         var validatedQuery = selector.ToOption()
+            .Combine(GetValidatedFirstOrDefaultQuery(GetBaseQuery(), predicate, include, orderBy, disableTracking))
             .Map(x => (Selector: x.Item1, x.Item2.Query, x.Item2.OrderBy));
          return validatedQuery.Map(
             x => x.OrderBy != null
@@ -174,35 +153,35 @@
       }
 
       public Task<Option<T>> GetFirstOrDefaultAsync(
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(predicate: predicate, None.Value, disableTracking, ctok);
+         return GetFirstOrDefaultAsync(predicate, orderBy: null, disableTracking: disableTracking, ctok: ctok);
       }
 
       public Task<Option<T>> GetFirstOrDefaultAsync(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(predicate, orderBy, None.Value, disableTracking, ctok);
+         return GetFirstOrDefaultAsync(predicate, orderBy, null, disableTracking, ctok);
       }
 
       public override Task<Option<T>> GetFirstOrDefaultAsync(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
          return GetFirstOrDefaultAsync(predicate, orderBy, include, None.Value, ctok);
       }
 
       public async Task<Option<T>> GetFirstOrDefaultAsync(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
@@ -221,49 +200,44 @@
       }
 
       public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, None.Value, disableTracking, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, null, disableTracking, ctok);
       }
 
       public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, orderBy, None.Value, disableTracking, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, orderBy, null, disableTracking, ctok);
       }
 
       public override Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, orderBy, include, None.Value, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, orderBy, include, null, ctok);
       }
 
       public async Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         var validatedQuery = selector.Combine(
-               GetValidatedFirstOrDefaultQuery(
-                  GetBaseQuery(),
-                  predicate,
-                  include,
-                  orderBy,
-                  disableTracking))
+         var validatedQuery = selector.ToOption()
+            .Combine(GetValidatedFirstOrDefaultQuery(GetBaseQuery(), predicate, include, orderBy, disableTracking))
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (Selector: x.Item1.Item1, x.Item1.Item2.Query, x.Item1.Item2.OrderBy, Ctok: x.Item2));
          return await validatedQuery.MapAsync(
@@ -273,33 +247,33 @@
       }
 
       public Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking)
       {
-         return GetList(selector, predicate, orderBy, None.Value, disableTracking);
+         return GetList(selector, predicate, orderBy, null, disableTracking);
       }
 
       public override Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetList(selector, predicate, orderBy, include, None.Value);
+         return GetList(selector, predicate, orderBy, include, null);
       }
 
       public Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
-         var validatedQuery = selector
+         var validatedQuery = selector.ToOption()
             .Combine(BuildQuery(GetBaseQuery(), predicate, include, disableTracking))
-            .Combine(orderBy, true)
+            .Combine(orderBy.ToOption(), true)
             .Map(x => (Selector: x.Item1.Item1, Query: x.Item1.Item2, OrderBy: x.Item2));
          return validatedQuery.Map(
             x => x.OrderBy != null
@@ -308,36 +282,36 @@
       }
 
       public Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetListAsync(selector, predicate, orderBy, None.Value, disableTracking, ctok);
+         return GetListAsync(selector, predicate, orderBy, null, disableTracking, ctok);
       }
 
       public override Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
-         return GetListAsync(selector, predicate, orderBy, include, None.Value, ctok);
+         return GetListAsync(selector, predicate, orderBy, include, null, ctok);
       }
 
       public async Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         var validatedQuery = selector
+         var validatedQuery = selector.ToOption()
             .Combine(BuildQuery(GetBaseQuery(), predicate, include, disableTracking))
-            .Combine(orderBy, true)
+            .Combine(orderBy.ToOption(), true)
             .Combine(ctok, true, CancellationToken.None)
             .Map(
                x => (
@@ -358,35 +332,35 @@
          Option<bool> useValueAsId,
          Option<bool> disableTracking)
       {
-         return GetLookups(idProperty, valueProperty, useValueAsId, include: None.Value, disableTracking);
+         return GetLookups(idProperty, valueProperty, useValueAsId, include: null, disableTracking: disableTracking);
       }
 
       public Option<List<KeyValue>> GetLookups(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
-         return GetLookups(idProperty, valueProperty, useValueAsId, None.Value, include, disableTracking);
+         return GetLookups(idProperty, valueProperty, useValueAsId, null, include, disableTracking);
       }
 
       public Option<List<KeyValue>> GetLookups(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
       {
-         return GetLookups(idProperty, valueProperty, useValueAsId, predicate, None.Value, disableTracking);
+         return GetLookups(idProperty, valueProperty, useValueAsId, predicate, null, disableTracking);
       }
 
       public override Option<List<KeyValue>> GetLookups(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
          return GetLookups(idProperty, valueProperty, useValueAsId, predicate, include, None.Value);
       }
@@ -395,8 +369,8 @@
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
          return idProperty
@@ -427,26 +401,26 @@
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, include: None.Value, disableTracking, ctok);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, include: null, disableTracking: disableTracking, ctok: ctok);
       }
 
       public Task<Option<List<KeyValue>>> GetLookupsAsync(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, None.Value, include, disableTracking, ctok);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, null, include, disableTracking, ctok);
       }
 
       public override Task<Option<List<KeyValue>>> GetLookupsAsync(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
          return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, include, None.Value, ctok);
@@ -456,19 +430,19 @@
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, None.Value, disableTracking, ctok);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, null, disableTracking, ctok);
       }
 
       public async Task<Option<List<KeyValue>>> GetLookupsAsync(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
       {
@@ -504,7 +478,7 @@
          Option<string> keyword,
          Option<bool> disableTracking)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, None.Value, None.Value, disableTracking);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, null, null, disableTracking);
       }
 
       public Option<IPaged<T>> GetPaged(
@@ -516,7 +490,7 @@
          Option<PageIndexFrom> indexFrom,
          Option<bool> disableTracking)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, None.Value, None.Value, disableTracking);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, null, disableTracking);
       }
 
       public Option<IPaged<T>> GetPaged(
@@ -526,10 +500,10 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, None.Value, disableTracking);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null, disableTracking);
       }
 
       public Option<IPaged<T>> GetPaged(
@@ -539,10 +513,10 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, None.Value, include, disableTracking);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include, disableTracking);
       }
 
       public Option<IPaged<T>> GetPaged(
@@ -551,8 +525,8 @@
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, predicate, include, disableTracking);
@@ -564,10 +538,10 @@
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, None.Value, include, disableTracking);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, null, include, disableTracking);
       }
 
       public Option<IPaged<T>> GetPaged(
@@ -576,7 +550,7 @@
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, predicate, disableTracking);
@@ -589,8 +563,8 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, include, None.Value);
       }
@@ -602,8 +576,8 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
       {
          return RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom)
@@ -618,7 +592,7 @@
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
@@ -635,13 +609,13 @@
             sorts,
             keyword,
             None.Value,
-            None.Value,
-            None.Value,
+            null,
+            null,
             disableTracking);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
@@ -659,20 +633,20 @@
             sorts,
             keyword,
             indexFrom,
-            None.Value,
-            None.Value,
+            null,
+            null,
             disableTracking);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -685,19 +659,19 @@
             keyword,
             indexFrom,
             predicate,
-            None.Value,
+            null,
             disableTracking);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -709,20 +683,20 @@
             sorts,
             keyword,
             indexFrom,
-            None.Value,
+            null,
             include,
             disableTracking);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -740,13 +714,13 @@
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -758,19 +732,19 @@
             sorts,
             keyword,
             None.Value,
-            None.Value,
+            null,
             include,
             disableTracking);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -783,39 +757,39 @@
             keyword,
             None.Value,
             predicate,
-            None.Value,
+            null,
             disableTracking);
       }
 
       public override Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include)
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include)
       {
          return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, include, None.Value);
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
-         return selector.Combine(
-               RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom))
+         return selector.ToOption()
+            .Combine(RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom))
             .Combine(BuildQuery(GetBaseQuery(), predicate, include, disableTracking))
             .Combine(RelationalRepositoryHelper<T>.GetSortKeys(RelationalDataContext))
             .Map(
@@ -1010,8 +984,8 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
          return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, include, None.Value, ctok);
@@ -1074,7 +1048,7 @@
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
@@ -1091,14 +1065,14 @@
             sorts,
             keyword,
             None.Value,
-            None.Value,
-            None.Value,
+            null,
+            null,
             disableTracking,
             None.Value);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
@@ -1116,21 +1090,21 @@
             sorts,
             keyword,
             indexFrom,
-            None.Value,
-            None.Value,
+            null,
+            null,
             disableTracking,
             None.Value);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -1143,20 +1117,20 @@
             keyword,
             indexFrom,
             predicate,
-            None.Value,
+            null,
             disableTracking,
             None.Value);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -1168,21 +1142,21 @@
             sorts,
             keyword,
             indexFrom,
-            None.Value,
+            null,
             include,
             disableTracking,
             None.Value);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -1201,13 +1175,13 @@
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -1219,20 +1193,20 @@
             sorts,
             keyword,
             None.Value,
-            None.Value,
+            null,
             include,
             disableTracking,
             None.Value);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<bool> disableTracking)
          where TResult : class
       {
@@ -1245,21 +1219,21 @@
             keyword,
             None.Value,
             predicate,
-            None.Value,
+            null,
             disableTracking,
             None.Value);
       }
 
       public override Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<CancellationToken> ctok)
       {
          return GetPagedAsync(
@@ -1277,21 +1251,21 @@
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include,
          Option<bool> disableTracking,
          Option<CancellationToken> ctok)
          where TResult : class
       {
-         return selector.Combine(
-               RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom))
+         return selector.ToOption()
+            .Combine(RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom))
             .Combine(BuildQuery(GetBaseQuery(), predicate, include, disableTracking))
             .Combine(RelationalRepositoryHelper<T>.GetSortKeys(RelationalDataContext))
             .Combine(ctok, true, CancellationToken.None)
@@ -1312,31 +1286,47 @@
                   x.Ctok));
       }
 
-      public override Option<Dictionary<string, object>> Update(Option<T> entity, Option<Func<T, string>> existMessageFunc)
+      public override Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate)
       {
-         return ProcessUpdateAndGetResult(
-            GetValidatedEntityForUpdate(RelationalDataContext, GetBaseQuery(), entity),
-            existMessageFunc);
+         return predicate
+            .Combine(GetBaseQuery())
+            .Map(x => (Predicate: x.Item1, BaseQuery: x.Item2))
+            .IfMap(
+               x => x.Predicate == null,
+               x => x.BaseQuery.LongCount())
+            .ElseMap(
+               x => x.BaseQuery.LongCount(x.Predicate))
+            .Output;
       }
 
-      public override async Task<Option<Dictionary<string, object>>> UpdateAsync(
-         Option<T> entity,
-         Option<Func<T, string>> existMessageFunc,
+      public override async Task<Option<long>> LongCountAsync(
+         Option<Expression<Func<T, bool>>> predicate,
          Option<CancellationToken> ctok)
       {
-         return ProcessUpdateAndGetResult(
-            await GetValidatedEntityForUpdateAsync(RelationalDataContext, GetBaseQuery(), entity, ctok),
-            existMessageFunc);
+         return (await predicate
+            .Combine(GetBaseQuery())
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (Predicate: x.Item1.Item1, BaseQuery: x.Item1.Item2, Ctok: x.Item2))
+            .IfMapAsync(
+               x => x.Predicate == null,
+               x => x.BaseQuery.ResolvedLongCountAsync(x.Ctok))
+            .ElseMapAsync(
+               x => x.BaseQuery.ResolvedLongCountAsync(x.Predicate, x.Ctok))).Output;
+      }
+
+      public override Option<bool> Remove(Option<T> entity)
+      {
+         return ProcessDeleteAndGetResult(GetValidatedEntityForDelete(entity));
+      }
+
+      public override async Task<Option<bool>> RemoveAsync(Option<T> entity, Option<CancellationToken> ctok)
+      {
+         return ProcessDeleteAndGetResult(await GetValidatedEntityForDeleteAsync(entity, ctok));
       }
 
       #endregion
 
       #region Methods
-
-      private Option<bool> AddEntry(Option<T> entity)
-      {
-         return ItsDbContext.AddEntry(entity);
-      }
 
       protected override Option<IQueryable<T>> BuildQuery(
          Option<IQueryable<T>> sourceQuery,
@@ -1344,6 +1334,11 @@
          Option<Func<IQueryable<T>, IQueryable<T>>> include)
       {
          return BuildQuery(sourceQuery, predicate, include, None.Value);
+      }
+
+      private Option<bool> AddEntry(Option<T> entity)
+      {
+         return ItsDbContext.AddEntry(entity);
       }
 
       private Option<IQueryable<T>> BuildQuery(
@@ -1384,16 +1379,6 @@
                   x.SourceQuery = x.SourceQuery.AsExpandable().Where(x.Predicate);
                   return x.SourceQuery;
                });
-      }
-
-      private Option<bool> RemoveEntry(Option<T> exist)
-      {
-         return ItsDbContext.RemoveEntry(exist);
-      }
-
-      private Option<bool> UpdateEntry(Option<T> entity, Option<T> exist)
-      {
-         return ItsDbContext.UpdateEntry(entity, exist);
       }
 
       private Option<Dictionary<string, object>> CreateAndGetKeyValues(
@@ -1700,6 +1685,11 @@
             .Output;
       }
 
+      private Option<bool> RemoveEntry(Option<T> exist)
+      {
+         return ItsDbContext.RemoveEntry(exist);
+      }
+
       private Option<Dictionary<string, object>> UpdateAndGetKeyValues(
          (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)
             validated)
@@ -1710,6 +1700,11 @@
                y => y.IsSuccess,
                y => RepositoryHelper<T>.GetKeysAndValues(y.PropertyNames, y.InputEntity))
             .Output;
+      }
+
+      private Option<bool> UpdateEntry(Option<T> entity, Option<T> exist)
+      {
+         return ItsDbContext.UpdateEntry(entity, exist);
       }
 
       #endregion

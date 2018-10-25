@@ -11,6 +11,16 @@
          return Task.FromResult(source);
       }
 
+      public static T ToSync<T>(this Task<T> task)
+      {
+         return AsyncHelper.RunSync(() => task);
+      }
+
+      public static void RunSync(this Task task)
+      {
+         AsyncHelper.RunSync(() => task);
+      }
+
       #endregion
    }
 }

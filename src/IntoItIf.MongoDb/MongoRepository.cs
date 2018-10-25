@@ -38,27 +38,31 @@
 
       #region Public Methods and Operators
 
-      public override Option<Dictionary<string, object>> Create(Option<T> entity, Option<Func<T, string>> existMessageFunc)
+      public override Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc)
       {
          return MongoDataContext
+            .MapFlatten(x => GetRealSession(x))
             .MapFlatten(
                x =>
                {
-                  var session = x.GetMongoSession();
+                  var session = x.ToOption();
                   return ProcessCreateAndGetResult(GetValidatedEntityForCreate(entity, session), existMessageFunc, session);
                });
       }
 
-      public override Task<Option<Dictionary<string, object>>> CreateAsync(
+      public override Task<Option<Dictionary<string, object>>> AddAsync(
          Option<T> entity,
-         Option<Func<T, string>> existMessageFunc,
+         Func<T, string> existMessageFunc,
          Option<CancellationToken> ctok)
       {
          return MongoDataContext
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
+            .MapFlattenAsync(x => GetRealSessionAsync(x.DataContext, x.Ctok))
             .MapFlattenAsync(
                async x =>
                {
-                  var session = await x.GetMongoSessionAsync(ctok);
+                  var session = x.ToOption();
                   return await ProcessCreateAndGetResultAsync(
                      GetValidatedEntityForCreateAsync(entity, session, ctok),
                      existMessageFunc,
@@ -67,133 +71,144 @@
                });
       }
 
-      public override Option<bool> Delete(Option<T> entity)
+      public override Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc)
       {
          return MongoDataContext
+            .MapFlatten(x => GetRealSession(x))
             .MapFlatten(
                x =>
                {
-                  var session = x.GetMongoSession();
-                  return ProcessDeleteAndGetResult(GetValidatedEntityForDelete(entity, session), session);
+                  var session = x.ToOption();
+                  return ProcessUpdateAndGetResult(GetValidatedEntityForUpdate(entity, session), existMessageFunc, session);
                });
       }
 
-      public override Task<Option<bool>> DeleteAsync(Option<T> entity, Option<CancellationToken> ctok)
+      public override Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         Option<CancellationToken> ctok)
       {
          return MongoDataContext
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
+            .MapFlattenAsync(x => GetRealSessionAsync(x.DataContext, x.Ctok))
             .MapFlattenAsync(
                async x =>
                {
-                  var session = await x.GetMongoSessionAsync(ctok);
-                  return await ProcessDeleteAndGetResultAsync(GetValidatedEntityForDeleteAsync(entity, session, ctok), session, ctok);
+                  var session = x.ToOption();
+                  return await ProcessUpdateAndGetResultAsync(
+                     GetValidatedEntityForUpdateAsync(entity, session, ctok),
+                     existMessageFunc,
+                     session,
+                     ctok);
                });
       }
 
-      public override Option<T> GetFirstOrDefault(Option<Expression<Func<T, bool>>> predicate)
+      public override Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefault(new Some<Expression<Func<T, T>>>(x => x), predicate);
+         return GetFirstOrDefault(x => x, predicate);
       }
 
-      public Option<T> GetFirstOrDefault(Option<Expression<Func<T, bool>>> predicate, Option<IClientSessionHandle> session)
+      public Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, Option<IClientSessionHandle> session)
       {
-         return GetFirstOrDefault(new Some<Expression<Func<T, T>>>(x => x), predicate, session);
+         return GetFirstOrDefault(x => x, predicate, session);
       }
 
       public override Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate)
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefault(selector, predicate, None.Value);
+         return GetFirstOrDefault(selector, predicate, GetSessionOrNone());
       }
 
       public Option<TResult> GetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<IClientSessionHandle> session)
       {
-         return InternalGetFirstOrDefault(selector, predicate, session);
+         return InternalGetFirstOrDefault(selector.ToOption(), predicate, session);
       }
 
-      public override Task<Option<T>> GetFirstOrDefaultAsync(Option<Expression<Func<T, bool>>> predicate, Option<CancellationToken> ctok)
+      public override Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(new Some<Expression<Func<T, T>>>(x => x), predicate, ctok);
+         return GetFirstOrDefaultAsync(x => x, predicate, ctok);
       }
 
       public override Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, None.Value, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, GetSessionOrNone(), ctok);
       }
 
       public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return InternalGetFirstOrDefaultAsync(selector, predicate, session, ctok);
+         return InternalGetFirstOrDefaultAsync(selector.ToOption(), predicate, session, ctok);
       }
 
       public override Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate)
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate)
       {
-         return GetList(selector, predicate, None.Value);
+         return GetList(selector, predicate, null);
       }
 
       public Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy)
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy)
       {
-         return GetList(selector, predicate, sortBy, None.Value);
+         return GetList(selector, predicate, sortBy, GetSessionOrNone());
       }
 
       public Option<List<TResult>> GetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          Option<IClientSessionHandle> session)
       {
-         return InternalGetList(selector, predicate, sortBy, session);
+         return InternalGetList(selector.ToOption(), predicate, sortBy, session);
       }
 
       public override Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
-         return GetListAsync(selector, predicate, None.Value, ctok);
+         return GetListAsync(selector, predicate, null, ctok);
       }
 
       public Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          Option<CancellationToken> ctok)
       {
-         return GetListAsync(selector, predicate, sortBy, None.Value, ctok);
+         return GetListAsync(selector, predicate, sortBy, GetSessionOrNone(), ctok);
       }
 
       public Task<Option<List<TResult>>> GetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return InternalGetListAsync(selector, predicate, sortBy, session, ctok);
+         return InternalGetListAsync(selector.ToOption(), predicate, sortBy, session, ctok);
       }
 
       public override Option<List<KeyValue>> GetLookups(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate)
+         Expression<Func<T, bool>> predicate)
       {
-         return GetLookups(idProperty, valueProperty, useValueAsId, predicate, None.Value);
+         return GetLookups(idProperty, valueProperty, useValueAsId, predicate, GetSessionOrNone());
       }
 
       public Option<List<KeyValue>> GetLookups(
@@ -210,17 +225,17 @@
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, None.Value, ctok);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, GetSessionOrNone(), ctok);
       }
 
       public Task<Option<List<KeyValue>>> GetLookupsAsync(
          Option<string> idProperty,
          Option<string> valueProperty,
          Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
@@ -234,36 +249,36 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate)
+         Expression<Func<T, bool>> predicate)
       {
-         return GetPaged(new Some<Expression<Func<T, T>>>(x => x), searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate);
+         return GetPaged(x => x, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate);
       }
 
       public override Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate)
+         Expression<Func<T, bool>> predicate)
       {
-         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, None.Value);
+         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, GetSessionOrNone());
       }
 
       public Option<IPaged<TResult>> GetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<IClientSessionHandle> session)
       {
-         return InternalGetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, session);
+         return InternalGetPaged(selector.ToOption(), searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, session);
       }
 
       public override Task<Option<IPaged<T>>> GetPagedAsync(
@@ -273,11 +288,11 @@
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
          return GetPagedAsync(
-            new Some<Expression<Func<T, T>>>(x => x),
+            x => x,
             searchFields,
             pageIndex,
             pageSize,
@@ -289,32 +304,52 @@
       }
 
       public override Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
-         return GetPagedAsync(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, None.Value, ctok);
+         return GetPagedAsync(
+            selector,
+            searchFields,
+            pageIndex,
+            pageSize,
+            sorts,
+            keyword,
+            indexFrom,
+            predicate,
+            GetSessionOrNone(),
+            ctok);
       }
 
       public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
+         Expression<Func<T, TResult>> selector,
          Option<string[]> searchFields,
          Option<int> pageIndex,
          Option<int> pageSize,
          Option<string[]> sorts,
          Option<string> keyword,
          Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+         Expression<Func<T, bool>> predicate,
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return InternalGetPagedAsync(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, session, ctok);
+         return InternalGetPagedAsync(
+            selector.ToOption(),
+            searchFields,
+            pageIndex,
+            pageSize,
+            sorts,
+            keyword,
+            indexFrom,
+            predicate,
+            session,
+            ctok);
       }
 
       public override Option<long> LongCount()
@@ -324,7 +359,7 @@
 
       public Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate)
       {
-         return LongCount(predicate, None.Value);
+         return LongCount(predicate, GetSessionOrNone());
       }
 
       public Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate, Option<IClientSessionHandle> session)
@@ -344,7 +379,7 @@
 
       public Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate, Option<CancellationToken> ctok)
       {
-         return LongCountAsync(predicate, None.Value, ctok);
+         return LongCountAsync(predicate, GetSessionOrNone(), ctok);
       }
 
       public Task<Option<long>> LongCountAsync(
@@ -355,32 +390,29 @@
          return InternalLongCountAsync(predicate, session, ctok);
       }
 
-      public override Option<Dictionary<string, object>> Update(Option<T> entity, Option<Func<T, string>> existMessageFunc)
+      public override Option<bool> Remove(Option<T> entity)
       {
          return MongoDataContext
+            .MapFlatten(x => GetRealSession(x))
             .MapFlatten(
                x =>
                {
-                  var session = x.GetMongoSession();
-                  return ProcessUpdateAndGetResult(GetValidatedEntityForUpdate(entity, session), existMessageFunc, session);
+                  var session = x.ToOption();
+                  return ProcessDeleteAndGetResult(GetValidatedEntityForDelete(entity, session), session);
                });
       }
 
-      public override Task<Option<Dictionary<string, object>>> UpdateAsync(
-         Option<T> entity,
-         Option<Func<T, string>> existMessageFunc,
-         Option<CancellationToken> ctok)
+      public override Task<Option<bool>> RemoveAsync(Option<T> entity, Option<CancellationToken> ctok)
       {
          return MongoDataContext
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
+            .MapFlattenAsync(x => GetRealSessionAsync(x.DataContext, x.Ctok))
             .MapFlattenAsync(
                async x =>
                {
-                  var session = x.GetMongoSession();
-                  return await ProcessUpdateAndGetResultAsync(
-                     GetValidatedEntityForUpdateAsync(entity, session, ctok),
-                     existMessageFunc,
-                     session,
-                     ctok);
+                  var session = x.ToOption();
+                  return await ProcessDeleteAndGetResultAsync(GetValidatedEntityForDeleteAsync(entity, session, ctok), session, ctok);
                });
       }
 
@@ -464,6 +496,76 @@
                });
       }
 
+      private static Option<IClientSessionHandle> GetRealSession(Option<MongoDataContext> context)
+      {
+         return context
+            .Map(
+               x =>
+               {
+                  IClientSessionHandle result;
+                  var explicitSession = x.ExplicitSession.ReduceOrDefault();
+                  var implicitSession = x.ImplicitSession.ReduceOrDefault();
+                  if (explicitSession != null)
+                  {
+                     if (explicitSession.IsInTransaction)
+                     {
+                        result = explicitSession;
+                     }
+                     else
+                     {
+                        throw new InvalidOperationException("Please call StartTransaction() first on session");
+                     }
+                  }
+                  else
+                  {
+                     if (implicitSession == null) implicitSession = x.GetImplicitMongoSession().ReduceOrDefault();
+                     if (!implicitSession.IsInTransaction) implicitSession.StartTransaction();
+                     result = implicitSession;
+                  }
+
+                  return result;
+               });
+      }
+
+      private static Task<Option<IClientSessionHandle>> GetRealSessionAsync(
+         Option<MongoDataContext> context,
+         Option<CancellationToken> ctok)
+      {
+         return context
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
+            .MapAsync(
+               async x =>
+               {
+                  IClientSessionHandle result;
+                  var explicitSession = x.DataContext.ExplicitSession.ReduceOrDefault();
+                  var implicitSession = x.DataContext.ImplicitSession.ReduceOrDefault();
+                  if (explicitSession != null)
+                  {
+                     if (explicitSession.IsInTransaction)
+                     {
+                        result = explicitSession;
+                     }
+                     else
+                     {
+                        throw new InvalidOperationException("Please call StartTransaction() first on session");
+                     }
+                  }
+                  else
+                  {
+                     if (implicitSession == null)
+                     {
+                        implicitSession = (await x.DataContext.GetImplicitMongoSessionAsync(x.Ctok)).ReduceOrDefault();
+                     }
+
+                     if (!implicitSession.IsInTransaction) implicitSession.StartTransaction();
+                     result = implicitSession;
+                  }
+
+                  return result;
+               });
+      }
+
       private Option<Dictionary<string, object>> CreateAndGetKeyValues(
          Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc)> validated,
          Option<IClientSessionHandle> session)
@@ -505,7 +607,7 @@
       private Option<bool> CreateEntry(Option<T> entry, Option<IClientSessionHandle> session)
       {
          return MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(session, true)
             .Map(x => (Set: x.Item1, Session: x.Item2))
             .Execute(
@@ -528,7 +630,7 @@
          Option<CancellationToken> ctok)
       {
          return await MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(sesion, true)
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (Set: x.Item1.Item1, Session: x.Item1.Item2, Ctok: x.Item2))
@@ -549,7 +651,7 @@
       private Option<bool> DeleteEntry(Option<T> exist, Option<IClientSessionHandle> session)
       {
          return MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(session, true)
             .Combine(MongoDataContext.MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault())))
             .Map(x => (Set: x.Item1.Item1, Session: x.Item1.Item2, x.Item2.Predicate))
@@ -573,7 +675,7 @@
          Option<CancellationToken> ctok)
       {
          return await MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(session, true)
             .Combine(MongoDataContext.MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault())))
             .Combine(ctok, true, CancellationToken.None)
@@ -589,6 +691,17 @@
                   {
                      await x.Set.DeleteOneAsync(x.Session, x.Predicate, cancellationToken: x.Ctok);
                   }
+               });
+      }
+
+      private Option<IClientSessionHandle> GetSessionOrNone()
+      {
+         return MongoDataContext
+            .MapFlatten(
+               x =>
+               {
+                  if (x.ExplicitSession.IsSome()) return x.ExplicitSession;
+                  return x.ImplicitSession.IsSome() ? x.ImplicitSession : None.Value;
                });
       }
 
@@ -690,7 +803,7 @@
          Option<IClientSessionHandle> session)
       {
          return entity
-            .Combine(MongoDataContext.MapFlatten(x => x.Set<T>()))
+            .Combine(MongoDataContext.MapFlatten(x => x.Collection<T>()))
             .Map(x => (Entity: x.Item1, Predicate: x.Item1.BuildPredicate<T>(), Set: x.Item2))
             .Map(
                x =>
@@ -706,7 +819,7 @@
          Option<CancellationToken> ctok)
       {
          return await entity
-            .Combine(MongoDataContext.MapFlatten(x => x.Set<T>()))
+            .Combine(MongoDataContext.MapFlatten(x => x.Collection<T>()))
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (Entity: x.Item1.Item1, Predicate: x.Item1.Item1.BuildPredicate<T>(), Set: x.Item1.Item2, Ctok: x.Item2))
             .MapAsync(
@@ -790,7 +903,7 @@
          Option<Expression<Func<T, bool>>> predicate,
          Option<IClientSessionHandle> session)
       {
-         return MongoDataContext.MapFlatten(x => x.Set<T>())
+         return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(selector)
             .Combine(predicate, true, _ => true)
             .Combine(session, true)
@@ -821,7 +934,7 @@
          Option<CancellationToken> ctok)
       {
          return (
-            await MongoDataContext.MapFlatten(x => x.Set<T>())
+            await MongoDataContext.MapFlatten(x => x.Collection<T>())
                .Combine(selector)
                .Combine(predicate, true, _ => true)
                .Combine(session, true)
@@ -845,7 +958,7 @@
          Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
          Option<IClientSessionHandle> session)
       {
-         return MongoDataContext.MapFlatten(x => x.Set<T>())
+         return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(MongoDataContext.GetFindOptions())
             .Combine(selector)
             .Combine(predicate, true, _ => true)
@@ -878,7 +991,7 @@
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         var _ = await MongoDataContext.MapFlatten(x => x.Set<T>())
+         var _ = await MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(MongoDataContext.GetFindOptions())
             .Combine(selector)
             .Combine(predicate, true, x => true)
@@ -914,7 +1027,7 @@
          Option<Expression<Func<T, bool>>> predicate,
          Option<IClientSessionHandle> session)
       {
-         return MongoDataContext.MapFlatten(x => x.Set<T>())
+         return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(MongoDataContext.GetFindOptions())
             .Combine(idProperty)
             .Combine(valueProperty)
@@ -953,7 +1066,7 @@
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return MongoDataContext.MapFlatten(x => x.Set<T>())
+         return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(MongoDataContext.GetFindOptions())
             .Combine(idProperty)
             .Combine(valueProperty)
@@ -1002,7 +1115,7 @@
             .ReduceOrDefault()
             .ToArrayOfOptions();
          return GetPerPageFindFluent(
-               MongoDataContext.MapFlatten(x => x.Set<T>()),
+               MongoDataContext.MapFlatten(x => x.Collection<T>()),
                MongoDataContext.MapFlatten(x => x.FindOptions),
                selector,
                pageQuery.ReduceOrDefault(),
@@ -1039,7 +1152,7 @@
             .ReduceOrDefault()
             .ToArrayOfOptions();
          var _ = await GetPerPageFindFluent(
-               MongoDataContext.MapFlatten(x => x.Set<T>()),
+               MongoDataContext.MapFlatten(x => x.Collection<T>()),
                MongoDataContext.MapFlatten(x => x.FindOptions),
                selector,
                pageQuery.ReduceOrDefault(),
@@ -1062,7 +1175,7 @@
 
       private Option<long> InternalLongCount(Option<Expression<Func<T, bool>>> predicate, Option<IClientSessionHandle> session)
       {
-         return MongoDataContext.MapFlatten(x => x.Set<T>())
+         return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(predicate, true)
             .Combine(session, true)
             .Map(x => (Set: x.Item1.Item1, Predicate: x.Item1.Item2, Session: x.Item2))
@@ -1081,7 +1194,7 @@
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return await MongoDataContext.MapFlatten(x => x.Set<T>())
+         return await MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(predicate, true)
             .Combine(session, true)
             .Combine(ctok, true, CancellationToken.None)
@@ -1264,7 +1377,7 @@
       private Option<bool> UpdateEntry(Option<T> entity, Option<T> exist, Option<IClientSessionHandle> session)
       {
          return MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(session, true)
             .Map(x => (Set: x.Item1, Session: x.Item2))
             .Execute(
@@ -1294,7 +1407,7 @@
          Option<CancellationToken> ctok)
       {
          return MongoDataContext
-            .MapFlatten(x => x.Set<T>())
+            .MapFlatten(x => x.Collection<T>())
             .Combine(session, true)
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (Set: x.Item1.Item1, Session: x.Item1.Item2, Ctok: x.Item2))

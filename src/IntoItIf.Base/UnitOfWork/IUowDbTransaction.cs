@@ -7,6 +7,7 @@ namespace IntoItIf.Base.UnitOfWork
       #region Public Methods and Operators
 
       void Commit();
+
       void Rollback();
 
       #endregion

@@ -39,7 +39,7 @@
                      x.Args.PostValidation?.Invoke(x.Dto);
                      var entity = x.Dto.ToEntity<T>();
                      AsyncHelper.RunSync(() => x.Args.PostMap?.Invoke(entity, x.Repository));
-                     var result = x.Repository.Create(entity, x.Args.MessageIfExistFunc);
+                     var result = x.Repository.Add(entity, x.Args.MessageIfExistFunc);
                      AsyncHelper.RunSync(() => x.Args.PreSave?.Invoke(entity, x.Repository));
                      if (x.Args.PendingSave) return result;
                      x.Uow.SaveChanges();
@@ -72,7 +72,7 @@
                      x.Args.PostValidation?.Invoke(x.Dto);
                      var entity = x.Dto.ToEntity<T>();
                      if (x.Args.PostMap != null) await x.Args.PostMap.Invoke(entity, x.Repository);
-                     var result = await x.Repository.CreateAsync(entity, x.Args.MessageIfExistFunc, x.Ctok);
+                     var result = await x.Repository.AddAsync(entity, x.Args.MessageIfExistFunc, x.Ctok);
                      if (x.Args.PreSave != null) await x.Args.PreSave.Invoke(entity, x.Repository);
                      if (x.Args.PendingSave) return result;
                      await x.Uow.SaveChangesAsync(ctok);
@@ -101,7 +101,7 @@
                   {
                      var entityCriteria = x.Criteria.ToEntity<T>();
                      AsyncHelper.RunSync(() => x.Args.PreDelete?.Invoke(entityCriteria, x.Repository));
-                     var result = x.Repository.Delete(entityCriteria);
+                     var result = x.Repository.Remove(entityCriteria);
                      AsyncHelper.RunSync(() => x.Args.PreSave?.Invoke(entityCriteria, x.Repository));
                      if (x.Args.PendingSave) return result;
                      x.Uow.SaveChanges();
@@ -131,7 +131,7 @@
                   {
                      var entityCriteria = x.Criteria.ToEntity<T>();
                      if (x.Args.PreDelete != null) await x.Args.PreDelete.Invoke(entityCriteria, x.Repository);
-                     var result = await x.Repository.DeleteAsync(entityCriteria, x.Ctok);
+                     var result = await x.Repository.RemoveAsync(entityCriteria, x.Ctok);
                      if (x.Args.PreSave != null) await x.Args.PreSave.Invoke(entityCriteria, x.Repository);
                      if (x.Args.PendingSave) return result;
                      await x.Uow.SaveChangesAsync(x.Ctok);
@@ -303,17 +303,18 @@
                      var predicate = OptionPredicateBuilder.New(entityPredicate);
                      AsyncHelper.RunSync(() => x.Args.OneValidation?.Invoke(tempEntity, x.Repository));
                      if (x.Args.Predicate != null) predicate = predicate.And(x.Args.Predicate);
-                     var entity = x.Repository.GetFirstOrDefault(predicate);
+                     var realPredicate = predicate.ReduceOrDefault();
+                     var entity = x.Repository.GetFirstOrDefault(realPredicate);
                      if (x.Args.IsView)
                      {
                         if (x.Repository is BaseRelationalRepository<T> relationalRepo)
                         {
-                           entity = relationalRepo.GetFirstOrDefault(predicate, x.Args.OrderBy);
+                           entity = relationalRepo.GetFirstOrDefault(realPredicate, x.Args.OrderBy);
                         }
                      }
                      else if (x.Repository is BaseRelationalRepository<T> relationalRepo)
                      {
-                        entity = relationalRepo.GetFirstOrDefault(predicate, x.Args.OrderBy, x.Args.Include);
+                        entity = relationalRepo.GetFirstOrDefault(realPredicate, x.Args.OrderBy, x.Args.Include);
                      }
 
                      return !entity.IsSome()
@@ -347,17 +348,18 @@
                      var predicate = OptionPredicateBuilder.New<T>(entityPredicate);
                      if (x.Args.OneValidation != null) await x.Args.OneValidation.Invoke(tempEntity, x.Repository);
                      if (x.Args.Predicate != null) predicate = predicate.And(x.Args.Predicate);
-                     var entity = x.Repository.GetFirstOrDefault(predicate);
+                     var realPredicate = predicate.ReduceOrDefault();
+                     var entity = x.Repository.GetFirstOrDefault(realPredicate);
                      if (x.Args.IsView)
                      {
                         if (x.Repository is BaseRelationalRepository<T> relationalRepo)
                         {
-                           entity = await relationalRepo.GetFirstOrDefaultAsync(predicate, x.Args.OrderBy, x.Ctok);
+                           entity = await relationalRepo.GetFirstOrDefaultAsync(realPredicate, x.Args.OrderBy, x.Ctok);
                         }
                      }
                      else if (x.Repository is BaseRelationalRepository<T> relationalRepo)
                      {
-                        entity = await relationalRepo.GetFirstOrDefaultAsync(predicate, x.Args.OrderBy, x.Args.Include, x.Ctok);
+                        entity = await relationalRepo.GetFirstOrDefaultAsync(realPredicate, x.Args.OrderBy, x.Args.Include, x.Ctok);
                      }
 
                      return !entity.IsSome()
@@ -762,7 +764,7 @@
                      x.Args.PostValidation?.Invoke(x.Dto);
                      var entity = x.Dto.ToEntity<T>();
                      AsyncHelper.RunSync(() => x.Args.PostMap?.Invoke(entity, x.Repository));
-                     var result = x.Repository.Update(entity, x.Args.MessageIfExistFunc);
+                     var result = x.Repository.Change(entity, x.Args.MessageIfExistFunc);
                      AsyncHelper.RunSync(() => x.Args.PreSave?.Invoke(entity, x.Repository));
                      if (x.Args.PendingSave) return result;
                      x.Uow.SaveChanges();
@@ -795,7 +797,7 @@
                      x.Args.PostValidation?.Invoke(x.Dto);
                      var entity = x.Dto.ToEntity<T>();
                      if (x.Args.PostMap != null) await x.Args.PostMap.Invoke(entity, x.Repository);
-                     var result = await x.Repository.UpdateAsync(entity, x.Args.MessageIfExistFunc, ctok);
+                     var result = await x.Repository.ChangeAsync(entity, x.Args.MessageIfExistFunc, ctok);
                      if (x.Args.PreSave != null) await x.Args.PreSave.Invoke(entity, x.Repository);
                      if (x.Args.PendingSave) return result;
                      await x.Uow.SaveChangesAsync(ctok);
