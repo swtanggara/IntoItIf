@@ -2,6 +2,7 @@
 {
    using System;
    using System.Collections.Generic;
+   using Base.Domain.Entities;
 
    public sealed class MongoModelBuilder
    {
@@ -22,6 +23,7 @@
       #region Public Methods and Operators
 
       public StartModelParameter<T> Entity<T>()
+         where T : class, IEntity
       {
          if (ModelDefinitions == null) ModelDefinitions = new Dictionary<Type, object>();
          var type = typeof(T);
