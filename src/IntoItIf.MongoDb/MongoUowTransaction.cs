@@ -27,27 +27,28 @@
 
       public void Commit()
       {
-         Transaction.CommitTransaction();
+         if (Transaction.IsInTransaction) Transaction.CommitTransaction();
       }
 
-      public Task CommitAsync(CancellationToken ctok = default)
+      public async Task CommitAsync(CancellationToken ctok = default)
       {
-         return Transaction.CommitTransactionAsync(ctok);
+         if (Transaction.IsInTransaction) await Transaction.CommitTransactionAsync(ctok);
       }
 
       public void Dispose()
       {
+         if (Transaction != null && Transaction.IsInTransaction) Transaction.AbortTransaction();
          Transaction?.Dispose();
       }
 
       public void Rollback()
       {
-         Transaction.AbortTransaction();
+         if (Transaction.IsInTransaction) Transaction.AbortTransaction();
       }
 
-      public Task RollbackAsync(CancellationToken ctok = default)
+      public async Task RollbackAsync(CancellationToken ctok = default)
       {
-         return Transaction.AbortTransactionAsync(ctok);
+         if (Transaction.IsInTransaction) await Transaction.AbortTransactionAsync(ctok);
       }
 
       #endregion
