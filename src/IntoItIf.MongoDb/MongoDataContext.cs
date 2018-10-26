@@ -263,7 +263,7 @@
             }
 
             if (!(modelDefinition.Value is StartModelParameter param) || param.Type != key) continue;
-            var collection = db.GetCollection<BsonDocument>(modelDefinition.Key.Name);
+            var collection = db.GetCollection<BsonDocument>(key.Name);
             foreach (var indexModelParameter in param.IndexModelParameters)
             {
                collection.Indexes.CreateOne(

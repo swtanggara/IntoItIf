@@ -51,7 +51,7 @@
          var type = typeof(T);
          if (!Repositories.ContainsKey(type))
          {
-            Repositories[type] = InitRepository<TRepository, T>();
+            Repositories[type] = InitRepository<TRepository, T>().ReduceOrDefault();
          }
 
          return (TRepository)Repositories[type];

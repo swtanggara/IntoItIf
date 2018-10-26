@@ -981,7 +981,8 @@
             .ElseMap(
                x => x.Session == null
                   ? x.Set.Find(x.Predicate, x.FindOptions).Project(x.Selector).ToList()
-                  : x.Set.Find(x.Session, x.Predicate, x.FindOptions).Project(x.Selector).ToList());
+                  : x.Set.Find(x.Session, x.Predicate, x.FindOptions).Project(x.Selector).ToList())
+            .Output;
       }
 
       private async Task<Option<List<TResult>>> InternalGetListAsync<TResult>(
