@@ -11,7 +11,6 @@
    using Base.Domain.Options;
    using Base.Helpers;
    using MongoDB.Bson;
-   using MongoDB.Bson.Serialization;
    using MongoDB.Bson.Serialization.Attributes;
    using MongoDB.Driver;
 
@@ -99,6 +98,7 @@
                      if (!(definition.Value is StartModelParameter startParam)) continue;
                      foreach (var indexParam in startParam.IndexModelParameters)
                      {
+                        if (!indexParam.Options.Unique.GetValueOrDefault()) continue;
                         foreach (var dictProperty in indexParam.Rendered.ToDictionary())
                         {
                            var pi = type.GetProperty(dictProperty.Key);

@@ -758,41 +758,37 @@
             .MapFlattenAsync(
                async x =>
                {
-                  return                      (
-                        await
-                           (
-                              await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
-                                 .MapAsync(
-                                    async y => (
-                                       Exist: (await InternalGetFirstOrDefaultAsync(y.Predicate, session, x.Ctok)).ReduceOrDefault(),
-                                       y.PropertyNames,
-                                       x.InputEntity
-                                    ))
-                           )
-                           .IfMap(
-                              y => y.Exist != null,
-                              y => (MatchValidatedEntity: y.Exist, y.PropertyNames, y.InputEntity))
-                           .ElseMapFlattenAsync(
-                              async y =>
-                              {
-                                 var existAk = await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
-                                    .MapAsync(
-                                       async z => (
-                                          Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, session, x.Ctok))
-                                          .ReduceOrDefault(),
-                                          z.PropertyNames,
-                                          y.InputEntity
-                                       ));
-                                 return existAk
-                                    .IfMap(
-                                       z => z.Exist != null,
-                                       z => (MatchValidatedEntity: z.Exist, z.PropertyNames, z.InputEntity))
-                                    .ElseMap(
-                                       z => (MatchValidatedEntity: (T)null, z.PropertyNames, z.InputEntity))
-                                    .Output;
-                              })
-                     )
-                     .Output;
+                  var existPk = await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
+                     .MapAsync(
+                        async y => (
+                           Exist: (await InternalGetFirstOrDefaultAsync(y.Predicate, session, x.Ctok)).ReduceOrDefault(),
+                           y.PropertyNames,
+                           x.InputEntity
+                        ));
+                  var _ = await existPk
+                     .IfMap(
+                        y => y.Exist != null,
+                        y => (MatchValidatedEntity: y.Exist, y.PropertyNames, y.InputEntity))
+                     .ElseMapFlattenAsync(
+                        async y =>
+                        {
+                           var existAk = await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
+                              .MapAsync(
+                                 async z => (
+                                    Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, session, x.Ctok))
+                                    .ReduceOrDefault(),
+                                    z.PropertyNames,
+                                    y.InputEntity
+                                 ));
+                           return existAk
+                              .IfMap(
+                                 z => z.Exist != null,
+                                 z => (MatchValidatedEntity: z.Exist, z.PropertyNames, z.InputEntity))
+                              .ElseMap(
+                                 z => (MatchValidatedEntity: (T)null, z.PropertyNames, z.InputEntity))
+                              .Output;
+                        });
+                  return _.Output;
                });
       }
 
@@ -931,7 +927,7 @@
          Option<IClientSessionHandle> session,
          Option<CancellationToken> ctok)
       {
-         return (
+         var result = (
             await MongoDataContext.MapFlatten(x => x.Collection<T>())
                .Combine(selector)
                .Combine(predicate, true, _ => true)
@@ -945,9 +941,13 @@
                      Session: x.Item1.Item2,
                      Ctok: x.Item2
                   ))
-               .IfMapAsync(x => x.Session == null, x => x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
-               .ElseMapAsync(x => x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
+               .IfMapAsync(
+                  x => x.Session == null,
+                  x => x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
+               .ElseMapAsync(
+                  x => x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
          ).Output;
+         return result;
       }
 
       private Option<List<TResult>> InternalGetList<TResult>(

@@ -10,6 +10,7 @@
    {
       public Pnr()
       {
+         Id = ObjectId.GenerateNewId();
          Attachments = new List<object>();
          ElectronicTickets = new List<ElectronicTicket>();
          Histories = new List<History>();
@@ -28,7 +29,7 @@
       [BsonId]
       public ObjectId Id { get; set; }
 
-      public string PnrId { get; set; }
+      public Guid PnrId { get; set; }
       public int? Adult { get; set; }
       public int? Child { get; set; }
       public string Agent { get; set; }
