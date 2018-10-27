@@ -1,6 +1,8 @@
 namespace IntoItIf.Base.Validations
 {
    using System.Collections.Generic;
+   using Domain.Options;
+   using Exceptions;
 
    public sealed class ValidationResult
    {
@@ -18,6 +20,11 @@ namespace IntoItIf.Base.Validations
 
       public bool IsValid { get; }
       public IEnumerable<string> ErrorMessages { get; }
+
+      public Fail<T> ToFail<T>()
+      {
+         return Fail<T>.Throw(new ValidationException(ErrorMessages));
+      }
 
       #endregion
    }
