@@ -1,8 +1,6 @@
 ﻿namespace IntoItIf.MongoDb
 {
    using System;
-   using System.Threading.Tasks;
-   using Base.Helpers;
    using Base.Helpers.Lazy;
    using MongoDB.Driver;
 
@@ -10,11 +8,11 @@
    {
       #region Static Fields
 
-      private static readonly AsyncLazy<MongoClient> MongoClientLazy =
-         new AsyncLazy<MongoClient>(_ => InitMongoClientAsync(_connectionString));
+      private static readonly Lazy<MongoClient> MongoClientLazy =
+         new Lazy<MongoClient>(() => InitMongoClient(_connectionString));
 
-      private static readonly AsyncExpiringLazy<MongoClient> ExpiringMongoClientLazy =
-         new AsyncExpiringLazy<MongoClient>(_ => InitExpiringMongoClientAsync(_connectionString, _expiringInMinutes));
+      private static readonly ExpiringLazy<MongoClient> ExpiringMongoClientLazy =
+         new ExpiringLazy<MongoClient>(_ => InitExpiringMongoClient(_connectionString, _expiringInMinutes));
 
       private static string _connectionString = string.Empty;
 
@@ -26,21 +24,11 @@
 
       public static MongoClient Get(string connectionString)
       {
-         return AsyncHelper.RunSync(() => GetAsync(connectionString));
-      }
-
-      public static MongoClient Get(string connectionString, double expiringMinutes)
-      {
-         return AsyncHelper.RunSync(() => GetAsync(connectionString, expiringMinutes));
-      }
-
-      public static Task<MongoClient> GetAsync(string connectionString)
-      {
          _connectionString = connectionString;
-         return MongoClientLazy.Value();
+         return MongoClientLazy.Value;
       }
 
-      public static Task<MongoClient> GetAsync(string connectionString, double expiringInMinutes)
+      public static MongoClient Get(string connectionString, double expiringInMinutes)
       {
          _connectionString = connectionString;
          _expiringInMinutes = expiringInMinutes;
@@ -56,25 +44,20 @@
          return new MongoClient(connectionString);
       }
 
-      private static Task<ExpiringLazyMetadata<MongoClient>> InitExpiringMongoClientAsync(
+      private static ExpiringLazyMetadata<MongoClient> InitExpiringMongoClient(
          string connectionString,
          double expiringInMinutes)
       {
-         var result = new ExpiringLazyMetadata<MongoClient>
+         return new ExpiringLazyMetadata<MongoClient>
          {
             Result = GetClient(connectionString),
             ValidUntil = DateTimeOffset.UtcNow.AddMinutes(expiringInMinutes)
          };
-         return Task.FromResult(result);
       }
 
-      private static Task<LazyMetadata<MongoClient>> InitMongoClientAsync(string connectionString)
+      private static MongoClient InitMongoClient(string connectionString)
       {
-         var result = new LazyMetadata<MongoClient>
-         {
-            Result = GetClient(connectionString)
-         };
-         return Task.FromResult(result);
+         return new MongoClient(connectionString);
       }
 
       #endregion
