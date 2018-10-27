@@ -84,13 +84,14 @@
          (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated,
          Func<T, string[], string> defaultMessageFunc)
       {
-         return Fail<Dictionary<string, object>>.Throw(
+         var result = Fail<Dictionary<string, object>>.Throw(
             validated.MessageFunc != null
                ? new ExistingEntityException<T>(validated.MessageFunc, validated.MatchValidatedEntity)
                : new ExistingEntityException<T>(
                   defaultMessageFunc,
                   validated.MatchValidatedEntity,
                   validated.PropertyNames));
+         return result;
       }
 
       internal static Fail<Dictionary<string, object>> ThrowUpdateError(

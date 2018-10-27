@@ -118,9 +118,10 @@
       internal static bool IfCreateError(
          (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated)
       {
-         return validated.MatchValidatedEntity != null &&
+         var result = validated.MatchValidatedEntity != null &&
                 validated.PropertyNames != null &&
                 validated.PropertyNames.All(x => !string.IsNullOrWhiteSpace(x));
+         return result;
       }
 
       internal static bool IfUpdateError(

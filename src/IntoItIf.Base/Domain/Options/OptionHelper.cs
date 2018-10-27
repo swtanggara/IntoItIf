@@ -73,7 +73,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome() && inputPredicate(ifInput)
+            return !boolOption.Value && boolOption.Input.IsSome() && inputPredicate(ifInput)
                ? Bool<T, TResult>.True(boolOption.Input, boolOption.Input.Map(trueMap))
                : Bool<T, TResult>.False(boolOption.Input);
          }
@@ -107,7 +107,7 @@ namespace IntoItIf.Base.Domain.Options
          try
          {
             var realOption = await boolOption;
-            return realOption.Value == false && realOption.Input.IsSome() && inputPredicate(ifInput)
+            return !realOption.Value && realOption.Input.IsSome() && inputPredicate(ifInput)
                ? Bool<T, TResult>.True(realOption.Input, await realOption.Input.MapAsync(trueMap))
                : Bool<T, TResult>.False(realOption.Input);
          }
@@ -141,7 +141,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome() && inputPredicate(ifInput)
+            return !boolOption.Value && boolOption.Input.IsSome() && inputPredicate(ifInput)
                ? Bool<T, TResult>.True(boolOption.Input, boolOption.Input.MapFlatten(trueMap))
                : Bool<T, TResult>.False(boolOption.Input);
          }
@@ -174,7 +174,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome() && inputPredicate(ifInput)
+            return !boolOption.Value && boolOption.Input.IsSome() && inputPredicate(ifInput)
                ? Bool<T, TResult>.True(boolOption.Input, await boolOption.Input.MapFlattenAsync(trueMap))
                : Bool<T, TResult>.False(boolOption.Input);
          }
@@ -203,9 +203,18 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome()
-               ? Bool<T, TResult>.True(boolOption.Input, boolOption.Input.Map(map))
-               : Bool<T, TResult>.False(boolOption.Input);
+            Bool<T, TResult> result;
+            if (!boolOption.Value && boolOption.Input.IsSome())
+            {
+               result = Bool<T, TResult>.True(boolOption.Input, boolOption.Input.Map(map));
+            }
+
+            else
+            {
+               result = boolOption;
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -220,9 +229,12 @@ namespace IntoItIf.Base.Domain.Options
          try
          {
             var realBoolOption = await boolOption;
-            return realBoolOption.Value == false && realBoolOption.Input.IsSome()
-               ? Bool<T, TResult>.True(realBoolOption.Input, await realBoolOption.Input.MapAsync(map))
-               : Bool<T, TResult>.False(realBoolOption.Input);
+            if (!realBoolOption.Value && realBoolOption.Input.IsSome())
+            {
+               return Bool<T, TResult>.True(realBoolOption.Input, await realBoolOption.Input.MapAsync(map));
+            }
+
+            return realBoolOption;
          }
          catch (Exception ex)
          {
@@ -236,9 +248,17 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome()
-               ? Bool<T, TResult>.True(boolOption.Input, boolOption.Input.MapFlatten(map))
-               : Bool<T, TResult>.False(boolOption.Input);
+            Bool<T, TResult> result;
+            if (!boolOption.Value && boolOption.Input.IsSome())
+            {
+               result = Bool<T, TResult>.True(boolOption.Input, boolOption.Input.MapFlatten(map));
+            }
+            else
+            {
+               result = boolOption;
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -252,9 +272,17 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return boolOption.Value == false && boolOption.Input.IsSome()
-               ? Bool<T, TResult>.True(boolOption.Input, await boolOption.Input.MapFlattenAsync(map))
-               : Bool<T, TResult>.False(boolOption.Input);
+            Bool<T, TResult> result;
+            if (!boolOption.Value && boolOption.Input.IsSome())
+            {
+               result = Bool<T, TResult>.True(boolOption.Input, await boolOption.Input.MapFlattenAsync(map));
+            }
+            else
+            {
+               result = boolOption;
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -335,9 +363,18 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option.IsSome() && inputPredicate(ifInput)
-               ? Bool<T, TResult>.True(option, option.Map(trueMap))
-               : Bool<T, TResult>.False(option);
+            Bool<T, TResult> result;
+            if (option.IsSome() && inputPredicate(ifInput))
+            {
+               var trueMapResult = trueMap(option.ReduceOrDefault());
+               result = Bool<T, TResult>.True(option, trueMapResult);
+            }
+            else
+            {
+               result = Bool<T, TResult>.False(option);
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -352,7 +389,8 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option.IfMap(option.ReduceOrDefault(), predicate, trueMap);
+            var result = option.IfMap(option.ReduceOrDefault(), predicate, trueMap);
+            return result;
          }
          catch (Exception ex)
          {
@@ -369,9 +407,18 @@ namespace IntoItIf.Base.Domain.Options
          try
          {
             var realOption = await option;
-            return realOption.IsSome() && inputPredicate(ifInput)
-               ? Bool<T, TResult>.True(realOption, await option.MapAsync(trueMap))
-               : Bool<T, TResult>.False(realOption);
+            Bool<T, TResult> result;
+            if (realOption.IsSome() && inputPredicate(ifInput))
+            {
+               var trueMapResult = trueMap(realOption.ReduceOrDefault());
+               result = Bool<T, TResult>.True(realOption, await trueMapResult);
+            }
+            else
+            {
+               result = Bool<T, TResult>.False(realOption);
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -403,9 +450,18 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option.IsSome() && inputPredicate(ifInput)
-               ? Bool<T, TResult>.True(option, await option.MapAsync(trueMap))
-               : Bool<T, TResult>.False(option);
+            Bool<T, TResult> result;
+            if (option.IsSome() && inputPredicate(ifInput))
+            {
+               var trueMapResult = trueMap(option.ReduceOrDefault());
+               result = Bool<T, TResult>.True(option, await trueMapResult);
+            }
+            else
+            {
+               result = Bool<T, TResult>.False(option);
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -436,9 +492,18 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option.IsSome() && inputPredicate(ifInput)
-               ? Bool<T, TResult>.True(option, option.MapFlatten(trueMap))
-               : Bool<T, TResult>.False(option);
+            Bool<T, TResult> result;
+            if (option.IsSome() && inputPredicate(ifInput))
+            {
+               var trueMapResult = trueMap(option.ReduceOrDefault());
+               result = Bool<T, TResult>.True(option, trueMapResult);
+            }
+            else
+            {
+               result = Bool<T, TResult>.False(option);
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -469,9 +534,18 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option.IsSome() && inputPredicate(ifInput)
-               ? Bool<T, TResult>.True(option, await option.MapFlattenAsync(trueMap))
-               : Bool<T, TResult>.False(option);
+            Bool<T, TResult> result;
+            if (option.IsSome() && inputPredicate(ifInput))
+            {
+               var trueMapResult = trueMap(option.ReduceOrDefault());
+               result = Bool<T, TResult>.True(option, await trueMapResult);
+            }
+            else
+            {
+               result = Bool<T, TResult>.False(option);
+            }
+
+            return result;
          }
          catch (Exception ex)
          {
@@ -544,7 +618,7 @@ namespace IntoItIf.Base.Domain.Options
          try
          {
             return option is Some<T> some
-               ? (Option<TResult>)map(some).ReduceOrDefault()
+               ? map(some)
                : Fail<TResult>.Throw(new ArgumentException());
          }
          catch (Exception ex)
@@ -561,7 +635,7 @@ namespace IntoItIf.Base.Domain.Options
          {
             var realOption = await option;
             return realOption is Some<T> some
-               ? (Option<TResult>)(await mapAsync(some)).ReduceOrDefault()
+               ? await mapAsync(some)
                : Fail<TResult>.Throw(new ArgumentException());
          }
          catch (Exception ex)
@@ -577,7 +651,7 @@ namespace IntoItIf.Base.Domain.Options
          try
          {
             return option is Some<T> some
-               ? (Option<TResult>)(await mapAsync(some)).ReduceOrDefault()
+               ? await mapAsync(some)
                : Fail<TResult>.Throw(new ArgumentException());
          }
          catch (Exception ex)

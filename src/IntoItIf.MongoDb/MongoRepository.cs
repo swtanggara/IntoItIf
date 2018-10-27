@@ -50,15 +50,16 @@
                });
       }
 
-      public override Task<Option<Dictionary<string, object>>> AddAsync(
+      public override async Task<Option<Dictionary<string, object>>> AddAsync(
          Option<T> entity,
          Func<T, string> existMessageFunc,
          Option<CancellationToken> ctok)
       {
-         return MongoDataContext
+         var sessionOption = await MongoDataContext
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
-            .MapFlattenAsync(x => GetRealSessionAsync(x.DataContext, x.Ctok))
+            .MapFlattenAsync(x => GetRealSessionAsync(x.DataContext, x.Ctok));
+         return await sessionOption
             .MapFlattenAsync(
                async x =>
                {
@@ -744,21 +745,20 @@
                });
       }
 
-      private Task<Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)>>
+      private async Task<Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)>>
          GetValidatedEntityForCreateAsync(
             Option<T> entity,
             Option<IClientSessionHandle> session,
             Option<CancellationToken> ctok)
       {
-         return MongoDataContext
+         return await MongoDataContext
             .Combine(entity)
             .Combine(ctok, true, CancellationToken.None)
             .Map(x => (DataContext: x.Item1.Item1, InputEntity: x.Item1.Item2, Ctok: x.Item2))
             .MapFlattenAsync(
                async x =>
                {
-                  return
-                     (
+                  return                      (
                         await
                            (
                               await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
@@ -775,17 +775,15 @@
                            .ElseMapFlattenAsync(
                               async y =>
                               {
-                                 return
-                                    (
-                                       await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
-                                          .MapAsync(
-                                             async z => (
-                                                Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, session, x.Ctok))
-                                                .ReduceOrDefault(),
-                                                z.PropertyNames,
-                                                y.InputEntity
-                                             ))
-                                    )
+                                 var existAk = await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
+                                    .MapAsync(
+                                       async z => (
+                                          Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, session, x.Ctok))
+                                          .ReduceOrDefault(),
+                                          z.PropertyNames,
+                                          y.InputEntity
+                                       ));
+                                 return existAk
                                     .IfMap(
                                        z => z.Exist != null,
                                        z => (MatchValidatedEntity: z.Exist, z.PropertyNames, z.InputEntity))

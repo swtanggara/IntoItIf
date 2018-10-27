@@ -44,7 +44,7 @@
          {
             DefaultTransactionOptions = new TransactionOptions(
                ReadConcern.Snapshot,
-               ReadPreference.Nearest,
+               ReadPreference.Primary,
                WriteConcern.WMajority)
          };
          ModelBuilder = new MongoModelBuilder();
@@ -96,11 +96,14 @@
                   var type = typeof(T);
                   foreach (var definition in x.ModelDefinitions)
                   {
-                     if (!(definition.Value is CreateIndexModelParameter indexParam)) continue;
-                     foreach (var dictProperty in indexParam.Rendered.ToDictionary())
+                     if (!(definition.Value is StartModelParameter startParam)) continue;
+                     foreach (var indexParam in startParam.IndexModelParameters)
                      {
-                        var pi = type.GetProperty(dictProperty.Key, BindingFlags.Public);
-                        if (pi != null) result.Add(pi);
+                        foreach (var dictProperty in indexParam.Rendered.ToDictionary())
+                        {
+                           var pi = type.GetProperty(dictProperty.Key);
+                           if (pi != null) result.Add(pi);
+                        }
                      }
                   }
 
@@ -113,7 +116,7 @@
          where T : class
       {
          var type = typeof(T);
-         foreach (var pi in type.GetProperties(BindingFlags.Public))
+         foreach (var pi in type.GetProperties())
          {
             var isId = Attribute.IsDefined(pi, typeof(BsonIdAttribute)) || pi.Name == "Id";
             if (isId) return new List<PropertyInfo> { pi };

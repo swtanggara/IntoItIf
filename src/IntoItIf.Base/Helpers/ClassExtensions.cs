@@ -40,7 +40,7 @@ namespace IntoItIf.Base.Helpers
       {
          var tType = typeof(T);
          var result = propertyNames.Select(x => new { PropertyName = x, PropertyInfo = tType.GetProperty(x) })
-            .Where(x => x.PropertyInfo != null && x.PropertyInfo.CanWrite)
+            .Where(x => x.PropertyInfo != null && x.PropertyInfo.CanRead)
             .Select(x => x.PropertyName)
             .ToArray();
          return result;
