@@ -21,11 +21,11 @@
    {
       #region Constructors and Destructors
 
-      public CrudHandler(Option<IUow> uow) : base(uow)
+      public CrudHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public CrudHandler(Option<IUow> uow, Option<TCrudInterceptor> interceptor) : base(uow, interceptor)
+      public CrudHandler(Option<ISaveUow> uow, Option<TCrudInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -33,37 +33,37 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<Dictionary<string, object>>> Handle(
+      public Task<Option<Dictionary<string, object>>> HandleAsync(
          Option<CreateRequest<T, TDto>> request,
          Option<CancellationToken> ctok)
       {
          return ServiceMapping.CreateEntityAsync(request.ReduceOrDefault().Dto, ctok);
       }
 
-      public Task<Option<List<KeyValue>>> Handle(Option<ReadLookupRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<List<KeyValue>>> HandleAsync(Option<ReadLookupRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.GetLookupsAsync(request.ReduceOrDefault().UseValueAsId, ctok);
       }
 
-      public Task<Option<TDto>> Handle(Option<ReadOneRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<TDto>> HandleAsync(Option<ReadOneRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.GetByPredicateAsync(request.ReduceOrDefault().Criteria, ctok);
       }
 
-      public Task<Option<IPaged<TDto>>> Handle(Option<ReadPagedRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<IPaged<TDto>>> HandleAsync(Option<ReadPagedRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          var x = request.ReduceOrDefault();
          return ServiceMapping.GetPagedAsync<T, TDto, TCrudInterceptor, TRepository>(x.PageNo, x.PageSize, x.Sorts, x.Keyword, ctok);
       }
 
-      public Task<Option<Dictionary<string, object>>> Handle(
+      public Task<Option<Dictionary<string, object>>> HandleAsync(
          Option<UpdateRequest<T, TDto>> request,
          Option<CancellationToken> ctok)
       {
          return ServiceMapping.UpdateEntityAsync(request.ReduceOrDefault().Dto, ctok);
       }
 
-      public Task<Option<bool>> Handle(Option<DeleteRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<bool>> HandleAsync(Option<DeleteRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.DeleteEntityAsync(request.ReduceOrDefault().Criteria, ctok);
       }

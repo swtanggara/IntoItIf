@@ -4,24 +4,27 @@
    using System.Linq.Expressions;
    using Domain.Options;
 
-   internal static class OptionPredicateBuilder
+   public static class OptionPredicateBuilder
    {
-      #region Methods
+      #region Public Methods and Operators
 
-      internal static Option<Expression<Func<T, bool>>> And<T>(
+      public static Option<Expression<Func<T, bool>>> AndAlso<T>(
          this Option<Expression<Func<T, bool>>> expr1,
          Option<Expression<Func<T, bool>>> expr2)
       {
          return expr1.Combine(expr2)
+            .Map(x => (Expr1: x.Item1, Expr2: x.Item2))
             .Map(
-               x =>
-               {
-                  var typeofT = typeof(T);
-                  var entityParameterExpr = Expression.Parameter(typeofT, "x");
-                  var body = Expression.AndAlso(x.Item1, x.Item2);
-                  return Expression.Lambda<Func<T, bool>>(body, entityParameterExpr);
-               });
+               x => Expression.Lambda<Func<T, bool>>(
+                  Expression.AndAlso(
+                     x.Expr1.Body,
+                     new ExpressionParameterReplacer(x.Expr2.Parameters, x.Expr1.Parameters).Visit(x.Expr2.Body)),
+                  x.Expr1.Parameters));
       }
+
+      #endregion
+
+      #region Methods
 
       internal static Option<Expression<Func<T, bool>>> BuildPredicate<T>(this Option<T> source)
          where T : class

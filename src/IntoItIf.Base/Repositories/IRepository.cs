@@ -9,7 +9,6 @@ namespace IntoItIf.Base.Repositories
    using Domain.Options;
 
    public interface IRepository<T>
-      where T : class
    {
       #region Public Methods and Operators
 

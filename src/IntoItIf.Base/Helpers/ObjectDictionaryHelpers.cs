@@ -6,19 +6,24 @@ namespace IntoItIf.Base.Helpers
    using System.Linq.Expressions;
    using Humanizer;
 
-   internal static class ObjectDictionaryHelpers
+   public static class ObjectDictionaryHelpers
    {
       #region Methods
 
       internal static Expression<Func<T, bool>> BuildPredicate<T>(
          this IDictionary<string, object> source,
-         bool includeDefaultOrNull = false)
+         bool includeDefaultOrNull = false,
+         params string[] excludedProperties)
          where T : class
       {
          var typeofT = typeof(T);
-         var entityParameterExpr = Expression.Parameter(typeofT, "p");
-         var pascalizedPropertyNames = source.Keys.Select(x => x.Pascalize())
-            .ToArray();
+         var entityParameterExpr = Expression.Parameter(typeofT, "x");
+         var propertyNames = source.Keys;
+         if (excludedProperties.Any())
+         {
+            propertyNames = propertyNames.Where(x => !excludedProperties.Contains(x)).ToList();
+         }
+         var pascalizedPropertyNames = propertyNames.Select(x => x.Pascalize()).ToArray();
          Expression body = null;
          foreach (var propertyName in pascalizedPropertyNames.GetValidatedPropertyNames<T>())
          {
@@ -42,13 +47,14 @@ namespace IntoItIf.Base.Helpers
          return Expression.Lambda<Func<T, bool>>(body, entityParameterExpr);
       }
 
-      internal static Expression<Func<T, bool>> BuildPredicate<T>(
+      public static Expression<Func<T, bool>> BuildPredicate<T>(
          this object source,
-         bool includeDefaultOrNull = false)
+         bool includeDefaultOrNull = false,
+         params string[] excludedProperties)
          where T : class
       {
          var queryDictionary = source.ToDictionary();
-         return queryDictionary.BuildPredicate<T>(includeDefaultOrNull);
+         return queryDictionary.BuildPredicate<T>(includeDefaultOrNull, excludedProperties);
       }
 
       internal static T GetObjectFromValidatedProperties<T>(this T arg, params string[] validPropertyNames)

@@ -10,7 +10,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class Crud<T, TDto, TCrudInterceptor> : Crud<T, TDto, TCrudInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TCrudInterceptor : ICrudInterceptor
    {

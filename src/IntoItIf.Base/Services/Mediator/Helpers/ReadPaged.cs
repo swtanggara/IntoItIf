@@ -47,7 +47,7 @@
          Option<string> keyword,
          Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
       }
 
       #endregion

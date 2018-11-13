@@ -8,7 +8,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class ReadOne<T, TDto, TReadOneInterceptor> : ReadOne<T, TDto, TReadOneInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TReadOneInterceptor : IReadOneInterceptor
    {

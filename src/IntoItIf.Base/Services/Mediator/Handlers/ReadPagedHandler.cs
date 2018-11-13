@@ -21,11 +21,11 @@
    {
       #region Constructors and Destructors
 
-      public ReadPagedHandler(Option<IUow> uow) : base(uow)
+      public ReadPagedHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public ReadPagedHandler(Option<IUow> uow, Option<TReadPagedInterceptor> interceptor) : base(uow, interceptor)
+      public ReadPagedHandler(Option<ISaveUow> uow, Option<TReadPagedInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -33,7 +33,7 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<IPaged<TDto>>> Handle(Option<ReadPagedRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<IPaged<TDto>>> HandleAsync(Option<ReadPagedRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          var x = request.ReduceOrDefault();
          return ServiceMapping.GetPagedAsync<T, TDto, TReadPagedInterceptor, TRepository>(x.PageNo, x.PageSize, x.Sorts, x.Keyword, ctok);

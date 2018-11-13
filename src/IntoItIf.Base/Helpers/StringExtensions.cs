@@ -1,9 +1,10 @@
 namespace IntoItIf.Base.Helpers
 {
+   using System;
    using System.Linq;
    using Humanizer;
 
-   internal static class StringExtensions
+   public static class StringExtensions
    {
       #region Methods
 
@@ -14,6 +15,26 @@ namespace IntoItIf.Base.Helpers
             .ToArray();
          return result;
       }
+
+      public static string ToProperCase(this string input)
+      {
+         // If there are 0 or 1 characters, just return the string.
+         if (input == null) return input;
+         if (input.Length < 2) return input.ToUpper();
+
+         // Start with the first character.
+         string result = input.Substring(0, 1).ToUpper();
+
+         // Add the remaining characters.
+         for (int i = 1; i < input.Length; i++)
+         {
+            if (Char.IsUpper(input[i])) result += " ";
+            result += input[i];
+         }
+
+         return result;
+      }
+
 
       #endregion
    }

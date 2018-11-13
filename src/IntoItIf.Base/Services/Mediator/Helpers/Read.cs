@@ -31,7 +31,7 @@
 
       public Task<Option<List<KeyValue>>> Handle(Option<bool> useValueAsId, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
       }
 
       public static Task<Option<List<KeyValue>>> Handle(Option<IUow> uow, Option<bool> useValueAsId, Option<CancellationToken> ctok)
@@ -42,7 +42,7 @@
 
       public Task<Option<TDto>> Handle(Option<TDto> criteria, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadOneRequest<T, TDto>(criteria), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadOneRequest<T, TDto>(criteria), ctok);
       }
 
       public static Task<Option<TDto>> Handle(Option<IUow> uow, Option<TDto> criteria, Option<CancellationToken> ctok)
@@ -58,7 +58,7 @@
          Option<string> keyword,
          Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
       }
 
       public static Task<Option<IPaged<TDto>>> Handle(

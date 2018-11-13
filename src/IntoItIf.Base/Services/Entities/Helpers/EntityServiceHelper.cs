@@ -144,7 +144,7 @@
          }
       }
 
-      internal static Option<(IUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto, CancellationToken Ctok)>
+      internal static Option<(ISaveUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto, CancellationToken Ctok)>
          GetAsyncCreateParametersMapping<T, TDto, TCreateInterceptor, TRepository>(
             this Option<ServiceMapping<T, TCreateInterceptor, TRepository>> serviceMapping,
             Option<TDto> dto,
@@ -167,7 +167,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, DeleteInterceptorArgs<T> Args, TDto Criteria, CancellationToken Ctok)>
+         Option<(ISaveUow Uow, TRepository Repository, DeleteInterceptorArgs<T> Args, TDto Criteria, CancellationToken Ctok)>
          GetAsyncDeleteParametersMapping<T, TDto, TDeleteInterceptor, TRepository>(
             this Option<ServiceMapping<T, TDeleteInterceptor, TRepository>> serviceMapping,
             Option<TDto> criteria,
@@ -190,7 +190,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, ReadLookupInterceptorArgs<T> Args, bool UseValueAsId, CancellationToken Ctok)>
+         Option<(ISaveUow Uow, TRepository Repository, ReadLookupInterceptorArgs<T> Args, bool UseValueAsId, CancellationToken Ctok)>
          GetAsyncReadLookupParametersMapping<T, TReadLookupInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadLookupInterceptor, TRepository>> serviceMapping,
             Option<bool> useValueAsId,
@@ -211,7 +211,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, ReadOneInterceptorArgs<T> Args, TDto Criteria, CancellationToken Ctok)>
+         Option<(ISaveUow Uow, TRepository Repository, ReadOneInterceptorArgs<T> Args, TDto Criteria, CancellationToken Ctok)>
          GetAsyncReadOneParametersMapping<T, TDto, TReadOneInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadOneInterceptor, TRepository>> serviceMapping,
             Option<TDto> criteria,
@@ -234,7 +234,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, ReadPagedInterceptorArgs<T> Args, int PageNo, int PageSize, string[] Sorts, string
+         Option<(ISaveUow Uow, TRepository Repository, ReadPagedInterceptorArgs<T> Args, int PageNo, int PageSize, string[] Sorts, string
             Keyword, CancellationToken Ctok)> GetAsyncReadPagedParametersMapping<T, TReadPagedInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadPagedInterceptor, TRepository>> serviceMapping,
             Option<int> pageNo,
@@ -262,7 +262,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto, CancellationToken Ctok)>
+         Option<(ISaveUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto, CancellationToken Ctok)>
          GetAsyncUpdateParametersMapping<T, TDto, TUpdateInterceptor, TRepository>(
             this Option<ServiceMapping<T, TUpdateInterceptor, TRepository>> serviceMapping,
             Option<TDto> dto,
@@ -302,7 +302,7 @@
                      var entityPredicate = tempEntity.BuildPredicate();
                      var predicate = OptionPredicateBuilder.New(entityPredicate);
                      AsyncHelper.RunSync(() => x.Args.OneValidation?.Invoke(tempEntity, x.Repository));
-                     if (x.Args.Predicate != null) predicate = predicate.And(x.Args.Predicate);
+                     if (x.Args.Predicate != null) predicate = predicate.AndAlso(x.Args.Predicate);
                      var realPredicate = predicate.ReduceOrDefault();
                      var entity = x.Repository.GetFirstOrDefault(realPredicate);
                      if (x.Args.IsView)
@@ -347,7 +347,7 @@
                      var entityPredicate = ObjectDictionaryHelpers.BuildPredicate<T>(tempEntity);
                      var predicate = OptionPredicateBuilder.New<T>(entityPredicate);
                      if (x.Args.OneValidation != null) await x.Args.OneValidation.Invoke(tempEntity, x.Repository);
-                     if (x.Args.Predicate != null) predicate = predicate.And(x.Args.Predicate);
+                     if (x.Args.Predicate != null) predicate = predicate.AndAlso(x.Args.Predicate);
                      var realPredicate = predicate.ReduceOrDefault();
                      var entity = x.Repository.GetFirstOrDefault(realPredicate);
                      if (x.Args.IsView)
@@ -373,7 +373,7 @@
          }
       }
 
-      internal static Option<(IUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto
+      internal static Option<(ISaveUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto
             Dto)>
          GetCreateParametersMapping<T, TDto, TCreateInterceptor, TRepository>(
             this Option<ServiceMapping<T, TCreateInterceptor, TRepository>> serviceMapping,
@@ -395,7 +395,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, DeleteInterceptorArgs<T> Args, TDto Criteria)>
+         Option<(ISaveUow Uow, TRepository Repository, DeleteInterceptorArgs<T> Args, TDto Criteria)>
          GetDeleteParametersMapping<T, TDto, TDeleteInterceptor, TRepository>(
             this Option<ServiceMapping<T, TDeleteInterceptor, TRepository>> serviceMapping,
             Option<TDto> criteria)
@@ -558,7 +558,7 @@
                      Expression<Func<T, TDto>> toDtoExpr = y => y.ToDto<TDto>().ReduceOrDefault();
                      if (!(x.Repository is BaseRelationalRepository<T> relationalRepo))
                      {
-                        return x.Repository.GetPaged<TDto>(
+                        return x.Repository.GetPaged(
                            toDtoExpr,
                            x.Args.SearchFields,
                            x.PageNo,
@@ -569,7 +569,7 @@
                            x.Args.Predicate);
                      }
 
-                     return relationalRepo.GetPaged<TDto>(
+                     return relationalRepo.GetPaged(
                         toDtoExpr,
                         x.Args.SearchFields,
                         x.PageNo,
@@ -617,7 +617,7 @@
                      Expression<Func<T, TDto>> toDtoExpr = y => y.ToDto<TDto>().ReduceOrDefault();
                      if (!(x.Repository is BaseRelationalRepository<T> relationalRepo))
                      {
-                        return x.Repository.GetPaged<TDto>(
+                        return x.Repository.GetPaged(
                            toDtoExpr,
                            x.Args.SearchFields,
                            x.PageNo,
@@ -628,7 +628,7 @@
                            x.Args.Predicate);
                      }
 
-                     return await relationalRepo.GetPagedAsync<TDto>(
+                     return await relationalRepo.GetPagedAsync(
                         toDtoExpr,
                         x.Args.SearchFields,
                         x.PageNo,
@@ -655,7 +655,7 @@
          }
       }
 
-      internal static Option<(IUow Uow, TRepository Repository, ReadLookupInterceptorArgs<T> Args, bool UseValueAsId)>
+      internal static Option<(ISaveUow Uow, TRepository Repository, ReadLookupInterceptorArgs<T> Args, bool UseValueAsId)>
          GetReadLookupParametersMapping<T, TReadLookupInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadLookupInterceptor, TRepository>> serviceMapping,
             Option<bool> useValueAsId)
@@ -675,7 +675,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, ReadOneInterceptorArgs<T> Args, TDto Criteria)>
+         Option<(ISaveUow Uow, TRepository Repository, ReadOneInterceptorArgs<T> Args, TDto Criteria)>
          GetReadOneParametersMapping<T, TDto, TReadOneInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadOneInterceptor, TRepository>> serviceMapping,
             Option<TDto> criteria)
@@ -696,7 +696,7 @@
       }
 
       internal static
-         Option<(IUow Uow, TRepository Repository, ReadPagedInterceptorArgs<T> Args, int PageNo, int
+         Option<(ISaveUow Uow, TRepository Repository, ReadPagedInterceptorArgs<T> Args, int PageNo, int
             PageSize,
             string[] Sorts, string Keyword)> GetReadPagedParametersMapping<T, TReadPagedInterceptor, TRepository>(
             this Option<ServiceMapping<T, TReadPagedInterceptor, TRepository>> serviceMapping,
@@ -725,7 +725,7 @@
                ));
       }
 
-      internal static Option<(IUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto)>
+      internal static Option<(ISaveUow Uow, TRepository Repository, SaveInterceptorArgs<T, TDto> Args, TDto Dto)>
          GetUpdateParametersMapping<T, TDto, TUpdateInterceptor, TRepository>(
             this Option<ServiceMapping<T, TUpdateInterceptor, TRepository>> serviceMapping,
             Option<TDto> dto)

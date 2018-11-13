@@ -32,6 +32,12 @@ namespace IntoItIf.Base.Domain.Options
          return Fail<T>.Throw(exception);
       }
 
+      public Fail<T> AsFail()
+      {
+         if (IsFail()) return (Fail<T>)this;
+         return Fail<T>.Throw(new Exception("This is not fail brow, so we are failing"));
+      }
+
       public bool IsFail()
       {
          return this is Fail<T>;

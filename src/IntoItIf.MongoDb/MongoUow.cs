@@ -3,11 +3,11 @@
    using System;
    using System.Threading;
    using System.Threading.Tasks;
-   using Base.DataContexts;
    using Base.Domain.Options;
    using Base.UnitOfWork;
+   using MongoDB.Driver;
 
-   public sealed class MongoUow : Uow<MongoDataContext>, ITransactionUow
+   public sealed class MongoUow : Uow<MongoDataContext>, IMongoUow
    {
       #region Constructors and Destructors
 
@@ -19,21 +19,32 @@
 
       #region Public Methods and Operators
 
-      public IUowDbTransaction GetDbTransaction<TContext>()
-         where TContext : class, IDataContext
+      public IUowDbTransaction GetDbTransaction()
       {
          return DataContext
-            .Map(x => new MongoUowTransaction(x.GetExplicitMongoSession().ReduceOrDefault()))
+            .Map(x => new MongoUowTransaction(x.GetNewMongoSession().ReduceOrDefault()))
             .ReduceOrDefault();
       }
 
-      public Option<TResult> SaveChangesForScoped<TResult>(Func<MongoUowScoped, Option<TResult>> func)
+      public IMongoUowDbTransaction GetMongoDbTransaction()
+      {
+         return GetDbTransaction() as IMongoUowDbTransaction;
+      }
+
+      public Option<bool> RegisterChangesWatch<T>(Action<ChangeStreamDocument<T>> action, Option<ChangeStreamOperationType> operationType)
+      {
+         return DataContext.MapFlatten(x => x.RegisterChangesWatch(operationType, action));
+      }
+
+      public Option<TResult> SaveChangesForScoped<TResult>(
+         Func<MongoUowScoped, Option<TResult>> func,
+         Func<Exception, Option<TResult>> exceptionFunc)
       {
          return func.ToOption()
             .MapFlatten(
                x =>
                {
-                  using (var session = GetDbTransaction<MongoDataContext>())
+                  using (var session = GetDbTransaction())
                   {
                      var mongoSession = (MongoUowTransaction)session;
                      try
@@ -43,22 +54,25 @@
                         mongoSession.Commit();
                         return result;
                      }
-                     catch (Exception)
+                     catch (Exception ex)
                      {
                         mongoSession.Rollback();
-                        throw;
+                        return exceptionFunc(ex);
                      }
                   }
                });
       }
 
-      public Task<Option<TResult>> SaveChangesForScopedAsync<TResult>(Func<MongoUowScoped, Task<Option<TResult>>> func)
+      public Task<Option<TResult>> SaveChangesForScopedAsync<TResult>(
+         Func<MongoUowScoped, Task<Option<TResult>>> func,
+         Func<Exception, Task<Option<TResult>>> exceptionFunc)
       {
-         return SaveChangesForScopedAsync(func, None.Value);
+         return SaveChangesForScopedAsync(func, exceptionFunc, None.Value);
       }
 
       public Task<Option<TResult>> SaveChangesForScopedAsync<TResult>(
          Func<MongoUowScoped, Task<Option<TResult>>> func,
+         Func<Exception, Task<Option<TResult>>> exceptionFunc,
          Option<CancellationToken> ctok)
       {
          return func.ToOption()
@@ -67,7 +81,7 @@
             .MapFlattenAsync(
                async x =>
                {
-                  using (var session = GetDbTransaction<MongoDataContext>())
+                  using (var session = GetDbTransaction())
                   {
                      var mongoSession = (MongoUowTransaction)session;
                      try
@@ -77,141 +91,19 @@
                         await mongoSession.CommitAsync(x.Ctok);
                         return result;
                      }
-                     catch (Exception)
+                     catch (Exception ex)
                      {
                         await mongoSession.RollbackAsync(x.Ctok);
-                        throw;
+                        return await exceptionFunc(ex);
                      }
                   }
                });
       }
 
-      public Option<MongoRepository<T>> SetOf<T>()
+      public Option<IMongoRepository<T>> SetOf<T>()
          where T : class
       {
-         return GetRepository<MongoRepository<T>, T>();
-      }
-
-      public override Option<int> SaveChanges()
-      {
-         return DataContext.Map(
-            x =>
-            {
-               if (x.ExplicitSession.IsSome()) return 0;
-               if (!x.ImplicitSession.IsSome()) return 0;
-               var _ = x.ImplicitSession
-                  .IfMap(
-                     y => y.IsInTransaction,
-                     y =>
-                     {
-                        try
-                        {
-                           y.CommitTransaction();
-                           return 1;
-                        }
-                        catch (Exception)
-                        {
-                           y.AbortTransaction();
-                           return 0;
-                        }
-                     });
-               return _.Output.IsSome() ? ((Some<int>)_.Output).Content : 0;
-            });
-      }
-
-      public Option<int> DiscardChanges()
-      {
-         return DataContext.Map(
-            x =>
-            {
-               if (x.ExplicitSession.IsSome()) return 0;
-               if (!x.ImplicitSession.IsSome()) return 0;
-               var _ = x.ImplicitSession
-                  .IfMap(
-                     y => y.IsInTransaction,
-                     y =>
-                     {
-                        try
-                        {
-                           y.AbortTransaction();
-                           return 1;
-                        }
-                        catch (Exception)
-                        {
-                           return 0;
-                        }
-                     });
-               return _.Output.IsSome() ? ((Some<int>)_.Output).Content : 0;
-            });
-      }
-
-      public override Task<Option<int>> SaveChangesAsync()
-      {
-         return SaveChangesAsync(None.Value);
-      }
-
-      public override Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok)
-      {
-         return DataContext
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
-            .MapAsync(
-            async x =>
-            {
-               if (x.DataContext.ExplicitSession.IsSome()) return 0;
-               if (!x.DataContext.ImplicitSession.IsSome()) return 0;
-               var _ = await x.DataContext.ImplicitSession
-                  .IfMapAsync(
-                     y => y.IsInTransaction,
-                     async y =>
-                     {
-                        try
-                        {
-                           await y.CommitTransactionAsync(x.Ctok);
-                           return 1;
-                        }
-                        catch (Exception)
-                        {
-                           await y.AbortTransactionAsync(x.Ctok);
-                           return 0;
-                        }
-                     });
-               return _.Output.IsSome() ? ((Some<int>)_.Output).Content : 0;
-            });
-      }
-
-      public Task<Option<int>> DiscardChangesAsync()
-      {
-         return DiscardChangesAsync(None.Value);
-      }
-
-      public Task<Option<int>> DiscardChangesAsync(Option<CancellationToken> ctok)
-      {
-         return DataContext
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (DataContext: x.Item1, Ctok: x.Item2))
-            .MapAsync(
-               async x =>
-               {
-                  if (x.DataContext.ExplicitSession.IsSome()) return 0;
-                  if (!x.DataContext.ImplicitSession.IsSome()) return 0;
-                  var _ = await x.DataContext.ImplicitSession
-                     .IfMapAsync(
-                        y => y.IsInTransaction,
-                        async y =>
-                        {
-                           try
-                           {
-                              await y.AbortTransactionAsync(x.Ctok);
-                              return 1;
-                           }
-                           catch (Exception)
-                           {
-                              return 0;
-                           }
-                        });
-                  return _.Output.IsSome() ? ((Some<int>)_.Output).Content : 0;
-               });
+         return GetRepository<MongoRepository<T>, T>().ReduceOrDefault();
       }
 
       #endregion

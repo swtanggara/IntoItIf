@@ -23,11 +23,11 @@ namespace IntoItIf.Base.Services.Entities.Services
       {
       }
 
-      public EntityReadLookupService(Option<IUow> uow) : base(uow)
+      public EntityReadLookupService(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public EntityReadLookupService(Option<IUow> uow, Option<TReadLookupInterceptor> interceptor) : base(
+      public EntityReadLookupService(Option<ISaveUow> uow, Option<TReadLookupInterceptor> interceptor) : base(
          uow,
          interceptor)
       {

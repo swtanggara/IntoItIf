@@ -8,7 +8,7 @@
       #region Public Methods and Operators
 
       public static Create<T, TDto, TCreateInterceptor> Create<T, TDto, TCreateInterceptor>(this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TCreateInterceptor : ICreateInterceptor
       {
@@ -16,7 +16,7 @@
       }
 
       public static Crud<T, TDto, TCrudInterceptor> Crud<T, TDto, TCrudInterceptor>(this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TCrudInterceptor : ICrudInterceptor
       {
@@ -24,7 +24,7 @@
       }
 
       public static Delete<T, TDto, TDeleteInterceptor> Delete<T, TDto, TDeleteInterceptor>(this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TDeleteInterceptor : IDeleteInterceptor
       {
@@ -32,7 +32,7 @@
       }
 
       public static Read<T, TDto, TReadInterceptor> Read<T, TDto, TReadInterceptor>(this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TReadInterceptor : IReadInterceptor
       {
@@ -41,7 +41,7 @@
 
       public static ReadLookup<T, TDto, TReadLookupInterceptor> ReadLookup<T, TDto, TReadLookupInterceptor>(
          this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TReadLookupInterceptor : IReadLookupInterceptor
       {
@@ -50,7 +50,7 @@
 
       public static ReadOne<T, TDto, TReadOneInterceptor> ReadOne<T, TDto, TReadOneInterceptor>(
          this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TReadOneInterceptor : IReadOneInterceptor
       {
@@ -59,7 +59,7 @@
 
       public static ReadPaged<T, TDto, TReadPagedInterceptor> ReadPaged<T, TDto, TReadPagedInterceptor>(
          this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TReadPagedInterceptor : IReadPagedInterceptor
       {
@@ -67,7 +67,7 @@
       }
 
       public static Update<T, TDto, TUpdateInterceptor> Update<T, TDto, TUpdateInterceptor>(this MongoUow uow)
-         where T : class, IEntity
+         where T : class, IMongoEntity
          where TDto : class, IDto
          where TUpdateInterceptor : IUpdateInterceptor
       {

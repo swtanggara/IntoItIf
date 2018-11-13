@@ -9,7 +9,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class ReadPaged<T, TDto, TReadPagedInterceptor> : ReadPaged<T, TDto, TReadPagedInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TReadPagedInterceptor : IReadPagedInterceptor
    {

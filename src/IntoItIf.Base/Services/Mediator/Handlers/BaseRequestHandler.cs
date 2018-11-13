@@ -15,11 +15,11 @@
    {
       #region Constructors and Destructors
 
-      protected BaseRequestHandler(Option<IUow> uow) : this(uow, Activator.CreateInstance<TInterceptor>())
+      protected BaseRequestHandler(Option<ISaveUow> uow) : this(uow, Activator.CreateInstance<TInterceptor>())
       {
       }
 
-      protected BaseRequestHandler(Option<IUow> uow, Option<TInterceptor> interceptor)
+      protected BaseRequestHandler(Option<ISaveUow> uow, Option<TInterceptor> interceptor)
       {
          ServiceMapping = new ServiceMapping<T, TInterceptor, TRepository>(uow, interceptor);
       }

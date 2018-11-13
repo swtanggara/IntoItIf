@@ -12,7 +12,7 @@ namespace IntoItIf.Base.Helpers
          where T : class
       {
          var typeofT = typeof(T);
-         var entityParameterExpr = Expression.Parameter(typeofT, "p");
+         var entityParameterExpr = Expression.Parameter(typeofT, "x");
          Expression body = null;
          foreach (var propertyName in propertyNames.GetValidatedPropertyNames<T>())
          {

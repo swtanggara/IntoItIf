@@ -20,11 +20,11 @@
    {
       #region Constructors and Destructors
 
-      public DeleteHandler(Option<IUow> uow) : base(uow)
+      public DeleteHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public DeleteHandler(Option<IUow> uow, Option<TDeleteInterceptor> interceptor) : base(uow, interceptor)
+      public DeleteHandler(Option<ISaveUow> uow, Option<TDeleteInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -32,7 +32,7 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<bool>> Handle(Option<DeleteRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<bool>> HandleAsync(Option<DeleteRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.DeleteEntityAsync(request.ReduceOrDefault().Criteria, ctok);
       }

@@ -294,7 +294,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            if (!(option is Some<T> some)) return Fail<bool>.Throw(new ArgumentException());
+            if (!(option is Some<T> some)) return Fail<bool>.Throw(new ArgumentException("option is not Some<T>"));
             action(some);
             return true;
          }
@@ -308,7 +308,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            if (!(option is Some<T> some)) return Fail<bool>.Throw(new ArgumentException());
+            if (!(option is Some<T> some)) return Fail<bool>.Throw(new ArgumentException("option is not Some<T>"));
             await actionAsync(some);
             return true;
          }
@@ -572,7 +572,7 @@ namespace IntoItIf.Base.Domain.Options
       {
          try
          {
-            return option is Some<T> some ? (Option<TResult>)map(some) : Fail<TResult>.Throw(new ArgumentException());
+            return option is Some<T> some ? (Option<TResult>)map(some) : Fail<TResult>.Throw(new ArgumentException("option is not Some<T>"));
          }
          catch (Exception ex)
          {
@@ -589,7 +589,7 @@ namespace IntoItIf.Base.Domain.Options
             var realOption = await option;
             return realOption is Some<T> some
                ? (Option<TResult>)await mapAsync(some)
-               : await Task.FromResult(Fail<TResult>.Throw(new ArgumentException()));
+               : await Task.FromResult(Fail<TResult>.Throw(new ArgumentException("option is not Some<T>")));
          }
          catch (Exception ex)
          {
@@ -605,7 +605,7 @@ namespace IntoItIf.Base.Domain.Options
          {
             return option is Some<T> some
                ? (Option<TResult>)await mapAsync(some)
-               : await Task.FromResult(Fail<TResult>.Throw(new ArgumentException()));
+               : await Task.FromResult(Fail<TResult>.Throw(new ArgumentException("option is not Some<T>")));
          }
          catch (Exception ex)
          {
@@ -619,7 +619,7 @@ namespace IntoItIf.Base.Domain.Options
          {
             return option is Some<T> some
                ? map(some)
-               : Fail<TResult>.Throw(new ArgumentException());
+               : Fail<TResult>.Throw(new ArgumentException("option is not Some<T>"));
          }
          catch (Exception ex)
          {
@@ -636,7 +636,7 @@ namespace IntoItIf.Base.Domain.Options
             var realOption = await option;
             return realOption is Some<T> some
                ? await mapAsync(some)
-               : Fail<TResult>.Throw(new ArgumentException());
+               : Fail<TResult>.Throw(new ArgumentException("option is not Some<T>"));
          }
          catch (Exception ex)
          {
@@ -652,7 +652,7 @@ namespace IntoItIf.Base.Domain.Options
          {
             return option is Some<T> some
                ? await mapAsync(some)
-               : Fail<TResult>.Throw(new ArgumentException());
+               : Fail<TResult>.Throw(new ArgumentException("option is not Some<T>"));
          }
          catch (Exception ex)
          {

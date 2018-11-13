@@ -23,11 +23,11 @@ namespace IntoItIf.Base.Services.Entities.Services
       {
       }
 
-      public EntityCreateService(Option<IUow> uow) : base(uow)
+      public EntityCreateService(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public EntityCreateService(Option<IUow> uow, Option<TCreateInterceptor> interceptor) : base(uow, interceptor)
+      public EntityCreateService(Option<ISaveUow> uow, Option<TCreateInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 

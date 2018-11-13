@@ -22,11 +22,11 @@
       {
       }
 
-      public EntityReadOneService(Option<IUow> uow) : base(uow)
+      public EntityReadOneService(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public EntityReadOneService(Option<IUow> uow, Option<TReadOneInterceptor> interceptor) : base(uow, interceptor)
+      public EntityReadOneService(Option<ISaveUow> uow, Option<TReadOneInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 

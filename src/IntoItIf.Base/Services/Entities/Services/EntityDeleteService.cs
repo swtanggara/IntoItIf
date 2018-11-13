@@ -22,11 +22,11 @@ namespace IntoItIf.Base.Services.Entities.Services
       {
       }
 
-      public EntityDeleteService(Option<IUow> uow) : base(uow)
+      public EntityDeleteService(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public EntityDeleteService(Option<IUow> uow, Option<TDeleteInterceptor> interceptor) : base(uow, interceptor)
+      public EntityDeleteService(Option<ISaveUow> uow, Option<TDeleteInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 

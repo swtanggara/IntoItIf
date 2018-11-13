@@ -3,14 +3,13 @@
    using System.Collections.Generic;
    using System.Threading;
    using System.Threading.Tasks;
-   using Base.DataContexts;
    using Base.Domain.Options;
    using Base.UnitOfWork;
    using DbContexts;
    using Helpers;
    using Repositories;
 
-   public sealed class EfUow : Uow<ItsDbContext>, IStringCommandUow, ITransactionUow
+   public sealed class EfUow : Uow<ItsDbContext>, IStringCommandUow, ITransactionUow, ISaveUow
    {
       #region Constructors and Destructors
 
@@ -61,8 +60,7 @@
          return DataContext.MapFlattenAsync(x => x.ToOption().FromSqlAsync<T>(ctok, sql, parameters));
       }
 
-      public IUowDbTransaction GetDbTransaction<TContext>()
-         where TContext : class, IDataContext
+      public IUowDbTransaction GetDbTransaction()
       {
          return DataContext.MapFlatten(x => x.ToOption().GetUowDbTransaction()).ReduceOrDefault();
       }
@@ -73,17 +71,17 @@
          return GetRepository<EfRepository<T>, T>();
       }
 
-      public override Option<int> SaveChanges()
+      public Option<int> SaveChanges()
       {
          return DataContext.MapFlatten(x => x.ToOption().SaveChanges());
       }
 
-      public override Task<Option<int>> SaveChangesAsync()
+      public Task<Option<int>> SaveChangesAsync()
       {
          return DataContext.MapFlattenAsync(x => x.ToOption().SaveChangesAsync());
       }
 
-      public override Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok)
+      public Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok)
       {
          return DataContext.MapFlattenAsync(x => x.ToOption().SaveChangesAsync(ctok));
       }

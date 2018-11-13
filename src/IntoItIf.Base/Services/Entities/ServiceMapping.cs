@@ -16,7 +16,7 @@
    {
       #region Constructors and Destructors
 
-      public ServiceMapping(Option<IUow> uow, Option<TInterceptor> interceptor) : this(
+      public ServiceMapping(Option<ISaveUow> uow, Option<TInterceptor> interceptor) : this(
          uow,
          uow.ReduceOrDefault().GetRepository<TRepository, T>(),
          interceptor)
@@ -24,7 +24,7 @@
       }
 
       public ServiceMapping(
-         Option<IUow> uow,
+         Option<ISaveUow> uow,
          Option<TRepository> repository,
          Option<TInterceptor> interceptor)
       {
@@ -39,7 +39,7 @@
 
       internal Option<TInterceptor> Interceptor { get; }
       internal Option<TRepository> Repository { get; }
-      internal Option<IUow> Uow { get; }
+      internal Option<ISaveUow> Uow { get; }
 
       #endregion
 

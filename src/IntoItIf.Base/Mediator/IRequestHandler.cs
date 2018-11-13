@@ -9,7 +9,7 @@
    {
       #region Public Methods and Operators
 
-      Task<Option<TResponse>> Handle(Option<TRequest> request, Option<CancellationToken> ctok);
+      Task<Option<TResponse>> HandleAsync(Option<TRequest> request, Option<CancellationToken> ctok);
 
       #endregion
    }

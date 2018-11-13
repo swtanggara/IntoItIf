@@ -2,8 +2,6 @@
 {
    using System;
    using System.Collections.Generic;
-   using System.Threading;
-   using System.Threading.Tasks;
    using DataContexts;
    using Domain.Options;
    using Repositories;
@@ -56,10 +54,6 @@
 
          return (TRepository)Repositories[type];
       }
-
-      public abstract Option<int> SaveChanges();
-      public abstract Task<Option<int>> SaveChangesAsync();
-      public abstract Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok);
 
       #endregion
 

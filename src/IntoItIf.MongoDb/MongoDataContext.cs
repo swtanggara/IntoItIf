@@ -11,7 +11,9 @@
    using Base.Domain.Options;
    using Base.Helpers;
    using MongoDB.Bson;
+   using MongoDB.Bson.Serialization;
    using MongoDB.Bson.Serialization.Attributes;
+   using MongoDB.Bson.Serialization.IdGenerators;
    using MongoDB.Driver;
 
    public abstract class MongoDataContext : IRelationalDataContext
@@ -20,7 +22,6 @@
 
       private const string ThisIsNotCodeFirstStyleBro =
          "This is not Code-First style coding bro. Please create your collection first on MongoDB database";
-      private const double ImplicitSessionExpiringInSeconds = 10;
 
       #endregion
 
@@ -48,17 +49,13 @@
          };
          ModelBuilder = new MongoModelBuilder();
          BuildModel(ModelBuilder.ReduceOrDefault());
-         ImplicitSession = None.Value;
-         ExplicitSession = None.Value;
       }
 
       #endregion
 
       #region Properties
 
-      internal Option<IClientSessionHandle> ExplicitSession { get; private set; }
       internal Option<FindOptions> FindOptions { get; }
-      internal Option<IClientSessionHandle> ImplicitSession { get; private set; }
       protected Option<string> ConnectionString { get; }
       protected Option<string> DbName { get; }
       protected Option<MongoModelBuilder> ModelBuilder { get; }
@@ -161,93 +158,29 @@
 
       #region Methods
 
-      internal Option<IClientSessionHandle> GetExplicitMongoSession()
+      internal Option<IClientSessionHandle> GetNewMongoSession()
       {
-         if (!ExplicitSession.IsSome())
-         {
-            ExplicitSession = GetClient()
-               .Map(
-                  x =>
-                  {
-                     var session = x.StartSession(_sessionOptions);
-                     session.StartTransaction();
-                     return session;
-                  });
-         }
-         else
-         {
-            ExplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
-         }
-
-         return ExplicitSession;
+         return GetClient()
+            .Map(
+               x =>
+               {
+                  var session = x.StartSession(_sessionOptions);
+                  return session;
+               });
       }
 
-      internal async Task<Option<IClientSessionHandle>> GetExplicitMongoSessionAsync(Option<CancellationToken> ctok)
+      internal async Task<Option<IClientSessionHandle>> GetNewMongoSessionAsync(Option<CancellationToken> ctok)
       {
-         if (!ExplicitSession.IsSome())
-         {
-            ExplicitSession = await GetClient()
-               .Combine(ctok, true, CancellationToken.None)
-               .Map(x => (Client: x.Item1, Ctok: x.Item2))
-               .MapAsync(async x =>
+         return await GetClient()
+            .Combine(ctok, true, CancellationToken.None)
+            .Map(x => (Client: x.Item1, Ctok: x.Item2))
+            .MapAsync(
+               async x =>
                {
                   var session = await x.Client.StartSessionAsync(_sessionOptions, x.Ctok);
-                  session.StartTransaction();
                   return session;
                })
-               .ConfigureAwait(false);
-         }
-         else
-         {
-            ExplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
-         }
-
-         return ExplicitSession;
-      }
-
-      internal Option<IClientSessionHandle> GetImplicitMongoSession()
-      {
-         if (!ImplicitSession.IsSome())
-         {
-            ImplicitSession = GetClient()
-               .Map(
-                  x =>
-                  {
-                     var session = MongoExpiringSession.Get(x, _sessionOptions, ImplicitSessionExpiringInSeconds);
-                     if (!session.IsInTransaction) session.StartTransaction();
-                     return session;
-                  });
-         }
-         else
-         {
-            ImplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
-         }
-
-         return ImplicitSession;
-      }
-
-      internal async Task<Option<IClientSessionHandle>> GetImplicitMongoSessionAsync(Option<CancellationToken> ctok)
-      {
-         if (!ImplicitSession.IsSome())
-         {
-            ImplicitSession = await GetClient()
-               .Combine(ctok, true, CancellationToken.None)
-               .Map(x => (Client: x.Item1, Ctok: x.Item2))
-               .MapAsync(
-                  async x =>
-                  {
-                     var session = await MongoExpiringSession.GetAsync(x.Client, _sessionOptions, ImplicitSessionExpiringInSeconds, x.Ctok);
-                     if (!session.IsInTransaction) session.StartTransaction();
-                     return session;
-                  })
-               .ConfigureAwait(false);
-         }
-         else
-         {
-            ImplicitSession.IfExecute(x => !x.IsInTransaction, x => x.StartTransaction(_sessionOptions.DefaultTransactionOptions));
-         }
-
-         return ImplicitSession;
+            .ConfigureAwait(false);
       }
 
       protected abstract void OnModelCreating(MongoModelBuilder modelBuilder);
@@ -275,6 +208,8 @@
                      indexModelParameter.Options));
             }
          }
+         BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
+         BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
       }
 
       private void Dispose(bool disposing)
@@ -282,20 +217,12 @@
          if (!_disposed && disposing)
          {
             ModelBuilder
-               .Combine(ImplicitSession)
-               .Combine(ExplicitSession)
-               .Map(x => (IndexBuilder: x.Item1.Item1, ImplicitSession: x.Item1.Item2, ExplicitSession: x.Item2))
                .Execute(
                   x =>
                   {
-                     if (x.IndexBuilder != null)
-                     {
-                        x.IndexBuilder.ModelDefinitions?.Clear();
-                        x.IndexBuilder.ModelDefinitions = null;
-                     }
-
-                     x.ImplicitSession?.Dispose();
-                     x.ExplicitSession?.Dispose();
+                     if (x == null) return;
+                     x.ModelDefinitions?.Clear();
+                     x.ModelDefinitions = null;
                   });
          }
 
@@ -313,5 +240,25 @@
       }
 
       #endregion
+
+      internal Option<bool> RegisterChangesWatch<T>(
+         Option<ChangeStreamOperationType> operationType,
+         Action<ChangeStreamDocument<T>> action)
+      {
+         var result = Collection<T>()
+            .Combine(operationType)
+            .Combine(action.ToOption())
+            .Map(x => (Collection: x.Item1.Item1, OpsType: x.Item1.Item2, Action: x.Item2))
+            .Execute(
+               async x =>
+               {
+                  var pipeline = new EmptyPipelineDefinition<ChangeStreamDocument<T>>().Match(y => y.OperationType == x.OpsType);
+                  using (var cursor = await x.Collection.WatchAsync(pipeline))
+                  {
+                     await cursor.ForEachAsync(x.Action);
+                  }
+               });
+         return result;
+      }
    }
 }

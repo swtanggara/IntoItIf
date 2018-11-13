@@ -20,11 +20,11 @@
    {
       #region Constructors and Destructors
 
-      public ReadOneHandler(Option<IUow> uow) : base(uow)
+      public ReadOneHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public ReadOneHandler(Option<IUow> uow, Option<TReadOneInterceptor> interceptor) : base(uow, interceptor)
+      public ReadOneHandler(Option<ISaveUow> uow, Option<TReadOneInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -32,7 +32,7 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<TDto>> Handle(Option<ReadOneRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<TDto>> HandleAsync(Option<ReadOneRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.GetByPredicateAsync(request.ReduceOrDefault().Criteria, ctok);
       }

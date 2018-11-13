@@ -8,7 +8,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class Delete<T, TDto, TDeleteInterceptor> : Delete<T, TDto, TDeleteInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TDeleteInterceptor : IDeleteInterceptor
    {

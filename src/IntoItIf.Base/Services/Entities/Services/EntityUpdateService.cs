@@ -23,11 +23,11 @@
       {
       }
 
-      public EntityUpdateService(Option<IUow> uow) : base(uow)
+      public EntityUpdateService(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public EntityUpdateService(Option<IUow> uow, Option<TUpdateInterceptor> interceptor) : base(uow, interceptor)
+      public EntityUpdateService(Option<ISaveUow> uow, Option<TUpdateInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 

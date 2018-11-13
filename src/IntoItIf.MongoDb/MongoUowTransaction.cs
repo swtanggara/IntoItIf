@@ -2,10 +2,9 @@
 {
    using System.Threading;
    using System.Threading.Tasks;
-   using Base.UnitOfWork;
    using MongoDB.Driver;
 
-   public class MongoUowTransaction : IUowDbTransaction<IClientSessionHandle>
+   public class MongoUowTransaction : IMongoUowDbTransaction
    {
       #region Constructors and Destructors
 
@@ -19,7 +18,7 @@
 
       #region Public Properties
 
-      public IClientSessionHandle Transaction { get; }
+      public IClientSessionHandle Transaction { get; private set; }
 
       #endregion
 
@@ -37,8 +36,10 @@
 
       public void Dispose()
       {
-         if (Transaction != null && Transaction.IsInTransaction) Transaction.AbortTransaction();
-         Transaction?.Dispose();
+         if (Transaction == null) return;
+         if (Transaction.IsInTransaction) Transaction.AbortTransaction();
+         Transaction.Dispose();
+         Transaction = null;
       }
 
       public void Rollback()

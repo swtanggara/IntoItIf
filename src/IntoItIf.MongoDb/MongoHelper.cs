@@ -9,7 +9,7 @@
 
    public static class MongoHelper
    {
-      #region Methods
+      #region Public Methods and Operators
 
       public static CreateIndexModelParameter<T> Ascending<T>(
          this CreateIndexModelParameter<T> source,
@@ -34,16 +34,20 @@
          return new CreateIndexModelParameter<T>(source.Keys, source.Options, definition.Render(), source.Builder);
       }
 
+      #endregion
+
+      #region Methods
+
+      internal static Option<FindOptions> GetFindOptions(this Option<MongoDataContext> mongoContext)
+      {
+         return mongoContext.MapFlatten(x => x.FindOptions);
+      }
+
       private static BsonDocument Render<T>(this IndexKeysDefinition<T> definition)
       {
          var registry = BsonSerializer.SerializerRegistry;
          var serializer = registry.GetSerializer<T>();
          return definition.Render(serializer, registry);
-      }
-
-      internal static Option<FindOptions> GetFindOptions(this Option<MongoDataContext> mongoContext)
-      {
-         return mongoContext.MapFlatten(x => x.FindOptions);
       }
 
       #endregion

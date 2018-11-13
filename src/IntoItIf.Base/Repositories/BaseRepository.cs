@@ -88,11 +88,34 @@ namespace IntoItIf.Base.Repositories
          Func<T, string> existMessageFunc,
          Option<CancellationToken> ctok);
 
+      public Option<T> GetFirstOrDefault(T entity)
+      {
+         var predicate = entity.BuildPredicate<T>();
+         return GetFirstOrDefault(predicate);
+      }
+
+      public Option<TResult> GetFirstOrDefault<TResult>(T entity, Expression<Func<T, TResult>> selector)
+      {
+         var predicate = entity.BuildPredicate<T>();
+         return GetFirstOrDefault(selector, predicate);
+      }
+
       public abstract Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate);
 
       public abstract Option<TResult> GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate);
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(T entity)
+      {
+         return GetFirstOrDefaultAsync(entity, None.Value);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(T entity, Option<CancellationToken> ctok)
+      {
+         var predicate = entity.BuildPredicate<T>();
+         return GetFirstOrDefaultAsync(predicate, ctok);
+      }
 
       public Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
       {
@@ -108,6 +131,20 @@ namespace IntoItIf.Base.Repositories
          Expression<Func<T, bool>> predicate)
       {
          return GetFirstOrDefaultAsync(selector, predicate, None.Value);
+      }
+
+      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(T entity, Expression<Func<T, TResult>> selector)
+      {
+         return GetFirstOrDefaultAsync(entity, selector, None.Value);
+      }
+
+      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         T entity,
+         Expression<Func<T, TResult>> selector,
+         Option<CancellationToken> ctok)
+      {
+         var predicate = entity.BuildPredicate<T>();
+         return GetFirstOrDefaultAsync(selector, predicate, ctok);
       }
 
       public abstract Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
@@ -335,9 +372,9 @@ namespace IntoItIf.Base.Repositories
       protected virtual string DefaultExistMessageFunc(T entity, string[] propertyNames)
       {
          var dictEntity = entity.ToDictionary();
-         var messageProperties = propertyNames.Select(propertyName => $"{propertyName} ({dictEntity[propertyName]})")
+         var messageProperties = propertyNames.Select(propertyName => $"{propertyName} '{dictEntity[propertyName]}'")
             .ToList();
-         return $"Cannot process entity with key(s) {string.Join(" and ", messageProperties)}. This key(s) already used " +
+         return $"Cannot process {typeof(T).Name} with key(s) {string.Join(", ", messageProperties)}. These key(s) already used " +
                 "by another entity";
       }
 
@@ -346,7 +383,7 @@ namespace IntoItIf.Base.Repositories
          var dictEntity = entity.ToDictionary();
          var messageProperties = propertyNames.Select(propertyName => $"{propertyName} ({dictEntity[propertyName]})")
             .ToList();
-         return $"Cannot found entity with key(s) {string.Join(" and ", messageProperties)}.";
+         return $"Cannot found {typeof(T).Name} with key(s) {string.Join(" and ", messageProperties)}.";
       }
 
       protected Option<IQueryable<T>> GetBaseQuery()

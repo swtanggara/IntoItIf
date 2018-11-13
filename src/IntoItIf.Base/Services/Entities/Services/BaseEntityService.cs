@@ -14,15 +14,15 @@ namespace IntoItIf.Base.Services.Entities.Services
    {
       #region Constructors and Destructors
 
-      protected BaseEntityService() : this(InjecterGetter.GetUow())
+      protected BaseEntityService() : this(InjecterGetter.GetSaveUow())
       {
       }
 
-      protected BaseEntityService(Option<IUow> uow) : this(uow, Activator.CreateInstance<TInterceptor>())
+      protected BaseEntityService(Option<ISaveUow> uow) : this(uow, Activator.CreateInstance<TInterceptor>())
       {
       }
 
-      protected BaseEntityService(Option<IUow> uow, Option<TInterceptor> interceptor)
+      protected BaseEntityService(Option<ISaveUow> uow, Option<TInterceptor> interceptor)
       {
          ServiceMapping = new ServiceMapping<T, TInterceptor, TRepository>(uow, interceptor);
       }

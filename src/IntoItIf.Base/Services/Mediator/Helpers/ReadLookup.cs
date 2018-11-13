@@ -37,7 +37,7 @@
 
       public Task<Option<List<KeyValue>>> Handle(Option<bool> useValueAsId, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
       }
 
       #endregion

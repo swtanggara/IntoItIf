@@ -36,7 +36,7 @@
 
       public Task<Option<Dictionary<string, object>>> Handle(Option<TDto> dto, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new UpdateRequest<T, TDto>(dto), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new UpdateRequest<T, TDto>(dto), ctok);
       }
 
       #endregion

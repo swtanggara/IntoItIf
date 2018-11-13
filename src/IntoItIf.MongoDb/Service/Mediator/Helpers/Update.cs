@@ -9,7 +9,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class Update<T, TDto, TUpdateInterceptor> : Update<T, TDto, TUpdateInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TUpdateInterceptor : IUpdateInterceptor
    {

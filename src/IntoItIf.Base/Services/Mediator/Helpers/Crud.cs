@@ -82,22 +82,22 @@
 
       public Task<Option<Dictionary<string, object>>> HandleCreate(Option<TDto> dto, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new CreateRequest<T, TDto>(dto), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new CreateRequest<T, TDto>(dto), ctok);
       }
 
       public Task<Option<bool>> HandleDelete(Option<TDto> criteria, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new DeleteRequest<T, TDto>(criteria), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new DeleteRequest<T, TDto>(criteria), ctok);
       }
 
       public Task<Option<List<KeyValue>>> HandleReadLookup(Option<bool> useValueAsId, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadLookupRequest<T, TDto>(useValueAsId), ctok);
       }
 
       public Task<Option<TDto>> HandleReadOne(Option<TDto> criteria, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadOneRequest<T, TDto>(criteria), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadOneRequest<T, TDto>(criteria), ctok);
       }
 
       public Task<Option<IPaged<TDto>>> HandleReadPaged(
@@ -107,12 +107,12 @@
          Option<string> keyword,
          Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadPagedRequest<T, TDto>(pageNo, pageSize, sorts, keyword), ctok);
       }
 
       public Task<Option<Dictionary<string, object>>> HandleUpdate(Option<TDto> dto, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new UpdateRequest<T, TDto>(dto), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new UpdateRequest<T, TDto>(dto), ctok);
       }
 
       #endregion

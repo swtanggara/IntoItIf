@@ -9,7 +9,7 @@
    using Base.Services.Mediator.Helpers;
 
    public class Create<T, TDto, TCreateInterceptor> : Create<T, TDto, TCreateInterceptor, MongoRepository<T>>
-      where T : class, IEntity
+      where T : class, IMongoEntity
       where TDto : class, IDto
       where TCreateInterceptor : ICreateInterceptor
    {

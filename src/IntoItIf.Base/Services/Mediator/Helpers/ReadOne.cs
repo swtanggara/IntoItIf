@@ -35,7 +35,7 @@
 
       public Task<Option<TDto>> Handle(Option<TDto> criteria, Option<CancellationToken> ctok)
       {
-         return Handler().ReduceOrDefault().Handle(new ReadOneRequest<T, TDto>(criteria), ctok);
+         return Handler().ReduceOrDefault().HandleAsync(new ReadOneRequest<T, TDto>(criteria), ctok);
       }
 
       #endregion

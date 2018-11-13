@@ -11,7 +11,8 @@
 
    <ItemGroup>
       <PackageReference Include="Humanizer.Core" Version="2.5.1" />
-      <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.18" />
+      <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+      <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.9" />
       <PackageReference Include="FluentValidation" Version="8.0.100" />
       <PackageReference Include="Valit" Version="2.0.0" />
    </ItemGroup>

@@ -21,11 +21,11 @@
    {
       #region Constructors and Destructors
 
-      public UpdateHandler(Option<IUow> uow) : base(uow)
+      public UpdateHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public UpdateHandler(Option<IUow> uow, Option<TUpdateInterceptor> interceptor) : base(uow, interceptor)
+      public UpdateHandler(Option<ISaveUow> uow, Option<TUpdateInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -33,7 +33,7 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<Dictionary<string, object>>> Handle(
+      public Task<Option<Dictionary<string, object>>> HandleAsync(
          Option<UpdateRequest<T, TDto>> request,
          Option<CancellationToken> ctok)
       {

@@ -9,7 +9,7 @@ namespace IntoItIf.Base.Services
       #region Static Fields
 
       private static Option<IMapperService> _mapperService;
-      private static Option<IUow> _unitOfWork;
+      private static Option<ISaveUow> _unitOfWork;
 
       #endregion
 
@@ -27,7 +27,7 @@ namespace IntoItIf.Base.Services
          return true;
       }
 
-      public static Option<bool> SetUow(Option<IUow> uow)
+      public static Option<bool> SetUow(Option<ISaveUow> uow)
       {
          var realClassUnitOfWork = _unitOfWork.ReduceOrDefault();
          var realUnitOfWork = uow.ReduceOrDefault();
@@ -48,7 +48,7 @@ namespace IntoItIf.Base.Services
          return _mapperService;
       }
 
-      internal static Option<IUow> GetUow()
+      internal static Option<ISaveUow> GetSaveUow()
       {
          return _unitOfWork;
       }

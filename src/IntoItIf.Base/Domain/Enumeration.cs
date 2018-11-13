@@ -10,6 +10,7 @@ namespace IntoItIf.Base.Domain
    using System.Linq;
    using System.Reflection;
    using System.Runtime.Serialization;
+   using Mappers;
 
    [Serializable]
    [DebuggerDisplay("{Name} - {Id}")]
@@ -37,12 +38,17 @@ namespace IntoItIf.Base.Domain
          return TryParse(listItemValue, out result);
       }
 
+      public Type GetJsonConverterType()
+      {
+         return typeof(EnumerationJsonConverter<TEnumeration>);
+      }
+
       #endregion
    }
 
    [Serializable]
    [DebuggerDisplay("{Name} - {Id}")]
-   [DataContract(Namespace = "http://github.com/HeadspringLabs/Enumeration/5/13")]
+   [DataContract(Namespace = "https://github.com/HeadspringLabs/Enumeration")]
    public abstract class Enumeration<TEnumeration, TValue>
       : ValueObject<TEnumeration>, IComparable<TEnumeration>, IEquatable<TEnumeration>, IEnumeration<TValue>
       where TEnumeration : Enumeration<TEnumeration, TValue>

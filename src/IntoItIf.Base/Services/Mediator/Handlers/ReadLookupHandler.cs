@@ -22,11 +22,11 @@
    {
       #region Constructors and Destructors
 
-      public ReadLookupHandler(Option<IUow> uow) : base(uow)
+      public ReadLookupHandler(Option<ISaveUow> uow) : base(uow)
       {
       }
 
-      public ReadLookupHandler(Option<IUow> uow, Option<TReadLookupInterceptor> interceptor) : base(uow, interceptor)
+      public ReadLookupHandler(Option<ISaveUow> uow, Option<TReadLookupInterceptor> interceptor) : base(uow, interceptor)
       {
       }
 
@@ -34,7 +34,7 @@
 
       #region Public Methods and Operators
 
-      public Task<Option<List<KeyValue>>> Handle(Option<ReadLookupRequest<T, TDto>> request, Option<CancellationToken> ctok)
+      public Task<Option<List<KeyValue>>> HandleAsync(Option<ReadLookupRequest<T, TDto>> request, Option<CancellationToken> ctok)
       {
          return ServiceMapping.GetLookupsAsync(request.ReduceOrDefault().UseValueAsId, ctok);
       }
