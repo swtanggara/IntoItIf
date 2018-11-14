@@ -17,10 +17,10 @@
    public class ClientTest
    {
       private readonly ITestOutputHelper _output;
-      //private const string ConnString = "mongodb://sa:UafVaf2KMf3roLSC@localhost:27017/OpsBosses?authSource=admin&retryWrites=true&replicaSet=rs0";
-      private const string ConnString = "mongodb://eq:VS8vNXA5T4Kywh9H@192.168.10.7:27017/admin";
+      //private const string ConnString = "";
+      private const string ConnString = "";
       //private const string ConnString =
-      //   "mongodb://sa:UafVaf2KMf3roLSC@intoitifmongodb-shard-00-00-5qpey.mongodb.net:27017,intoitifmongodb-shard-00-01-5qpey.mongodb.net:27017,intoitifmongodb-shard-00-02-5qpey.mongodb.net:27017/test?ssl=true&replicaSet=IntoItIfMongoDb-shard-0&authSource=admin&retryWrites=true";
+      //   "mongodb:";
       private const string DbName = "OpsBosses";
       private static readonly FindOptions FindOptions = new FindOptions { MaxTime = TimeSpan.FromSeconds(10) };
       private readonly OpsBossesDataContext _context;
@@ -51,7 +51,7 @@
                      .MapFlattenAsync(
                         async y =>
                         {
-                           using (var trx = uow.GetDbTransaction<OpsBossesDataContext>())
+                           using (var trx = uow.GetDbTransaction())
                            {
                               try
                               {
@@ -92,7 +92,7 @@
                      .MapFlattenAsync(
                         async y =>
                         {
-                           using (var trx = uow.GetDbTransaction<OpsBossesDataContext>())
+                           using (var trx = uow.GetDbTransaction())
                            {
                               try
                               {

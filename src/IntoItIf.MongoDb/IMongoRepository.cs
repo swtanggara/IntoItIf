@@ -34,14 +34,51 @@
          IClientSessionHandle session,
          Option<CancellationToken> ctok);
 
+      Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+
+      Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+
       Option<TResult> GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session);
 
+      Option<T> GetFirstOrDefault(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session);
+
+      Option<TResult> GetFirstOrDefault<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+
+      Option<TResult> GetFirstOrDefault<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session);
+
       Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
 
       Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session);
+
+      Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok);
+
+      Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok);
+
+      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
          Option<CancellationToken> ctok);
@@ -49,6 +86,7 @@
       Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session,
          Option<CancellationToken> ctok);
 

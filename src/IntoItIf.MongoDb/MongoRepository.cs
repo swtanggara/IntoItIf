@@ -111,16 +111,39 @@
          return GetFirstOrDefault(x => x, predicate);
       }
 
+      public Option<T> GetFirstOrDefault(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+      {
+         return GetFirstOrDefault(x => x, predicate, sort);
+      }
+
       public Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session)
       {
-         return GetFirstOrDefault(x => x, predicate, session);
+         return GetFirstOrDefault(predicate, None.Value, session);
+      }
+
+      public Option<T> GetFirstOrDefault(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session)
+      {
+         return GetFirstOrDefault(x => x, predicate, sort, session);
       }
 
       public override Option<TResult> GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefault(selector, predicate, null);
+         return GetFirstOrDefault(selector, predicate, None.Value, null);
+      }
+
+      public Option<TResult> GetFirstOrDefault<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+      {
+         return GetFirstOrDefault(selector, predicate, sort, null);
       }
 
       public Option<TResult> GetFirstOrDefault<TResult>(
@@ -128,12 +151,53 @@
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
-         return InternalGetFirstOrDefault(selector.ToOption(), predicate, session);
+         return GetFirstOrDefault(selector, predicate, None.Value, session);
+      }
+
+      public Option<TResult> GetFirstOrDefault<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session)
+      {
+         return InternalGetFirstOrDefault(selector.ToOption(), predicate, sort, session);
       }
 
       public override Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, Option<CancellationToken> ctok)
       {
          return GetFirstOrDefaultAsync(x => x, predicate, ctok);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session)
+      {
+         return GetFirstOrDefaultAsync(predicate, None.Value, session);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session)
+      {
+         return GetFirstOrDefaultAsync(predicate, sort, session, None.Value);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok)
+      {
+         return GetFirstOrDefaultAsync(predicate, None.Value, session, ctok);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort, 
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok)
+      {
+         return GetFirstOrDefaultAsync(x => x, predicate, sort, session, ctok);
       }
 
       public override Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
@@ -144,28 +208,23 @@
          return GetFirstOrDefaultAsync(selector, predicate, null, ctok);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
-         Expression<Func<T, bool>> predicate,
-         IClientSessionHandle session)
-      {
-         return GetFirstOrDefaultAsync(x => x, predicate, session, None.Value);
-      }
-
-      public Task<Option<T>> GetFirstOrDefaultAsync(
-         Expression<Func<T, bool>> predicate,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok)
-      {
-         return GetFirstOrDefaultAsync(x => x, predicate, session, ctok);
-      }
-
       public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
          Option<CancellationToken> ctok)
       {
-         return InternalGetFirstOrDefaultAsync(selector.ToOption(), predicate, session, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, None.Value, session, ctok);
+      }
+
+      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok)
+      {
+         return InternalGetFirstOrDefaultAsync(selector.ToOption(), predicate, sort, session, ctok);
       }
 
       public override Option<List<TResult>> GetList<TResult>(
@@ -641,7 +700,7 @@
                   var existByPk = x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
                      .Map(
                         y => (
-                           Exist: InternalGetFirstOrDefault(y.Predicate, session).ReduceOrDefault(),
+                           Exist: InternalGetFirstOrDefault(y.Predicate, None.Value, session).ReduceOrDefault(),
                            y.PropertyNames,
                            x.InputEntity
                         ));
@@ -655,7 +714,7 @@
                            var existByAk = x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
                               .Map(
                                  z => (
-                                    Exist: InternalGetFirstOrDefault(z.Predicate, session).ReduceOrDefault(),
+                                    Exist: InternalGetFirstOrDefault(z.Predicate, None.Value, session).ReduceOrDefault(),
                                     z.PropertyNames,
                                     y.InputEntity
                                  ));
@@ -687,7 +746,7 @@
                   var existPk = await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
                      .MapAsync(
                         async y => (
-                           Exist: (await InternalGetFirstOrDefaultAsync(y.Predicate, session, x.Ctok)).ReduceOrDefault(),
+                           Exist: (await InternalGetFirstOrDefaultAsync(y.Predicate, None.Value, session, x.Ctok)).ReduceOrDefault(),
                            y.PropertyNames,
                            x.InputEntity
                         ));
@@ -701,7 +760,7 @@
                            var existAk = await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
                               .MapAsync(
                                  async z => (
-                                    Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, session, x.Ctok))
+                                    Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, None.Value, session, x.Ctok))
                                     .ReduceOrDefault(),
                                     z.PropertyNames,
                                     y.InputEntity
@@ -728,7 +787,7 @@
             .Map(
                x =>
                {
-                  var exist = InternalGetFirstOrDefault(x.Predicate, session).ReduceOrDefault();
+                  var exist = InternalGetFirstOrDefault(x.Predicate, None.Value, session).ReduceOrDefault();
                   return (x.Entity, Exist: exist);
                });
       }
@@ -745,7 +804,7 @@
             .MapAsync(
                async x =>
                {
-                  var exist = (await InternalGetFirstOrDefaultAsync(x.Predicate, session, x.Ctok)).ReduceOrDefault();
+                  var exist = (await InternalGetFirstOrDefaultAsync(x.Predicate, None.Value, session, x.Ctok)).ReduceOrDefault();
                   return (x.Entity, Exist: exist);
                });
       }
@@ -769,8 +828,8 @@
                         .Map(y => (PkResult: y.Item1.Item1, AkResult: y.Item1.Item2, KeyProperties: y.Item2))
                         .Map(
                            y => (
-                              ExistByPkEntity: InternalGetFirstOrDefault(y.PkResult.Predicate, session).ReduceOrDefault() /*Search by PK*/,
-                              ExistByAkEntity: InternalGetFirstOrDefault(y.AkResult.Predicate, session).ReduceOrDefault() /*Search by AK*/,
+                              ExistByPkEntity: InternalGetFirstOrDefault(y.PkResult.Predicate, None.Value, session).ReduceOrDefault() /*Search by PK*/,
+                              ExistByAkEntity: InternalGetFirstOrDefault(y.AkResult.Predicate, None.Value, session).ReduceOrDefault() /*Search by AK*/,
                               RealKeyPropertyNames: y.KeyProperties,
                               PkPropertyNames: y.PkResult.PropertyNames,
                               x.InputEntity
@@ -799,10 +858,10 @@
                         .MapAsync(
                            async y => (
                               ExistByPkEntity:
-                              (await InternalGetFirstOrDefaultAsync(y.PkResult.Predicate, session, x.Ctok))
+                              (await InternalGetFirstOrDefaultAsync(y.PkResult.Predicate, None.Value, session, x.Ctok))
                               .ReduceOrDefault() /*Search by PK*/,
                               ExistByAkEntity:
-                              (await InternalGetFirstOrDefaultAsync(y.AkResult.Predicate, session, x.Ctok))
+                              (await InternalGetFirstOrDefaultAsync(y.AkResult.Predicate, None.Value, session, x.Ctok))
                               .ReduceOrDefault() /*Search by AK*/,
                               RealKeyPropertyNames: y.KeyProperties,
                               PkPropertyNames: y.PkResult.PropertyNames,
@@ -813,42 +872,63 @@
 
       private Option<T> InternalGetFirstOrDefault(
          Option<Expression<Func<T, bool>>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session)
       {
-         return InternalGetFirstOrDefault(new Some<Expression<Func<T, T>>>(x => x), predicate, session);
+         return InternalGetFirstOrDefault(new Some<Expression<Func<T, T>>>(x => x), predicate, sort, session);
       }
 
       private Option<TResult> InternalGetFirstOrDefault<TResult>(
          Option<Expression<Func<T, TResult>>> selector,
          Option<Expression<Func<T, bool>>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session)
       {
          return MongoDataContext.MapFlatten(x => x.Collection<T>())
             .Combine(selector)
             .Combine(predicate, true, _ => true)
+            .Combine(sort, true, (false, null))
             .Map(
                x => (
-                  Set: x.Item1.Item1,
-                  Selector: x.Item1.Item2,
-                  Predicate: x.Item2,
+                  Set: x.Item1.Item1.Item1,
+                  Selector: x.Item1.Item1.Item2,
+                  Predicate: x.Item1.Item2,
+                  Sort: x.Item2,
                   Session: session
                ))
-            .IfMap(x => x.Session == null, x => x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefault())
-            .ElseMap(x => x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefault())
+            .IfMap(
+               x => x.Session == null,
+               x =>
+               {
+                  if (x.Sort.SortBy == null) return x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefault();
+                  return x.Sort.Ascending
+                     ? x.Set.Find(x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefault()
+                     : x.Set.Find(x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefault();
+               })
+            .ElseMap(
+               x =>
+               {
+                  if (x.Sort.SortBy == null) return x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefault();
+                  return x.Sort.Ascending
+                     ? x.Set.Find(x.Session, x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefault()
+                     : x.Set.Find(x.Session, x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefault();
+               })
             .Output;
       }
 
       private Task<Option<T>> InternalGetFirstOrDefaultAsync(
          Option<Expression<Func<T, bool>>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session,
          Option<CancellationToken> ctok)
       {
-         return InternalGetFirstOrDefaultAsync(new Some<Expression<Func<T, T>>>(x => x), predicate, session, ctok);
+         return InternalGetFirstOrDefaultAsync(new Some<Expression<Func<T, T>>>(x => x), predicate, sort, session, ctok);
       }
 
       private async Task<Option<TResult>> InternalGetFirstOrDefaultAsync<TResult>(
          Option<Expression<Func<T, TResult>>> selector,
          Option<Expression<Func<T, bool>>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session,
          Option<CancellationToken> ctok)
       {
@@ -856,20 +936,37 @@
             await MongoDataContext.MapFlatten(x => x.Collection<T>())
                .Combine(selector)
                .Combine(predicate, true, _ => true)
+               .Combine(sort, true, (false, null))
                .Combine(ctok, true, CancellationToken.None)
                .Map(
                   x => (
-                     Set: x.Item1.Item1.Item1,
-                     Selector: x.Item1.Item1.Item2,
-                     Predicate: x.Item1.Item2,
+                     Set: x.Item1.Item1.Item1.Item1,
+                     Selector: x.Item1.Item1.Item1.Item2,
+                     Predicate: x.Item1.Item1.Item2,
+                     Sort: x.Item1.Item2,
                      Session: session,
                      Ctok: x.Item2
                   ))
                .IfMapAsync(
                   x => x.Session == null,
-                  x => x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
+                  x =>
+                  {
+                     if (x.Sort.SortBy == null) return x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
+                     return x.Sort.Ascending
+                        ? x.Set.Find(x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok)
+                        : x.Set.Find(x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
+                  })
                .ElseMapAsync(
-                  x => x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok))
+                  x =>
+                  {
+                     if (x.Sort.SortBy == null) return x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
+                     return x.Sort.Ascending
+                        ? x.Set.Find(x.Session, x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok)
+                        : x.Set.Find(x.Session, x.Predicate)
+                           .SortByDescending(x.Sort.SortBy)
+                           .Project(x.Selector)
+                           .FirstOrDefaultAsync(x.Ctok);
+                  })
          ).Output;
       }
 
