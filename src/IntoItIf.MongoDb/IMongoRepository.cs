@@ -86,6 +86,17 @@
       Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+
+      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         Option<CancellationToken> ctok);
+
+      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
          Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session,
          Option<CancellationToken> ctok);

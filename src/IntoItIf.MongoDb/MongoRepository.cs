@@ -205,7 +205,24 @@
          Expression<Func<T, bool>> predicate,
          Option<CancellationToken> ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, null, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, None.Value, ctok);
+      }
+
+      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+      {
+         return GetFirstOrDefaultAsync(selector, predicate, sort, null, None.Value);
+      }
+
+      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         Option<CancellationToken> ctok)
+      {
+         return GetFirstOrDefaultAsync(selector, predicate, sort, null, ctok);
       }
 
       public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
