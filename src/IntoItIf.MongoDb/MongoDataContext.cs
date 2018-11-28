@@ -209,7 +209,6 @@
             }
          }
          BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
-         BsonSerializer.RegisterIdGenerator(typeof(Guid), GuidGenerator.Instance);
       }
 
       private void Dispose(bool disposing)
@@ -245,7 +244,7 @@
          Option<ChangeStreamOperationType> operationType,
          Action<ChangeStreamDocument<T>> action)
       {
-         var result = Collection<T>()
+         return Collection<T>()
             .Combine(operationType)
             .Combine(action.ToOption())
             .Map(x => (Collection: x.Item1.Item1, OpsType: x.Item1.Item2, Action: x.Item2))
@@ -258,7 +257,6 @@
                      await cursor.ForEachAsync(x.Action);
                   }
                });
-         return result;
       }
    }
 }

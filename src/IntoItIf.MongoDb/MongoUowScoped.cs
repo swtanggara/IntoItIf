@@ -16,7 +16,7 @@
       public IClientSessionHandle Session { get; }
 
       public IMongoRepository<T> SetOf<T>()
-         where T : class
+         where T : class, IMongoEntity
       {
          return _uow.MapFlatten(x => x.SetOf<T>()).ReduceOrDefault();
       }

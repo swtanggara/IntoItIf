@@ -76,17 +76,52 @@
          return ProcessCreateAndGetResultAsync(GetValidatedEntityForCreateAsync(entity, session, ctok), existMessageFunc, session, ctok);
       }
 
-      public override Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc)
+      public Option<Dictionary<string, object>> Change(Option<T> entity, params Expression<Func<T, object>>[] fieldSelections)
       {
-         return Change(entity, existMessageFunc, null);
+         return Change(entity, null, null, fieldSelections);
       }
 
       public Option<Dictionary<string, object>> Change(
          Option<T> entity,
          Func<T, string> existMessageFunc,
-         IClientSessionHandle session)
+         params Expression<Func<T, object>>[] fieldSelections)
       {
-         return ProcessUpdateAndGetResult(GetValidatedEntityForUpdate(entity, session), existMessageFunc, session);
+         return Change(entity, existMessageFunc, null, fieldSelections);
+      }
+
+      public Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return Change(entity, null, null, fieldSelections);
+      }
+
+      public override Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc)
+      {
+         return Change(entity, existMessageFunc, session: null, null);
+      }
+
+      public Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ProcessUpdateAndGetResult(GetValidatedEntityForUpdate(entity, session), existMessageFunc, session, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(Option<T> entity, params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, null, null, null, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, null, session, null, fieldSelections);
       }
 
       public override Task<Option<Dictionary<string, object>>> ChangeAsync(
@@ -103,7 +138,65 @@
          IClientSessionHandle session,
          Option<CancellationToken> ctok)
       {
-         return ProcessUpdateAndGetResultAsync(GetValidatedEntityForUpdateAsync(entity, session, ctok), existMessageFunc, session, ctok);
+         return ChangeAsync(entity, existMessageFunc, session, ctok, null);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, null, null, ctok, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, existMessageFunc, null, null, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, null, session, ctok, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, existMessageFunc, null, ctok, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ChangeAsync(entity, existMessageFunc, session, null, fieldSelections);
+      }
+
+      public Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
+      {
+         return ProcessUpdateAndGetResultAsync(
+            GetValidatedEntityForUpdateAsync(entity, session, ctok),
+            existMessageFunc,
+            session,
+            ctok,
+            fieldSelections);
       }
 
       public override Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate)
@@ -177,6 +270,13 @@
 
       public Task<Option<T>> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+      {
+         return GetFirstOrDefaultAsync(predicate, sort, null);
+      }
+
+      public Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
          Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session)
       {
@@ -193,7 +293,7 @@
 
       public Task<Option<T>> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort, 
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
          IClientSessionHandle session,
          Option<CancellationToken> ctok)
       {
@@ -415,7 +515,7 @@
             sorts,
             keyword,
             indexFrom,
-            predicate, 
+            predicate,
             null,
             ctok);
       }
@@ -582,6 +682,20 @@
                });
       }
 
+      private static UpdateDefinition<T> GetSelectedUpdateDefinition(T entity, IReadOnlyList<Expression<Func<T, object>>> fieldSelections)
+      {
+         if (fieldSelections == null || !fieldSelections.Any()) return null;
+         var first = fieldSelections.First();
+         var updateDefinition = Builders<T>.Update.Set(first, first.Compile().Invoke(entity));
+         for (var i = 1; i <= fieldSelections.Count - 1; i++)
+         {
+            var selection = fieldSelections[i];
+            updateDefinition = updateDefinition.Set(selection, selection.Compile().Invoke(entity));
+         }
+
+         return updateDefinition;
+      }
+
       private Option<Dictionary<string, object>> CreateAndGetKeyValues(
          Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc)> validated,
          IClientSessionHandle session)
@@ -650,13 +764,14 @@
             .ExecuteAsync(
                async x =>
                {
+                  var entity = entry.ReduceOrDefault();
                   if (x.Session == null)
                   {
-                     await x.Set.InsertOneAsync(entry.ReduceOrDefault(), cancellationToken: x.Ctok);
+                     await x.Set.InsertOneAsync(entity, cancellationToken: x.Ctok);
                   }
                   else
                   {
-                     await x.Set.InsertOneAsync(x.Session, entry.ReduceOrDefault(), cancellationToken: x.Ctok);
+                     await x.Set.InsertOneAsync(x.Session, entity, cancellationToken: x.Ctok);
                   }
                });
       }
@@ -845,8 +960,10 @@
                         .Map(y => (PkResult: y.Item1.Item1, AkResult: y.Item1.Item2, KeyProperties: y.Item2))
                         .Map(
                            y => (
-                              ExistByPkEntity: InternalGetFirstOrDefault(y.PkResult.Predicate, None.Value, session).ReduceOrDefault() /*Search by PK*/,
-                              ExistByAkEntity: InternalGetFirstOrDefault(y.AkResult.Predicate, None.Value, session).ReduceOrDefault() /*Search by AK*/,
+                              ExistByPkEntity: InternalGetFirstOrDefault(y.PkResult.Predicate, None.Value, session)
+                                 .ReduceOrDefault() /*Search by PK*/,
+                              ExistByAkEntity: InternalGetFirstOrDefault(y.AkResult.Predicate, None.Value, session)
+                                 .ReduceOrDefault() /*Search by AK*/,
                               RealKeyPropertyNames: y.KeyProperties,
                               PkPropertyNames: y.PkResult.PropertyNames,
                               x.InputEntity
@@ -1324,7 +1441,8 @@
       private Option<Dictionary<string, object>> ProcessUpdateAndGetResult(
          Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)> validated,
          Option<Func<T, string>> existMessageFunc,
-         IClientSessionHandle session)
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          return validated.Combine(existMessageFunc, true)
             .Map(
@@ -1338,7 +1456,7 @@
             .IfMapFlatten(
                RelationalRepositoryHelper<T>.IfUpdateError,
                x => RepositoryHelper<T>.ThrowUpdateError(x, DefaultExistMessageFunc))
-            .ElseMapFlatten(x => UpdateAndGetKeyValues(x, session))
+            .ElseMapFlatten(x => UpdateAndGetKeyValues(x, session, fieldSelections))
             .Output;
       }
 
@@ -1346,7 +1464,8 @@
          Task<Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)>> asyncValidated,
          Option<Func<T, string>> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          var validated = await asyncValidated;
          var _ = await validated
@@ -1362,18 +1481,19 @@
             .IfMapFlatten(
                RelationalRepositoryHelper<T>.IfUpdateError,
                x => RepositoryHelper<T>.ThrowUpdateError(x, DefaultExistMessageFunc))
-            .ElseMapFlattenAsync(x => UpdateAndGetKeyValuesAsync(x, session, ctok));
+            .ElseMapFlattenAsync(x => UpdateAndGetKeyValuesAsync(x, session, ctok, fieldSelections));
          return _.Output;
       }
 
       private Option<Dictionary<string, object>> UpdateAndGetKeyValues(
          Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)> validated,
-         IClientSessionHandle session)
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          return validated
             .Map(
                x => (
-                  IsSuccess: UpdateEntry(x.InputEntity, x.MatchValidatedEntity, session).ReduceOrDefault(),
+                  IsSuccess: UpdateEntry(x.InputEntity, x.MatchValidatedEntity, session, fieldSelections).ReduceOrDefault(),
                   x.PropertyNames,
                   x.InputEntity
                ))
@@ -1386,14 +1506,16 @@
       private async Task<Option<Dictionary<string, object>>> UpdateAndGetKeyValuesAsync(
          Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)> validated,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          return
             (
                await validated
                   .MapAsync(
                      async x => (
-                        IsSuccess: (await UpdateEntryAsync(x.InputEntity, x.MatchValidatedEntity, session, ctok)).ReduceOrDefault(),
+                        IsSuccess: (await UpdateEntryAsync(x.InputEntity, x.MatchValidatedEntity, session, ctok, fieldSelections))
+                        .ReduceOrDefault(),
                         x.PropertyNames,
                         x.InputEntity
                      ))
@@ -1404,7 +1526,11 @@
             .Output;
       }
 
-      private Option<bool> UpdateEntry(Option<T> entity, Option<T> exist, IClientSessionHandle session)
+      private Option<bool> UpdateEntry(
+         Option<T> entity,
+         Option<T> exist,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          return MongoDataContext
             .MapFlatten(x => x.Collection<T>())
@@ -1417,13 +1543,16 @@
                      .Execute(
                         y =>
                         {
+                           var realEntity = entity.ReduceOrDefault();
+                           var realEntityUpdateDefinition = GetUpdateDefinitionFromEntity(realEntity);
+                           var selectionsUpdateDefinition = GetSelectedUpdateDefinition(realEntity, fieldSelections);
                            if (x.Session == null)
                            {
-                              x.Set.UpdateOne(y.Predicate, new ObjectUpdateDefinition<T>(entity));
+                              x.Set.UpdateOne(y.Predicate, selectionsUpdateDefinition ?? realEntityUpdateDefinition);
                            }
                            else
                            {
-                              x.Set.UpdateOne(x.Session, y.Predicate, new ObjectUpdateDefinition<T>(entity));
+                              x.Set.UpdateOne(x.Session, y.Predicate, selectionsUpdateDefinition ?? realEntityUpdateDefinition);
                            }
                         });
                });
@@ -1433,7 +1562,8 @@
          Option<T> entity,
          Option<T> exist,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections)
       {
          return MongoDataContext
             .MapFlatten(x => x.Collection<T>())
@@ -1447,20 +1577,43 @@
                      .ExecuteAsync(
                         async y =>
                         {
+                           var realEntity = entity.ReduceOrDefault();
+                           var realEntityUpdateDefinition = GetUpdateDefinitionFromEntity(realEntity);
+                           var selectionsUpdateDefinition = GetSelectedUpdateDefinition(realEntity, fieldSelections);
                            if (x.Session == null)
                            {
-                              await x.Set.UpdateOneAsync(y.Predicate, new ObjectUpdateDefinition<T>(entity), cancellationToken: x.Ctok);
+                              await x.Set.UpdateOneAsync(
+                                 y.Predicate,
+                                 selectionsUpdateDefinition ?? realEntityUpdateDefinition,
+                                 cancellationToken: x.Ctok);
                            }
                            else
                            {
                               await x.Set.UpdateOneAsync(
                                  x.Session,
                                  y.Predicate,
-                                 new ObjectUpdateDefinition<T>(entity),
+                                 selectionsUpdateDefinition ?? realEntityUpdateDefinition,
                                  cancellationToken: x.Ctok);
                            }
                         });
                });
+      }
+
+      private static UpdateDefinition<T> GetUpdateDefinitionFromEntity(T entity)
+      {
+         var dict = entity.ToDictionary();
+         if (dict.ContainsKey("Id")) dict.Remove("Id");
+         var keys = dict.Keys.ToArray();
+         var values = dict.Values.ToArray();
+         var firstKey = keys.First();
+         var firstValue = values.First();
+         var updateDefinition = Builders<T>.Update.Set(firstKey, firstValue);
+         for (var i = 1; i <= values.Length - 1; i++)
+         {
+            updateDefinition = updateDefinition.Set(keys[i], values[i]);
+         }
+
+         return updateDefinition;
       }
 
       #endregion

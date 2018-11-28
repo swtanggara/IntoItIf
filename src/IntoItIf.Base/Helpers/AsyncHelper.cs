@@ -5,7 +5,7 @@ namespace IntoItIf.Base.Helpers
    using System.Threading;
    using System.Threading.Tasks;
 
-   internal static class AsyncHelper
+   public static class AsyncHelper
    {
       #region Methods
 
@@ -13,7 +13,7 @@ namespace IntoItIf.Base.Helpers
       ///    Execute's an async Task<T /> method which has a void return value synchronously
       /// </summary>
       /// <param name="task">Task<T /> method to execute</param>
-      internal static void RunSync(Func<Task> task)
+      public static void RunSync(Func<Task> task)
       {
          var oldContext = SynchronizationContext.Current;
          var synch = new ExclusiveSynchronizationContext();
@@ -47,7 +47,7 @@ namespace IntoItIf.Base.Helpers
       /// <typeparam name="T">Return Type</typeparam>
       /// <param name="task">Task<T /> method to execute</param>
       /// <returns></returns>
-      internal static T RunSync<T>(Func<Task<T>> task)
+      public static T RunSync<T>(Func<Task<T>> task)
       {
          var oldContext = SynchronizationContext.Current;
          var synch = new ExclusiveSynchronizationContext();

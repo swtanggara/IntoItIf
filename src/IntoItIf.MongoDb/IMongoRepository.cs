@@ -26,13 +26,75 @@
          IClientSessionHandle session,
          Option<CancellationToken> ctok);
 
-      Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc, IClientSessionHandle session);
+      Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Option<Dictionary<string, object>> Change(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
 
       Task<Option<Dictionary<string, object>>> ChangeAsync(
          Option<T> entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
          Option<CancellationToken> ctok);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Option<Dictionary<string, object>>> ChangeAsync(
+         Option<T> entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         Option<CancellationToken> ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
 
       Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
 
@@ -60,6 +122,10 @@
          IClientSessionHandle session);
 
       Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+
+      Task<Option<T>> GetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
 
       Task<Option<T>> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,

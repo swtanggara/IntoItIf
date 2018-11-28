@@ -12,7 +12,9 @@
       IMongoUowDbTransaction GetMongoDbTransaction();
 
       Option<bool> RegisterChangesWatch<T>(Action<ChangeStreamDocument<T>> action, Option<ChangeStreamOperationType> operationType);
-      Option<IMongoRepository<T>> SetOf<T>() where T : class;
+
+      Option<IMongoRepository<T>> SetOf<T>()
+         where T : class;
 
       Option<TResult> SaveChangesForScoped<TResult>(
          Func<MongoUowScoped, Option<TResult>> func,

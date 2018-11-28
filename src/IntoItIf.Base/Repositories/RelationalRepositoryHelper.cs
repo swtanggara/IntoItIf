@@ -97,7 +97,7 @@
             .ElseMap(
                y =>
                {
-                  if (y.ExistByPkEntity == null || y.ExistByAkEntity != null && y.AllKeysAreEqual)
+                  if (y.ExistByPkEntity == null || y.ExistByAkEntity != null && !y.AllKeysAreEqual)
                      return (
                         MatchValidatedEntity: (T)null,
                         PropertyNames: y.RealKeyPropertyNames,

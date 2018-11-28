@@ -1,4 +1,5 @@
-﻿namespace IntoItIf.Base.Exceptions
+﻿// ReSharper disable PossibleMultipleEnumeration
+namespace IntoItIf.Base.Exceptions
 {
    using System;
    using System.Collections.Generic;
