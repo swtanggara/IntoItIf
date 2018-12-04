@@ -4,12 +4,13 @@
    using System.Threading;
    using System.Threading.Tasks;
    using Base.Domain.Options;
+   using Base.Repositories;
    using Base.UnitOfWork;
    using DbContexts;
    using Helpers;
    using Repositories;
 
-   public sealed class EfUow : Uow<ItsDbContext>, IStringCommandUow, ITransactionUow, ISaveUow
+   public sealed class EfUow : Uow<ItsDbContext>, IEfUow
    {
       #region Constructors and Destructors
 
@@ -84,6 +85,12 @@
       public Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok)
       {
          return DataContext.MapFlattenAsync(x => x.ToOption().SaveChangesAsync(ctok));
+      }
+
+      public Option<BaseRelationalRepository<T>> SetOf<T>()
+         where T : class
+      {
+         return GetRepository<EfRepository<T>, T>().ReduceOrDefault();
       }
 
       #endregion

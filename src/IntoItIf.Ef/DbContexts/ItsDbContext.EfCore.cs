@@ -58,9 +58,9 @@ namespace IntoItIf.Ef.DbContexts
          where T : class
       {
          var typeoft = typeof(T);
-         IQueryable<T> result = null;
-         if (typeoft.IsAssignableTo<IEntity>()) result = Set<T>();
-         else if (typeoft.IsAssignableTo<IViewEntity>()) result = Query<T>();
+         IQueryable<T> result;
+         if (typeoft.IsAssignableTo<IViewEntity>()) result = Query<T>();
+         else result = Set<T>();
          return result.ToOption();
       }
 
