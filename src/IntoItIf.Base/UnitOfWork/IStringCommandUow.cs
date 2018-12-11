@@ -3,26 +3,25 @@
    using System.Collections.Generic;
    using System.Threading;
    using System.Threading.Tasks;
-   using Domain.Options;
 
    public interface IStringCommandUow : IUow
    {
       #region Public Methods and Operators
 
-      Option<int> ExecuteStringCommand(Option<string> sql, params Option<object>[] parameters);
+      int ExecuteStringCommand(string sql, params object[] parameters);
 
-      Task<Option<int>> ExecuteStringCommandAsync(
-         Option<CancellationToken> ctok,
-         Option<string> sql,
-         params Option<object>[] parameters);
+      Task<int> ExecuteStringCommandAsync(
+         CancellationToken ctok,
+         string sql,
+         params object[] parameters);
 
-      Option<List<T>> FromString<T>(Option<string> sql, params Option<object>[] parameters)
+      List<T> FromString<T>(string sql, params object[] parameters)
          where T : class;
 
-      Task<Option<List<T>>> FromStringAsync<T>(Option<string> sql, params Option<object>[] parameters)
+      Task<List<T>> FromStringAsync<T>(string sql, params object[] parameters)
          where T : class;
 
-      Task<Option<List<T>>> FromStringAsync<T>(Option<CancellationToken> ctok, Option<string> sql, Option<object>[] parameters)
+      Task<List<T>> FromStringAsync<T>(CancellationToken ctok, string sql, object[] parameters)
          where T : class;
 
       #endregion

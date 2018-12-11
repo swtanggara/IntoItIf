@@ -9,6 +9,15 @@
      <PackageLicenseUrl>https://github.com/swtanggara/IntoItIf/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Services\Entities\**" />
+    <Compile Remove="Services\Mediator\**" />
+    <EmbeddedResource Remove="Services\Entities\**" />
+    <EmbeddedResource Remove="Services\Mediator\**" />
+    <None Remove="Services\Entities\**" />
+    <None Remove="Services\Mediator\**" />
+  </ItemGroup>
+
    <ItemGroup>
       <PackageReference Include="Humanizer.Core" Version="2.5.16" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />

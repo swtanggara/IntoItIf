@@ -7,7 +7,6 @@ namespace IntoItIf.Ef.Helpers
    using System.Threading;
    using System.Threading.Tasks;
    using Base.Domain.Entities;
-   using Base.Domain.Options;
    using Base.UnitOfWork;
    using DbContexts;
    using Microsoft.EntityFrameworkCore;
@@ -17,170 +16,127 @@ namespace IntoItIf.Ef.Helpers
    {
       #region Methods
 
-      internal static Option<bool> AddEntry<T>(this Option<ItsDbContext> dataContext, Option<T> entity)
+      internal static bool AddEntry<T>(this ItsDbContext dataContext, T entity)
          where T : class
       {
          try
          {
-            dataContext.Map(x => x.Set<T>()).Map(x => x.Add(entity.ReduceOrDefault()));
+            dataContext.Set<T>().Add(entity);
             return true;
          }
-         catch (Exception ex)
+         catch (Exception)
          {
-            return Fail<bool>.Throw(ex);
+            return false;
          }
       }
 
-      internal static Option<int> ExecuteSqlCommand(
-         this Option<ItsDbContext> dataContext,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static int ExecuteSqlCommand(
+         this ItsDbContext dataContext,
+         string sql,
+         params object[] parameters)
       {
-         return dataContext
-            .Map(
-               x =>
-               {
-                  var inSql = sql.ReduceOrDefault();
-                  var inParameters = parameters.ToOptionOfEnumerable().ReduceOrDefault();
-                  return x.Database.ExecuteSqlCommand(inSql, inParameters);
-               });
+         return dataContext.Database.ExecuteSqlCommand(sql, parameters);
       }
 
-      internal static Task<Option<int>> ExecuteSqlCommandAsync(
-         this Option<ItsDbContext> dataContext,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static Task<int> ExecuteSqlCommandAsync(
+         this ItsDbContext dataContext,
+         string sql,
+         params object[] parameters)
       {
-         return dataContext.ExecuteSqlCommandAsync(None.Value, sql, parameters);
+         return dataContext.ExecuteSqlCommandAsync(CancellationToken.None, sql, parameters);
       }
 
-      internal static Task<Option<int>> ExecuteSqlCommandAsync(
-         this Option<ItsDbContext> dataContext,
-         Option<CancellationToken> ctok,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static Task<int> ExecuteSqlCommandAsync(
+         this ItsDbContext dataContext,
+         CancellationToken ctok,
+         string sql,
+         params object[] parameters)
       {
-         return dataContext
-            .MapAsync(
-               x =>
-               {
-                  var inSql = sql.ReduceOrDefault();
-                  var inParameters = parameters.ToOptionOfEnumerable().ReduceOrDefault();
-                  var inCtok = ctok.Reduce(CancellationToken.None);
-                  return x.Database.ExecuteSqlCommandAsync(inSql, inParameters, inCtok);
-               });
+         return dataContext.Database.ExecuteSqlCommandAsync(sql, parameters, ctok);
       }
 
-      internal static Option<List<T>> FromSql<T>(
-         this Option<ItsDbContext> dataContext,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static List<T> FromSql<T>(
+         this ItsDbContext dataContext,
+         string sql,
+         params object[] parameters)
          where T : class
       {
-         return dataContext
-            .Map(
-               x =>
-               {
-                  var inSql = sql.ReduceOrDefault();
-                  var inParameters = parameters.ToOptionOfEnumerable().ReduceOrDefault();
-                  return x.Set<T>().FromSql(inSql, inParameters).ToList();
-               });
+         return dataContext.Set<T>().FromSql(sql, parameters).ToList();
       }
 
-      internal static Task<Option<List<T>>> FromSqlAsync<T>(
-         this Option<ItsDbContext> dataContext,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static Task<List<T>> FromSqlAsync<T>(
+         this ItsDbContext dataContext,
+         string sql,
+         params object[] parameters)
          where T : class
       {
-         return dataContext.FromSqlAsync<T>(None.Value, sql, parameters);
+         return dataContext.FromSqlAsync<T>(CancellationToken.None, sql, parameters);
       }
 
-      internal static Task<Option<List<T>>> FromSqlAsync<T>(
-         this Option<ItsDbContext> dataContext,
-         Option<CancellationToken> ctok,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      internal static Task<List<T>> FromSqlAsync<T>(
+         this ItsDbContext dataContext,
+         CancellationToken ctok,
+         string sql,
+         params object[] parameters)
          where T : class
       {
-         return dataContext
-            .MapAsync(
-               x =>
-               {
-                  var inSql = sql.ReduceOrDefault();
-                  var inParameters = parameters.ToOptionOfEnumerable().ReduceOrDefault();
-                  var inCtok = ctok.Reduce(CancellationToken.None);
-                  return x.Set<T>().FromSql(inSql, inParameters).ToListAsync(inCtok);
-               });
+         return dataContext.Set<T>().FromSql(sql, parameters).ToListAsync(ctok);
       }
 
-      internal static Option<IUowDbTransaction> GetUowDbTransaction(this Option<ItsDbContext> dataContext)
+      internal static IUowDbTransaction GetUowDbTransaction(this ItsDbContext dataContext)
       {
-         return dataContext
-            .Map(
-               x =>
-               {
-                  var trx = x.Database.BeginTransaction();
-                  return new UowCoreDbTransaction(trx);
-               })
-            .ReduceOrDefault();
+         var trx = dataContext.Database.BeginTransaction();
+         return new UowCoreDbTransaction(trx);
       }
 
-      internal static Option<bool> RemoveEntry<T>(this Option<ItsDbContext> dataContext, Option<T> exist)
+      internal static bool RemoveEntry<T>(this ItsDbContext dataContext, T exist)
          where T : class
       {
          try
          {
-            dataContext.Map(x => x.Set<T>()).Map(x => x.Remove(exist.ReduceOrDefault()));
+            dataContext.Set<T>().Remove(exist);
             return true;
          }
-         catch (Exception ex)
+         catch (Exception)
          {
-            return Fail<bool>.Throw(ex);
+            return false;
          }
       }
 
-      internal static Option<int> SaveChanges(this Option<ItsDbContext> dataContext)
+      internal static int SaveChanges(this ItsDbContext dataContext)
       {
-         return dataContext.Map(x => x.SaveChanges());
+         return dataContext.SaveChanges();
       }
 
-      internal static Task<Option<int>> SaveChangesAsync(this Option<ItsDbContext> dataContext)
+      internal static Task<int> SaveChangesAsync(this ItsDbContext dataContext)
       {
-         return dataContext.MapAsync(x => x.SaveChangesAsync());
+         return dataContext.SaveChangesAsync();
       }
 
-      internal static Task<Option<int>> SaveChangesAsync(
-         this Option<ItsDbContext> dataContext,
-         Option<CancellationToken> ctok)
+      internal static Task<int> SaveChangesAsync(
+         this ItsDbContext dataContext,
+         CancellationToken ctok)
       {
-         return dataContext.MapAsync(x => x.SaveChangesAsync(ctok.ReduceOrDefault()));
+         return dataContext.SaveChangesAsync(ctok);
       }
 
-      internal static Option<bool> UpdateEntry<T>(
-         this Option<ItsDbContext> dataContext,
-         Option<T> entity,
-         Option<T> exist)
+      internal static bool UpdateEntry<T>(
+         this ItsDbContext dataContext,
+         T entity,
+         T exist)
          where T : class
       {
          try
          {
-            dataContext
-               .Map(
-                  x =>
-                  {
-                     var inEntity = entity.ReduceOrDefault();
-                     var entry = x.Entry(exist.ReduceOrDefault());
-                     entry.CurrentValues.SetValues(inEntity);
-                     if (!(inEntity is IRowVersion rowVersionEntity)) return true;
-                     entry.OriginalValues["RowVersion"] = rowVersionEntity.RowVersion;
-                     return true;
-                  });
+            var entry = dataContext.Entry(exist);
+            entry.CurrentValues.SetValues(entity);
+            if (!(entity is IRowVersion rowVersionEntity)) return true;
+            entry.OriginalValues["RowVersion"] = rowVersionEntity.RowVersion;
             return true;
          }
-         catch (Exception ex)
+         catch (Exception)
          {
-            return Fail<bool>.Throw(ex);
+            return false;
          }
       }
 

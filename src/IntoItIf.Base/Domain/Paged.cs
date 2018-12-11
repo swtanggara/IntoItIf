@@ -3,30 +3,29 @@ namespace IntoItIf.Base.Domain
    using System;
    using System.Collections.Generic;
    using System.Linq;
-   using Options;
 
    public class Paged<T> : IPaged<T>
    {
       #region Constructors and Destructors
 
       public Paged(
-         Option<IEnumerable<T>> source,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<PageIndexFrom> indexFrom,
-         Option<long> totalItemsCount)
+         IEnumerable<T> source,
+         long totalItemsCount,
+         int pageIndex = PageQuery.DefaultIndexFrom,
+         int pageSize = PageQuery.DefaultPageSize,
+         PageIndexFrom indexFrom = null)
       {
-         var realSource = source.ReduceOrDefault() ?? throw new ArgumentNullException(nameof(source));
-         PageIndex = pageIndex.Reduce(PageQuery.DefaultIndexFrom.Id);
-         PageSize = pageSize.Reduce(PageQuery.DefaultPageSize);
-         IndexFrom = indexFrom.Reduce(PageQuery.DefaultIndexFrom);
+         var realSource = source ?? throw new ArgumentNullException(nameof(source));
+         PageIndex = pageIndex;
+         PageSize = pageSize;
+         IndexFrom = indexFrom ?? PageIndexFrom.One;
          if (IndexFrom.Id > PageIndex)
          {
             throw new ArgumentException(
                $"indexFrom ({IndexFrom.Id}) > pageIndex ({pageIndex}), must indexFrom <= pageIndex");
          }
 
-         TotalItemsCount = totalItemsCount.ReduceOrDefault();
+         TotalItemsCount = totalItemsCount;
          PagesCount = (int)Math.Ceiling(TotalItemsCount / (double)PageSize);
          Items = realSource.Skip((PageIndex - IndexFrom.Id) * PageSize)
             .Take(PageSize)

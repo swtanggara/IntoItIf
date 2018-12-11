@@ -17,7 +17,7 @@
       {
          var mapperSvc = new AutoMapperService();
          var profile = new MyMapperProfile();
-         mapperSvc.Initialize<MyMapperProfile>(profile);
+         mapperSvc.Initialize(profile);
          InjecterGetter.SetBaseMapperService(mapperSvc);
       }
    }

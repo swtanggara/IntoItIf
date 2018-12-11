@@ -1,7 +1,6 @@
 ﻿namespace IntoItIf.Tests.Preparation.Mongo
 {
-   using Base.Domain.Options;
-   using IntoItIf.MongoDb;
+   using MongoDb;
    using MongoDB.Bson.Serialization.IdGenerators;
    using MongoDB.Driver;
    using PnrInfos;
@@ -10,7 +9,7 @@
    {
       #region Constructors and Destructors
 
-      public OpsBossesDataContext(Option<string> connectionString, Option<string> dbName, Option<FindOptions> findOptions) : base(
+      public OpsBossesDataContext(string connectionString, string dbName, FindOptions findOptions) : base(
          connectionString,
          dbName,
          findOptions)
@@ -71,11 +70,12 @@
             x => x.Ascending(y => y.UseInsurance),
             x => x.Ascending(y => y.Username)
          );
-         pnr.CreateMap(x =>
-         {
-            x.AutoMap();
-            x.MapIdMember(c => c.Id).SetIdGenerator(CombGuidGenerator.Instance);
-         });
+         pnr.CreateMap(
+            x =>
+            {
+               x.AutoMap();
+               x.MapIdMember(c => c.Id).SetIdGenerator(CombGuidGenerator.Instance);
+            });
       }
 
       #endregion

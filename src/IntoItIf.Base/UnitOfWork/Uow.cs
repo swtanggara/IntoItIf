@@ -3,7 +3,6 @@
    using System;
    using System.Collections.Generic;
    using DataContexts;
-   using Domain.Options;
    using Repositories;
 
    public abstract class Uow<TDataContext> : IUow
@@ -17,7 +16,7 @@
 
       #region Constructors and Destructors
 
-      protected Uow(Option<TDataContext> dataContext)
+      protected Uow(TDataContext dataContext)
       {
          DataContext = dataContext;
       }
@@ -28,7 +27,7 @@
 
       protected internal Dictionary<Type, object> Repositories { get; set; }
 
-      protected Option<TDataContext> DataContext { get; }
+      protected TDataContext DataContext { get; }
 
       #endregion
 
@@ -40,7 +39,7 @@
          GC.SuppressFinalize(this);
       }
 
-      public Option<TRepository> GetRepository<TRepository, T>()
+      public TRepository GetRepository<TRepository, T>()
          where TRepository : class, IRepository<T>
          where T : class
       {
@@ -49,7 +48,7 @@
          var type = typeof(T);
          if (!Repositories.ContainsKey(type))
          {
-            Repositories[type] = InitRepository<TRepository, T>().ReduceOrDefault();
+            Repositories[type] = InitRepository<TRepository, T>();
          }
 
          return (TRepository)Repositories[type];
@@ -59,7 +58,7 @@
 
       #region Methods
 
-      protected abstract Option<TRepository> InitRepository<TRepository, T>()
+      protected abstract TRepository InitRepository<TRepository, T>()
          where TRepository : class, IRepository<T>
          where T : class;
 
@@ -70,7 +69,7 @@
             // clear repositories
             Repositories?.Clear();
             // dispose the db context.
-            DataContext.ReduceOrDefault()?.Dispose();
+            DataContext?.Dispose();
          }
 
          _disposed = true;

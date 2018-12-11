@@ -57,16 +57,14 @@ namespace IntoItIf.Ef.Helpers
          var pkKey = entityType.FindPrimaryKey();
          var onlyAkKeys = allKeys.SelectMany(x => x.Properties)
             .Except(pkKey.Properties);
-         var result = onlyAkKeys.Select(x => x.PropertyInfo);
-         return result;
+         return onlyAkKeys.Select(x => x.PropertyInfo);
       }
 
       private static IEnumerable<PropertyInfo> GetPrimaryKeyProperties(this DbContext dbContext, Type type)
       {
          var entityType = dbContext.Model.FindEntityType(type);
          var key = entityType.FindPrimaryKey();
-         var result = key.Properties.Select(x => x.PropertyInfo);
-         return result;
+         return key.Properties.Select(x => x.PropertyInfo);
       }
 
       #endregion

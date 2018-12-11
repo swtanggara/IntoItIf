@@ -21,4 +21,8 @@
     <ProjectReference Include="..\..\src\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MongoDb\" />
+  </ItemGroup>
+
 </Project>

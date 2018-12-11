@@ -14,7 +14,7 @@
    {
       #region Constructors and Destructors
 
-      public EfUow(Option<ItsDbContext> dataContext) : base(dataContext)
+      public EfUow(ItsDbContext dataContext) : base(dataContext)
       {
       }
 
@@ -27,43 +27,43 @@
 
       #region Public Methods and Operators
 
-      public Option<int> ExecuteStringCommand(Option<string> sql, params Option<object>[] parameters)
+      public int ExecuteStringCommand(string sql, params object[] parameters)
       {
-         return DataContext.MapFlatten(x => x.ToOption().ExecuteSqlCommand(sql, parameters));
+         return DataContext.ExecuteSqlCommand(sql, parameters);
       }
 
-      public Task<Option<int>> ExecuteStringCommandAsync(
-         Option<CancellationToken> ctok,
-         Option<string> sql,
-         params Option<object>[] parameters)
+      public Task<int> ExecuteStringCommandAsync(
+         CancellationToken ctok,
+         string sql,
+         params object[] parameters)
       {
-         return DataContext.MapFlattenAsync(x => x.ToOption().ExecuteSqlCommandAsync(ctok, sql, parameters));
+         return DataContext.ExecuteSqlCommandAsync(ctok, sql, parameters);
       }
 
-      public Option<List<T>> FromString<T>(Option<string> sql, params Option<object>[] parameters)
+      public List<T> FromString<T>(string sql, params object[] parameters)
          where T : class
       {
-         return DataContext.MapFlatten(x => x.ToOption().FromSql<T>(sql, parameters));
+         return DataContext.FromSql<T>(sql, parameters);
       }
 
-      public Task<Option<List<T>>> FromStringAsync<T>(Option<string> sql, params Option<object>[] parameters)
+      public Task<List<T>> FromStringAsync<T>(string sql, params object[] parameters)
          where T : class
       {
-         return DataContext.MapFlattenAsync(x => x.ToOption().FromSqlAsync<T>(sql, parameters));
+         return DataContext.FromSqlAsync<T>(sql, parameters);
       }
 
-      public Task<Option<List<T>>> FromStringAsync<T>(
-         Option<CancellationToken> ctok,
-         Option<string> sql,
-         Option<object>[] parameters)
+      public Task<List<T>> FromStringAsync<T>(
+         CancellationToken ctok,
+         string sql,
+         object[] parameters)
          where T : class
       {
-         return DataContext.MapFlattenAsync(x => x.ToOption().FromSqlAsync<T>(ctok, sql, parameters));
+         return DataContext.FromSqlAsync<T>(ctok, sql, parameters);
       }
 
       public IUowDbTransaction GetDbTransaction()
       {
-         return DataContext.MapFlatten(x => x.ToOption().GetUowDbTransaction()).ReduceOrDefault();
+         return DataContext.GetUowDbTransaction();
       }
 
       public Option<EfRepository<T>> GetRepository<T>()
@@ -72,34 +72,34 @@
          return GetRepository<EfRepository<T>, T>();
       }
 
-      public Option<int> SaveChanges()
+      public int SaveChanges()
       {
-         return DataContext.MapFlatten(x => x.ToOption().SaveChanges());
+         return DataContext.SaveChanges();
       }
 
-      public Task<Option<int>> SaveChangesAsync()
+      public Task<int> SaveChangesAsync()
       {
-         return DataContext.MapFlattenAsync(x => x.ToOption().SaveChangesAsync());
+         return DataContext.SaveChangesAsync();
       }
 
-      public Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok)
+      public Task<int> SaveChangesAsync(CancellationToken ctok)
       {
-         return DataContext.MapFlattenAsync(x => x.ToOption().SaveChangesAsync(ctok));
+         return DataContext.SaveChangesAsync(ctok);
       }
 
-      public Option<BaseRelationalRepository<T>> SetOf<T>()
+      public BaseRelationalRepository<T> SetOf<T>()
          where T : class
       {
-         return GetRepository<EfRepository<T>, T>().ReduceOrDefault();
+         return GetRepository<EfRepository<T>, T>();
       }
 
       #endregion
 
       #region Methods
 
-      protected override Option<TRepository> InitRepository<TRepository, T>()
+      protected override TRepository InitRepository<TRepository, T>()
       {
-         var repository = new EfRepository<T>(DataContext.ReduceOrDefault());
+         var repository = new EfRepository<T>(DataContext);
          return repository as TRepository;
       }
 

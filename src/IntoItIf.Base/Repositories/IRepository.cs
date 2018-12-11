@@ -6,202 +6,200 @@ namespace IntoItIf.Base.Repositories
    using System.Threading;
    using System.Threading.Tasks;
    using Domain;
-   using Domain.Options;
 
    public interface IRepository<T>
    {
       #region Public Methods and Operators
 
-      Option<Dictionary<string, object>> Add(Option<T> entity);
-      Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc);
-      Task<Option<Dictionary<string, object>>> AddAsync(Option<T> entity);
-      Task<Option<Dictionary<string, object>>> AddAsync(Option<T> entity, Func<T, string> existMessageFunc);
+      Dictionary<string, object> Add(T entity);
+      Dictionary<string, object> Add(T entity, Func<T, string> existMessageFunc);
+      Task<Dictionary<string, object>> AddAsync(T entity);
+      Task<Dictionary<string, object>> AddAsync(T entity, Func<T, string> existMessageFunc);
 
-      Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<Dictionary<string, object>> Change(Option<T> entity);
-      Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc);
-      Task<Option<Dictionary<string, object>>> ChangeAsync(Option<T> entity);
+      Dictionary<string, object> Change(T entity);
+      Dictionary<string, object> Change(T entity, Func<T, string> existMessageFunc);
+      Task<Dictionary<string, object>> ChangeAsync(T entity);
 
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc);
 
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate);
+      T GetFirstOrDefault(Expression<Func<T, bool>> predicate);
 
-      Option<TResult> GetFirstOrDefault<TResult>(
+      TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+      Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, Option<CancellationToken> ctok);
+      Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
-         Expression<Func<T, TResult>> selector,
-         Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
-
-      Option<List<TResult>> GetList<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
-
-      Task<Option<List<TResult>>> GetListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
-
-      Task<Option<List<TResult>>> GetListAsync<TResult>(
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<List<KeyValue>> GetLookups(Option<string> idProperty, Option<string> valueProperty);
-      Option<List<KeyValue>> GetLookups(Option<string> idProperty, Option<string> valueProperty, Option<bool> useValueAsId);
+      List<TResult> GetList<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
 
-      Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Expression<Func<T, bool>> predicate);
+      Task<List<TResult>> GetListAsync<TResult>(Expression<Func<T, TResult>> selector, Expression<Func<T, bool>> predicate);
 
-      Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Expression<Func<T, bool>> predicate);
-
-      Task<Option<List<KeyValue>>> GetLookupsAsync(Option<string> idProperty, Option<string> valueProperty);
-
-      Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId);
-
-      Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Expression<Func<T, bool>> predicate);
-
-      Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
-
-      Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword);
-
-      Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom);
-
-      Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
-         Expression<Func<T, bool>> predicate);
-
-      Option<IPaged<TResult>> GetPaged<TResult>(
+      Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword)
+         Expression<Func<T, bool>> predicate,
+         CancellationToken ctok);
+
+      List<KeyValue> GetLookups(string idProperty, string valueProperty);
+      List<KeyValue> GetLookups(string idProperty, string valueProperty, bool useValueAsId);
+
+      List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         Expression<Func<T, bool>> predicate);
+
+      List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate);
+
+      Task<List<KeyValue>> GetLookupsAsync(string idProperty, string valueProperty);
+
+      Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId);
+
+      Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate);
+
+      Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate,
+         CancellationToken ctok);
+
+      IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword);
+
+      IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom);
+
+      IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
+         Expression<Func<T, bool>> predicate);
+
+      IPaged<TResult> GetPaged<TResult>(
+         Expression<Func<T, TResult>> selector,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword)
          where TResult : class;
 
-      Option<IPaged<TResult>> GetPaged<TResult>(
+      IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Expression<Func<T, bool>> predicate)
          where TResult : class;
 
-      Option<IPaged<TResult>> GetPaged<TResult>(
+      IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom)
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom)
          where TResult : class;
 
-      Option<IPaged<TResult>> GetPaged<TResult>(
+      IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
          where TResult : class;
 
-      Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword);
+      Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword);
 
-      Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom);
+      Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom);
 
-      Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
          where TResult : class;
 
-      Option<long> LongCount();
-      Task<Option<long>> LongCountAsync();
-
-      Option<bool> Remove(Option<T> entity);
-      Task<Option<bool>> RemoveAsync(Option<T> entity);
-      Task<Option<bool>> RemoveAsync(Option<T> entity, Option<CancellationToken> ctok);
+      long LongCount();
+      Task<long> LongCountAsync();
+      bool Remove(T entity);
+      Task<bool> RemoveAsync(T entity);
+      Task<bool> RemoveAsync(T entity, CancellationToken ctok);
 
       #endregion
    }

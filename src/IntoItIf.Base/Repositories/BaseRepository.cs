@@ -8,7 +8,6 @@ namespace IntoItIf.Base.Repositories
    using System.Threading.Tasks;
    using DataContexts;
    using Domain;
-   using Domain.Options;
    using Helpers;
 
    public abstract class BaseRepository<T> : IRepository<T>
@@ -16,17 +15,17 @@ namespace IntoItIf.Base.Repositories
    {
       #region Fields
 
-      private readonly Option<IQueryable<T>> _customQuery;
+      private readonly IQueryable<T> _customQuery;
 
       #endregion
 
       #region Constructors and Destructors
 
-      protected BaseRepository(Option<IDataContext> dataContext) : this(dataContext, None.Value)
+      protected BaseRepository(IDataContext dataContext) : this(dataContext, null)
       {
       }
 
-      protected BaseRepository(Option<IDataContext> dataContext, Option<IQueryable<T>> customQuery)
+      protected BaseRepository(IDataContext dataContext, IQueryable<T> customQuery)
       {
          _customQuery = customQuery;
          DataContext = dataContext;
@@ -36,338 +35,338 @@ namespace IntoItIf.Base.Repositories
 
       #region Properties
 
-      protected Option<IDataContext> DataContext { get; }
+      protected IDataContext DataContext { get; }
 
       #endregion
 
       #region Public Methods and Operators
 
-      public Option<Dictionary<string, object>> Add(Option<T> entity)
+      public Dictionary<string, object> Add(T entity)
       {
          return Add(entity, null);
       }
 
-      public abstract Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc);
+      public abstract Dictionary<string, object> Add(T entity, Func<T, string> existMessageFunc);
 
-      public Task<Option<Dictionary<string, object>>> AddAsync(Option<T> entity)
+      public Task<Dictionary<string, object>> AddAsync(T entity)
       {
          return AddAsync(entity, null);
       }
 
-      public Task<Option<Dictionary<string, object>>> AddAsync(Option<T> entity, Func<T, string> existMessageFunc)
+      public Task<Dictionary<string, object>> AddAsync(T entity, Func<T, string> existMessageFunc)
       {
-         return AddAsync(entity, existMessageFunc, None.Value);
+         return AddAsync(entity, existMessageFunc, CancellationToken.None);
       }
 
-      public abstract Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      public abstract Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Option<Dictionary<string, object>> Change(Option<T> entity)
+      public Dictionary<string, object> Change(T entity)
       {
          return Change(entity, null);
       }
 
-      public abstract Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc);
+      public abstract Dictionary<string, object> Change(T entity, Func<T, string> existMessageFunc);
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(Option<T> entity)
+      public Task<Dictionary<string, object>> ChangeAsync(T entity)
       {
          return ChangeAsync(entity, null);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc)
       {
-         return ChangeAsync(entity, existMessageFunc, None.Value);
+         return ChangeAsync(entity, existMessageFunc, CancellationToken.None);
       }
 
-      public abstract Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public abstract Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Option<T> GetFirstOrDefault(T entity)
+      public T GetFirstOrDefault(T entity)
       {
-         var predicate = entity.BuildPredicate<T>();
+         var predicate = entity.BuildPredicate();
          return GetFirstOrDefault(predicate);
       }
 
-      public Option<TResult> GetFirstOrDefault<TResult>(T entity, Expression<Func<T, TResult>> selector)
+      public TResult GetFirstOrDefault<TResult>(T entity, Expression<Func<T, TResult>> selector)
       {
-         var predicate = entity.BuildPredicate<T>();
+         var predicate = entity.BuildPredicate();
          return GetFirstOrDefault(selector, predicate);
       }
 
-      public abstract Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate);
+      public abstract T GetFirstOrDefault(Expression<Func<T, bool>> predicate);
 
-      public abstract Option<TResult> GetFirstOrDefault<TResult>(
+      public abstract TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate);
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(T entity)
+      public Task<T> GetFirstOrDefaultAsync(T entity)
       {
-         return GetFirstOrDefaultAsync(entity, None.Value);
+         return GetFirstOrDefaultAsync(entity, CancellationToken.None);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(T entity, Option<CancellationToken> ctok)
+      public Task<T> GetFirstOrDefaultAsync(T entity, CancellationToken ctok)
       {
-         var predicate = entity.BuildPredicate<T>();
+         var predicate = entity.BuildPredicate();
          return GetFirstOrDefaultAsync(predicate, ctok);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+      public Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefaultAsync(predicate, None.Value);
+         return GetFirstOrDefaultAsync(predicate, CancellationToken.None);
       }
 
-      public abstract Task<Option<T>> GetFirstOrDefaultAsync(
+      public abstract Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, None.Value);
+         return GetFirstOrDefaultAsync(selector, predicate, CancellationToken.None);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(T entity, Expression<Func<T, TResult>> selector)
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(T entity, Expression<Func<T, TResult>> selector)
       {
-         return GetFirstOrDefaultAsync(entity, selector, None.Value);
+         return GetFirstOrDefaultAsync(entity, selector, CancellationToken.None);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          T entity,
          Expression<Func<T, TResult>> selector,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         var predicate = entity.BuildPredicate<T>();
+         var predicate = entity.BuildPredicate();
          return GetFirstOrDefaultAsync(selector, predicate, ctok);
       }
 
-      public abstract Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public abstract Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public abstract Option<List<TResult>> GetList<TResult>(
+      public abstract List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate);
 
-      public Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
-         return GetListAsync(selector, predicate, None.Value);
+         return GetListAsync(selector, predicate, CancellationToken.None);
       }
 
-      public abstract Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public abstract Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Option<List<KeyValue>> GetLookups(Option<string> idProperty, Option<string> valueProperty)
+      public List<KeyValue> GetLookups(string idProperty, string valueProperty)
       {
-         return GetLookups(idProperty, valueProperty, null, null);
+         return GetLookups(idProperty, valueProperty, false, null);
       }
 
-      public Option<List<KeyValue>> GetLookups(Option<string> idProperty, Option<string> valueProperty, Option<bool> useValueAsId)
+      public List<KeyValue> GetLookups(string idProperty, string valueProperty, bool useValueAsId)
       {
          return GetLookups(idProperty, valueProperty, useValueAsId, null);
       }
 
-      public Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
+      public List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
          Expression<Func<T, bool>> predicate)
       {
-         return GetLookups(idProperty, valueProperty, null, predicate);
+         return GetLookups(idProperty, valueProperty, false, predicate);
       }
 
-      public abstract Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public abstract List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate);
 
-      public Task<Option<List<KeyValue>>> GetLookupsAsync(Option<string> idProperty, Option<string> valueProperty)
+      public Task<List<KeyValue>> GetLookupsAsync(string idProperty, string valueProperty)
       {
-         return GetLookupsAsync(idProperty, valueProperty, None.Value);
+         return GetLookupsAsync(idProperty, valueProperty, false);
       }
 
-      public Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId)
+      public Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId)
       {
          return GetLookupsAsync(idProperty, valueProperty, useValueAsId, null);
       }
 
-      public Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, None.Value);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, CancellationToken.None);
       }
 
-      public abstract Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public abstract Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword)
+      public IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, null);
       }
 
-      public Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom)
+      public IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null);
       }
 
-      public abstract Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public abstract IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate);
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword)
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword)
          where TResult : class
       {
-         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, None.Value, null);
+         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, null, null);
       }
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Expression<Func<T, bool>> predicate)
          where TResult : class
       {
-         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, None.Value, predicate);
+         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, null, predicate);
       }
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom)
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom)
          where TResult : class
       {
          return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null);
       }
 
-      public abstract Option<IPaged<TResult>> GetPaged<TResult>(
+      public abstract IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
          where TResult : class;
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword)
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, None.Value);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, null);
       }
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom)
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, None.Value);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, CancellationToken.None);
       }
 
-      public abstract Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public abstract Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public abstract Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public abstract Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
          where TResult : class;
 
-      public abstract Option<long> LongCount();
+      public abstract long LongCount();
 
-      public Task<Option<long>> LongCountAsync()
+      public Task<long> LongCountAsync()
       {
-         return LongCountAsync(None.Value);
+         return LongCountAsync(CancellationToken.None);
       }
 
-      public abstract Task<Option<long>> LongCountAsync(Option<CancellationToken> ctok);
+      public abstract Task<long> LongCountAsync(CancellationToken ctok);
 
-      public abstract Option<bool> Remove(Option<T> entity);
+      public abstract bool Remove(T entity);
 
-      public Task<Option<bool>> RemoveAsync(Option<T> entity)
+      public Task<bool> RemoveAsync(T entity)
       {
-         return RemoveAsync(entity, None.Value);
+         return RemoveAsync(entity, CancellationToken.None);
       }
 
-      public abstract Task<Option<bool>> RemoveAsync(Option<T> entity, Option<CancellationToken> ctok);
+      public abstract Task<bool> RemoveAsync(T entity, CancellationToken ctok);
 
       #endregion
 
       #region Methods
 
-      protected abstract Option<IQueryable<T>> BuildQuery(
-         Option<IQueryable<T>> sourceQuery,
-         Option<Expression<Func<T, bool>>> predicate);
+      protected abstract IQueryable<T> BuildQuery(
+         IQueryable<T> sourceQuery,
+         Expression<Func<T, bool>> predicate);
 
       protected virtual string DefaultExistMessageFunc(T entity, string[] propertyNames)
       {
@@ -386,9 +385,9 @@ namespace IntoItIf.Base.Repositories
          return $"Cannot found {typeof(T).Name} with key(s) {string.Join(" and ", messageProperties)}.";
       }
 
-      protected Option<IQueryable<T>> GetBaseQuery()
+      protected IQueryable<T> GetBaseQuery()
       {
-         return _customQuery.IsSome() ? _customQuery : DataContext.ReduceOrDefault().GetQuery<T>();
+         return _customQuery ?? DataContext.GetQuery<T>();
       }
 
       #endregion

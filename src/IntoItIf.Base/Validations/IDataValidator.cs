@@ -2,16 +2,15 @@ namespace IntoItIf.Base.Validations
 {
    using System.Threading.Tasks;
    using Domain;
-   using Domain.Options;
    using Services;
 
-   public interface IDataValidator<T> : IInjectable
+   public interface IDataValidator<in T> : IInjectable
       where T : class, IValidationEntity
    {
       #region Public Methods and Operators
 
-      Option<ValidationResult> Validate(Option<T> toValidate);
-      Task<Option<ValidationResult>> ValidateAsync(Option<T> toValidate);
+      ValidationResult Validate(T toValidate);
+      Task<ValidationResult> ValidateAsync(T toValidate);
 
       #endregion
    }

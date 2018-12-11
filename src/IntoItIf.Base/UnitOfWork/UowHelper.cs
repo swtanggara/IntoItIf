@@ -2,17 +2,15 @@
 {
    using System;
    using System.Collections.Generic;
-   using Domain.Options;
    using Repositories;
 
    internal static class UowHelper
    {
       #region Methods
 
-      internal static Option<(Dictionary<Type, object> Repositories, TRepository Repository)> SetAndGetRepositories
-         <TRepository, T>(
-            this Dictionary<Type, object> repositories,
-            Option<TRepository> setter)
+      internal static (Dictionary<Type, object> Repositories, TRepository Repository) SetAndGetRepositories<TRepository, T>(
+         this Dictionary<Type, object> repositories,
+         TRepository setter)
          where TRepository : IRepository<T>
          where T : class
       {

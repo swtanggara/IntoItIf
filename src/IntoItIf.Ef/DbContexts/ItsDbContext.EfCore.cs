@@ -8,7 +8,6 @@ namespace IntoItIf.Ef.DbContexts
    using System.Reflection;
    using Base.DataContexts;
    using Base.Domain.Entities;
-   using Base.Domain.Options;
    using Base.Helpers;
    using Helpers;
    using Microsoft.EntityFrameworkCore;
@@ -29,39 +28,39 @@ namespace IntoItIf.Ef.DbContexts
 
       #region Public Methods and Operators
 
-      public Option<(Expression<Func<T, bool>> Predicate, string[] PropertyNames)> BuildAlternateKeyPredicate<T>(
+      public (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildAlternateKeyPredicate<T>(
          T entity)
          where T : class
       {
          return EfCoreDbContextKeys.BuildAlternateKeyPredicate(this, entity);
       }
 
-      public Option<(Expression<Func<T, bool>> Predicate, string[] PropertyNames)> BuildPrimaryKeyPredicate<T>(T entity)
+      public (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildPrimaryKeyPredicate<T>(T entity)
          where T : class
       {
          return EfCoreDbContextKeys.BuildPrimaryKeyPredicate(this, entity);
       }
 
-      public Option<IEnumerable<PropertyInfo>> GetAlternateKeyProperties<T>()
+      public IEnumerable<PropertyInfo> GetAlternateKeyProperties<T>()
          where T : class
       {
-         return EfCoreDbContextKeys.GetAlternateKeyProperties<T>(this).ToOption();
+         return EfCoreDbContextKeys.GetAlternateKeyProperties<T>(this);
       }
 
-      public Option<IEnumerable<PropertyInfo>> GetPrimaryKeyProperties<T>()
+      public IEnumerable<PropertyInfo> GetPrimaryKeyProperties<T>()
          where T : class
       {
-         return EfCoreDbContextKeys.GetPrimaryKeyProperties<T>(this).ToOption();
+         return EfCoreDbContextKeys.GetPrimaryKeyProperties<T>(this);
       }
 
-      public Option<IQueryable<T>> GetQuery<T>()
+      public IQueryable<T> GetQuery<T>()
          where T : class
       {
          var typeoft = typeof(T);
          IQueryable<T> result;
          if (typeoft.IsAssignableTo<IViewEntity>()) result = Query<T>();
          else result = Set<T>();
-         return result.ToOption();
+         return result;
       }
 
       #endregion

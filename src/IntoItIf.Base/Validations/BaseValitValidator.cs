@@ -3,7 +3,6 @@
    using System.Linq;
    using System.Threading.Tasks;
    using Domain;
-   using Domain.Options;
    using Valit;
 
    public abstract class BaseValitValidator<T> : IDataValidator<T>
@@ -17,17 +16,13 @@
 
       #region Public Methods and Operators
 
-      public Option<ValidationResult> Validate(Option<T> toValidate)
+      public ValidationResult Validate(T toValidate)
       {
-         return toValidate.Map(
-            x =>
-            {
-               var result = Valitator.Validate(toValidate.ReduceOrDefault());
-               return new ValidationResult(result.Succeeded, result.ErrorMessages.ToArray());
-            });
+         var result = Valitator.Validate(toValidate);
+         return new ValidationResult(result.Succeeded, result.ErrorMessages.ToArray());
       }
 
-      public Task<Option<ValidationResult>> ValidateAsync(Option<T> toValidate)
+      public Task<ValidationResult> ValidateAsync(T toValidate)
       {
          return Task.FromResult(Validate(toValidate));
       }

@@ -16,11 +16,11 @@
          Name = name.ReduceOrDefault();
       }
 
-      public MyEntity(Option<IDataValidator<MyEntity>> validator) : base(validator)
+      public MyEntity(IDataValidator<MyEntity> validator) : base(validator)
       {
       }
 
-      public MyEntity(Option<IMapperService> mapperService, Option<IDataValidator<MyEntity>> validator) : base(
+      public MyEntity(IMapperService mapperService, IDataValidator<MyEntity> validator) : base(
          mapperService,
          validator)
       {

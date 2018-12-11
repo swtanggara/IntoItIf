@@ -6,254 +6,253 @@
    using System.Threading;
    using System.Threading.Tasks;
    using Base.Domain;
-   using Base.Domain.Options;
    using Base.Repositories;
    using MongoDB.Driver;
 
    public interface IMongoRepository<T> : IRepository<T>
       where T : class
    {
-      Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc, IClientSessionHandle session);
+      Dictionary<string, object> Add(T entity, Func<T, string> existMessageFunc, IClientSessionHandle session);
 
-      Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session);
 
-      Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<Dictionary<string, object>> Change(
-         Option<T> entity,
+      Dictionary<string, object> Change(
+         T entity,
          params Expression<Func<T, object>>[] fieldSelections);
 
-      Option<Dictionary<string, object>> Change(
-         Option<T> entity,
-         Func<T, string> existMessageFunc,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Option<Dictionary<string, object>> Change(
-         Option<T> entity,
-         IClientSessionHandle session,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Option<Dictionary<string, object>> Change(
-         Option<T> entity,
-         Func<T, string> existMessageFunc,
-         IClientSessionHandle session,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         IClientSessionHandle session,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         Func<T, string> existMessageFunc,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         Option<CancellationToken> ctok,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      Dictionary<string, object> Change(
+         T entity,
          Func<T, string> existMessageFunc,
          params Expression<Func<T, object>>[] fieldSelections);
 
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      Dictionary<string, object> Change(
+         T entity,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
          params Expression<Func<T, object>>[] fieldSelections);
 
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok,
-         params Expression<Func<T, object>>[] fieldSelections);
-
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      Dictionary<string, object> Change(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections);
 
-      Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         Func<T, string> existMessageFunc,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          params Expression<Func<T, object>>[] fieldSelections);
 
-      Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
 
-      Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         CancellationToken ctok);
 
-      Option<TResult> GetFirstOrDefault<TResult>(
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         CancellationToken ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         Func<T, string> existMessageFunc,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         IClientSessionHandle session,
+         CancellationToken ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         Func<T, string> existMessageFunc,
+         CancellationToken ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         Func<T, string> existMessageFunc,
+         IClientSessionHandle session,
+         CancellationToken ctok,
+         params Expression<Func<T, object>>[] fieldSelections);
+
+      T GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+
+      T GetFirstOrDefault(Expression<Func<T, bool>> predicate, (bool Ascending, Expression<Func<T, object>> SortBy)? sort);
+
+      TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session);
 
-      Option<T> GetFirstOrDefault(
+      T GetFirstOrDefault(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session);
 
-      Option<TResult> GetFirstOrDefault<TResult>(
+      TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort);
 
-      Option<TResult> GetFirstOrDefault<TResult>(
+      TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+      Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(
+      Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(
+      Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(
+      Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Task<Option<T>> GetFirstOrDefaultAsync(
+      Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort);
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
-         Option<CancellationToken> ctok);
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
+         CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<List<TResult>> GetList<TResult>(
+      List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy);
 
-      Option<List<TResult>> GetList<TResult>(
+      List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          IClientSessionHandle session);
 
-      Task<Option<List<TResult>>> GetListAsync<TResult>(
+      Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Task<Option<List<TResult>>> GetListAsync<TResult>(
+      Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
-         IClientSessionHandle session);
-
-      Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Expression<Func<T, bool>> predicate,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok);
-
-      Option<IPaged<TResult>> GetPaged<TResult>(
-         Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session);
 
-      Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
-         Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate);
-      Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate, IClientSessionHandle session);
-      Task<Option<long>> LongCountAsync(Option<CancellationToken> ctok);
-      Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate);
-      Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate, Option<CancellationToken> ctok);
+      IPaged<TResult> GetPaged<TResult>(
+         Expression<Func<T, TResult>> selector,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session);
 
-      Task<Option<long>> LongCountAsync(
-         Option<Expression<Func<T, bool>>> predicate,
+      Task<IPaged<TResult>> GetPagedAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<T> GetFirstOrDefault(T entity);
-      Option<TResult> GetFirstOrDefault<TResult>(T entity, Expression<Func<T, TResult>> selector);
-      Task<Option<T>> GetFirstOrDefaultAsync(T entity);
-      Task<Option<T>> GetFirstOrDefaultAsync(T entity, Option<CancellationToken> ctok);
+      long LongCount(Expression<Func<T, bool>> predicate);
+      long LongCount(Expression<Func<T, bool>> predicate, IClientSessionHandle session);
+      Task<long> LongCountAsync(CancellationToken ctok);
+      Task<long> LongCountAsync(Expression<Func<T, bool>> predicate);
+      Task<long> LongCountAsync(Expression<Func<T, bool>> predicate, CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(T entity, Expression<Func<T, TResult>> selector);
+      Task<long> LongCountAsync(
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session,
+         CancellationToken ctok);
 
-      Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      T GetFirstOrDefault(T entity);
+      TResult GetFirstOrDefault<TResult>(T entity, Expression<Func<T, TResult>> selector);
+      Task<T> GetFirstOrDefaultAsync(T entity);
+      Task<T> GetFirstOrDefaultAsync(T entity, CancellationToken ctok);
+
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(T entity, Expression<Func<T, TResult>> selector);
+
+      Task<TResult> GetFirstOrDefaultAsync<TResult>(
          T entity,
          Expression<Func<T, TResult>> selector,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      Option<bool> Remove(Option<T> entity, IClientSessionHandle session);
+      bool Remove(T entity, IClientSessionHandle session);
 
-      Task<Option<bool>> RemoveAsync(Option<T> entity, IClientSessionHandle session, Option<CancellationToken> ctok);
+      Task<bool> RemoveAsync(T entity, IClientSessionHandle session, CancellationToken ctok);
    }
 }

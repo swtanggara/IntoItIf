@@ -2,7 +2,6 @@ namespace IntoItIf.Base.Domain.Entities
 {
    using System.Threading.Tasks;
    using Mappers;
-   using Options;
    using Services;
    using Validations;
 
@@ -16,11 +15,11 @@ namespace IntoItIf.Base.Domain.Entities
       {
       }
 
-      protected BaseEntity(Option<IDataValidator<TEntity>> validator) : base(validator)
+      protected BaseEntity(IDataValidator<TEntity> validator) : base(validator)
       {
       }
 
-      protected BaseEntity(Option<IMapperService> mapperService, Option<IDataValidator<TEntity>> validator) : base(
+      protected BaseEntity(IMapperService mapperService, IDataValidator<TEntity> validator) : base(
          mapperService,
          validator)
       {
@@ -38,13 +37,13 @@ namespace IntoItIf.Base.Domain.Entities
       {
       }
 
-      protected BaseEntity(Option<IDataValidator<TEntity>> validator) : this(
+      protected BaseEntity(IDataValidator<TEntity> validator) : this(
          InjecterGetter.GetBaseMapperService(),
          validator)
       {
       }
 
-      protected BaseEntity(Option<IMapperService> mapperService, Option<IDataValidator<TEntity>> validator)
+      protected BaseEntity(IMapperService mapperService, IDataValidator<TEntity> validator)
       {
          MapperService = mapperService;
          DataValidator = validator;
@@ -54,42 +53,28 @@ namespace IntoItIf.Base.Domain.Entities
 
       #region Properties
 
-      protected Option<IDataValidator<TEntity>> DataValidator { get; }
-      protected Option<IMapperService> MapperService { get; }
-      protected Option<TEntity> This => this as TEntity;
+      protected IDataValidator<TEntity> DataValidator { get; }
+      protected IMapperService MapperService { get; }
+      protected TEntity This => this as TEntity;
 
       #endregion
 
       #region Public Methods and Operators
 
-      public Option<TDto> ToDto<TDto>()
+      public TDto ToDto<TDto>()
          where TDto : class, IDto
       {
-         return GetMapperParameters().MapFlatten(x => x.MapperService.ToDto<TEntity, TDto>(x.This));
+         return MapperService.ToDto<TEntity, TDto>(This);
       }
 
-      public Option<ValidationResult> Validate(params string[] args)
+      public ValidationResult Validate(params string[] args)
       {
-         return GetValidatorParameters().MapFlatten(x => x.DataValidator.Validate(x.This));
+         return DataValidator.Validate(This);
       }
 
-      public Task<Option<ValidationResult>> ValidateAsync(params string[] args)
+      public Task<ValidationResult> ValidateAsync(params string[] args)
       {
-         return GetValidatorParameters().MapFlattenAsync(x => x.DataValidator.ValidateAsync(x.This));
-      }
-
-      #endregion
-
-      #region Methods
-
-      private Option<(IMapperService MapperService, TEntity This)> GetMapperParameters()
-      {
-         return This.Combine(MapperService).Map(x => (MapperService: x.Item2, This: x.Item1));
-      }
-
-      private Option<(IDataValidator<TEntity> DataValidator, TEntity This)> GetValidatorParameters()
-      {
-         return This.Combine(DataValidator).Map(x => (DataValidator: x.Item2, This: x.Item1));
+         return DataValidator.ValidateAsync(This);
       }
 
       #endregion

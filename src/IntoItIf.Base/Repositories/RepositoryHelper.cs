@@ -6,7 +6,6 @@
    using System.Threading;
    using System.Threading.Tasks;
    using Domain;
-   using Domain.Options;
    using Exceptions;
    using Helpers;
 
@@ -15,91 +14,68 @@
    {
       #region Methods
 
-      internal static Option<Dictionary<string, object>> GetKeysAndValues(
-         Option<string[]> keyProperties,
-         Option<T> entity)
+      internal static Dictionary<string, object> GetKeysAndValues(
+         string[] keyProperties,
+         T entity)
       {
-         return entity.Combine(keyProperties)
-            .Map(x => (Dictionary: x.Item1.ToDictionary(), KeyProperties: x.Item2))
-            .Map(x => x.Dictionary.Where(y => x.KeyProperties.Contains(y.Key)).ToDictionary(y => y.Key, y => y.Value));
+         return entity.ToDictionary().Where(x => keyProperties.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
       }
 
-      internal static Option<IPaged<TResult>> GetPagedBuiltByParameters<TResult>(
-         Option<IQueryable<TResult>> sourceQuery,
-         Option<IPageQuery> pageQuery,
-         Option<string>[] defaultSortKeys)
+      internal static IPaged<TResult> GetPagedBuiltByParameters<TResult>(
+         IQueryable<TResult> sourceQuery,
+         IPageQuery pageQuery,
+         string[] defaultSortKeys)
          where TResult : class
       {
-         return sourceQuery.ReduceOrDefault()
-            .ToPaged(pageQuery.ReduceOrDefault(), defaultSortKeys.ReduceOrDefault().ToArray())
-            .ToOption();
+         return sourceQuery
+            .ToPaged(pageQuery, defaultSortKeys.ToArray());
       }
 
-      internal static async Task<Option<IPaged<TResult>>> GetPagedBuiltByParametersAsync<TResult>(
-         Option<IQueryable<TResult>> sourceQuery,
-         Option<Func<IQueryable<TResult>, CancellationToken, Task<List<TResult>>>> toListAsync,
-         Option<IPageQuery> pageQuery,
-         Option<string>[] defaultSortKeys,
-         Option<CancellationToken> ctok)
+      internal static async Task<IPaged<TResult>> GetPagedBuiltByParametersAsync<TResult>(
+         IQueryable<TResult> sourceQuery,
+         Func<IQueryable<TResult>, CancellationToken, Task<List<TResult>>> toListAsync,
+         IPageQuery pageQuery,
+         string[] defaultSortKeys,
+         CancellationToken ctok)
          where TResult : class
       {
-         return (await sourceQuery.ReduceOrDefault()
-               .ToPagedAsync(
-                  toListAsync.ReduceOrDefault(),
-                  pageQuery.ReduceOrDefault(),
-                  defaultSortKeys.ReduceOrDefault().ToArray(),
-                  ctok.ReduceOrDefault()))
-            .ToOption();
+         return await sourceQuery.ToPagedAsync(toListAsync, pageQuery, defaultSortKeys.ToArray(), ctok);
       }
 
-      internal static Option<PageQuery> GetPageQueryMapping(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom)
+      internal static PageQuery GetPageQueryMapping(
+         string[] searchFields,
+         int pageIndex = PageQuery.DefaultIndexFrom,
+         int pageSize = PageQuery.DefaultPageSize,
+         string[] sorts = null,
+         string keyword = null,
+         PageIndexFrom indexFrom = null)
       {
-         return searchFields.Combine(pageIndex, true, PageQuery.DefaultIndexFrom.Id)
-            .Combine(pageSize, true, PageQuery.DefaultPageSize)
-            .Combine(sorts, true)
-            .Combine(keyword, true)
-            .Combine(indexFrom, true, PageQuery.DefaultIndexFrom)
-            .MapFlatten(
-               x => PageQuery.Get(
-                  x.Item1.Item1.Item1.Item1.Item2,
-                  x.Item1.Item1.Item1.Item2,
-                  x.Item1.Item1.Item2,
-                  x.Item1.Item2,
-                  x.Item2,
-                  x.Item1.Item1.Item1.Item1.Item1))
-            .IfMapFlatten(
-               x => x.SearchFields == null || !x.SearchFields.Any(),
-               x => Fail<PageQuery>.Throw(new ArgumentNullException(nameof(searchFields))))
-            .ElseMap(x => x)
-            .Output;
+         if (searchFields == null || !searchFields.Any())
+         {
+            throw new ArgumentNullException(nameof(searchFields));
+         }
+         return PageQuery.Get(pageIndex, pageSize, sorts, keyword, indexFrom, searchFields);
       }
 
-      internal static Fail<Dictionary<string, object>> ThrowCreateErrorExistingEntity(
+      internal static void ThrowCreateErrorExistingEntity(
          (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated,
          Func<T, string[], string> defaultMessageFunc)
       {
-         var result = Fail<Dictionary<string, object>>.Throw(
-            validated.MessageFunc != null
-               ? new ExistingEntityException<T>(validated.MessageFunc, validated.MatchValidatedEntity)
-               : new ExistingEntityException<T>(
-                  defaultMessageFunc,
-                  validated.MatchValidatedEntity,
-                  validated.PropertyNames));
-         return result;
+         var error = validated.MessageFunc != null
+            ? new ExistingEntityException<T>(validated.MessageFunc, validated.MatchValidatedEntity)
+            : new ExistingEntityException<T>(
+               defaultMessageFunc,
+               validated.MatchValidatedEntity,
+               validated.PropertyNames);
+         throw error;
       }
 
-      internal static Fail<Dictionary<string, object>> ThrowUpdateError(
+      internal static void ThrowUpdateError(
          (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)
             validated,
          Func<T, string[], string> defaultMessageFunc)
       {
-         Exception error = null;
+         Exception error = new InvalidOperationException();
          if (!validated.Found)
          {
             error = new KeyNotFoundException(
@@ -107,21 +83,23 @@
          }
          else
          {
-            if (validated.MatchValidatedEntity == null &&
-                validated.PropertyNames != null &&
-                validated.PropertyNames.All(x => !string.IsNullOrWhiteSpace(x)))
+            if (validated.MatchValidatedEntity != null ||
+                validated.PropertyNames == null ||
+                validated.PropertyNames.Any(string.IsNullOrWhiteSpace)) throw error;
+            if (validated.MessageFunc != null)
             {
-               if (validated.MessageFunc != null)
-                  error = new ExistingEntityException<T>(validated.MessageFunc, validated.InputEntity);
-               else
-                  error = new ExistingEntityException<T>(
-                     defaultMessageFunc,
-                     validated.InputEntity,
-                     validated.PropertyNames);
+               error = new ExistingEntityException<T>(validated.MessageFunc, validated.InputEntity);
+            }
+            else
+            {
+               error = new ExistingEntityException<T>(
+                  defaultMessageFunc,
+                  validated.InputEntity,
+                  validated.PropertyNames);
             }
          }
 
-         return Fail<Dictionary<string, object>>.Throw(error);
+         throw error;
       }
 
       internal static KeyValue ToKeyValue(T entity, string idProperty, string valueProperty, bool useValueAsId)

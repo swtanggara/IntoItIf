@@ -68,16 +68,13 @@ namespace IntoItIf.Ef.Helpers
             .Single(x => x.Name == type.Name);
          Func<MetadataProperty, bool> plainIndex = x => x.Value is IndexAnnotation;
          Func<MetadataProperty, bool> uniqueIndex = x =>
-         {
-            return x.Value is IndexAnnotation indexAnnotation && indexAnnotation.Indexes.Any(x1 => x1.IsUnique);
-         };
+            x.Value is IndexAnnotation indexAnnotation && indexAnnotation.Indexes.Any(x1 => x1.IsUnique);
          var metadataPropertiesPredicate = uniqueIndexOnly ? uniqueIndex : plainIndex;
 
-         var result = storageEntityType.Properties
+         return storageEntityType.Properties
             .Where(x => x.MetadataProperties.Any(metadataPropertiesPredicate))
             .Select(x => type.GetProperty(x.Name))
             .ToList();
-         return result;
       }
 
       private static IEnumerable<PropertyInfo> GetPrimaryKeyProperties(this DbContext dbContext, Type type)

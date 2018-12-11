@@ -4,7 +4,6 @@
    using System.Linq;
    using DataContexts;
    using Domain.Entities;
-   using Domain.Options;
    using Helpers;
 
    internal static class RelationalRepositoryHelper<T>
@@ -12,116 +11,68 @@
    {
       #region Methods
 
-      internal static Option<bool> AllKeysAreEqual(
-         Option<T> existByPkEntity,
-         Option<T> existByAkEntity,
-         Option<string[]> pkPropertyNames)
+      internal static bool AllKeysAreEqual(
+         T existByPkEntity,
+         T existByAkEntity,
+         string[] pkPropertyNames)
       {
-         return pkPropertyNames.Combine(existByPkEntity)
-            .Combine(existByAkEntity)
-            .Map(
-               x =>
+         return !pkPropertyNames.Select(
+               x => new
                {
-                  var y = (
-                     PkPropertyNames: x.Item1.Item1,
-                     ExistByPkEntity: x.Item1.Item2,
-                     ExistByAkEntity: x.Item2
-                  );
-                  foreach (var propertyName in y.PkPropertyNames)
-                  {
-                     var pkValue = y.ExistByPkEntity.GetPropertyValue(propertyName);
-                     var akValue = y.ExistByAkEntity.GetPropertyValue(propertyName);
-                     if (pkValue != akValue && (pkValue == null || !pkValue.Equals(akValue))) return false;
-                  }
-
-                  return true;
-               });
-      }
-
-      internal static Option<string[]> GetKeyPropertyNamesInBetween(
-         Option<string[]> pkPropertyNames,
-         Option<string[]> akPropertyNames)
-      {
-         return pkPropertyNames.Combine(akPropertyNames)
-            .Map(
-               x =>
-               {
-                  var y = (PkPropertyNames: x.Item1, AkPropertyNames: x.Item2);
-                  return y.AkPropertyNames == null || !y.AkPropertyNames.Any() ? y.PkPropertyNames : y.AkPropertyNames;
-               });
-      }
-
-      internal static Option<string[]> GetSortKeys(Option<IRelationalDataContext> dbContext)
-      {
-         return dbContext.Map(
-               x => (DbContext: x, AkProperties: x.GetAlternateKeyProperties<T>().ReduceOrDefault()))
-            .IfMap(
-               x => x.AkProperties.Any(),
-               x => x.AkProperties.Select(y => y.Name).ToArray())
-            .ElseMap(
-               x =>
-               {
-                  var pkProperties = x.DbContext.GetPrimaryKeyProperties<T>().ReduceOrDefault().ToArray();
-                  return pkProperties.Any() ? pkProperties.Select(y => y.Name).ToArray() : null;
+                  PropertyName = x,
+                  PkValue = existByPkEntity.GetPropertyValue(x)
                })
-            .Output;
+            .Select(
+               x => new
+               {
+                  x.PropertyName,
+                  x.PkValue,
+                  AkValue = existByAkEntity.GetPropertyValue(x.PropertyName)
+               })
+            .Where(x => x.PkValue != x.AkValue && (x.PkValue == null || !x.PkValue.Equals(x.AkValue)))
+            .Select(x => x.PkValue)
+            .Any();
       }
 
-      internal static Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)>
+      internal static string[] GetKeyPropertyNamesInBetween(
+         string[] pkPropertyNames,
+         string[] akPropertyNames)
+      {
+         return akPropertyNames == null || !akPropertyNames.Any() ? pkPropertyNames : akPropertyNames;
+      }
+
+      internal static string[] GetSortKeys(IRelationalDataContext dbContext)
+      {
+         var akProperties = dbContext.GetAlternateKeyProperties<T>().ToArray();
+         if (akProperties.Any()) return akProperties.Select(x => x.Name).ToArray();
+         var pkProperties = dbContext.GetPrimaryKeyProperties<T>().ToArray();
+         return pkProperties.Any() ? pkProperties.Select(y => y.Name).ToArray() : null;
+      }
+
+      internal static (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)
          GiveValidatedEntityForUpdateResult(
-            Option<(
-               T ExistByPkEntity,
-               T ExistByAkEntity,
-               string[] RealKeyPropertyNames,
-               string[] PkPropertyNames,
-               T InputEntity)> parms)
+            (T ExistByPkEntity, T ExistByAkEntity, string[] RealKeyPropertyNames, string[] PkPropertyNames, T InputEntity) parms)
       {
-         return parms.Map(
-               y => (
-                  y.ExistByPkEntity,
-                  y.ExistByAkEntity,
-                  y.RealKeyPropertyNames,
-                  y.PkPropertyNames,
-                  AllKeysAreEqual: AllKeysAreEqual(y.ExistByPkEntity, y.ExistByAkEntity, y.PkPropertyNames)
-                     .ReduceOrDefault(),
-                  y.InputEntity
-               ))
-            .IfMap(
-               y => y.ExistByPkEntity == null && y.ExistByAkEntity == null,
-               y => (
-                  MatchValidatedEntity: (T)null,
-                  PropertyNames: y.RealKeyPropertyNames,
-                  Found: false,
-                  y.InputEntity
-               ))
-            .ElseMap(
-               y =>
-               {
-                  if (y.ExistByPkEntity == null || y.ExistByAkEntity != null && !y.AllKeysAreEqual)
-                     return (
-                        MatchValidatedEntity: (T)null,
-                        PropertyNames: y.RealKeyPropertyNames,
-                        Found: true,
-                        y.InputEntity
-                     );
+         var allKeysAreEqual = AllKeysAreEqual(parms.ExistByPkEntity, parms.ExistByAkEntity, parms.PkPropertyNames);
+         if (parms.ExistByPkEntity == null && parms.ExistByAkEntity == null)
+         {
+            return ((T)null, parms.RealKeyPropertyNames, false, parms.InputEntity);
+         }
 
-                  return (
-                     MatchValidatedEntity: y.ExistByPkEntity,
-                     PropertyNames: y.PkPropertyNames,
-                     Found: true,
-                     y.InputEntity
-                  );
-               })
-            .Output;
+         if (parms.ExistByPkEntity == null || parms.ExistByAkEntity != null && !allKeysAreEqual)
+         {
+            return ((T)null, parms.RealKeyPropertyNames, true, parms.InputEntity);
+         }
+
+         return (parms.ExistByPkEntity, parms.PkPropertyNames, true, parms.InputEntity);
       }
 
       internal static bool IfCreateError(
          (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated)
       {
-         var result = validated.MatchValidatedEntity != null &&
+         return validated.MatchValidatedEntity != null &&
                 validated.PropertyNames != null &&
                 validated.PropertyNames.All(x => !string.IsNullOrWhiteSpace(x));
-         return result;
       }
 
       internal static bool IfUpdateError(
@@ -133,7 +84,7 @@
                 validated.PropertyNames.All(x => !string.IsNullOrWhiteSpace(x));
       }
 
-      internal static Option<bool> IsViewEntity()
+      internal static bool IsViewEntity()
       {
          return typeof(T).IsAssignableTo<IViewEntity>();
       }

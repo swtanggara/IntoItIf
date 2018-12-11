@@ -11,7 +11,6 @@ namespace IntoItIf.Ef.DbContexts
    using System.Linq.Expressions;
    using System.Reflection;
    using Base.DataContexts;
-   using Base.Domain.Options;
    using Helpers;
 
    public class ItsDbContext : DbContext, IRelationalDataContext
@@ -57,32 +56,32 @@ namespace IntoItIf.Ef.DbContexts
 
       #region Public Methods and Operators
 
-      public Option<(Expression<Func<T, bool>> Predicate, string[] PropertyNames)> BuildAlternateKeyPredicate<T>(
+      public (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildAlternateKeyPredicate<T>(
          T entity)
          where T : class
       {
          return EfDbContextKeys.BuildAlternateKeyPredicate(this, entity);
       }
 
-      public Option<(Expression<Func<T, bool>> Predicate, string[] PropertyNames)> BuildPrimaryKeyPredicate<T>(T entity)
+      public (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildPrimaryKeyPredicate<T>(T entity)
          where T : class
       {
          return EfDbContextKeys.BuildPrimaryKeyPredicate(this, entity);
       }
 
-      public Option<IEnumerable<PropertyInfo>> GetAlternateKeyProperties<T>()
+      public IEnumerable<PropertyInfo> GetAlternateKeyProperties<T>()
          where T : class
       {
-         return EfDbContextKeys.GetAlternateKeyProperties<T>(this).ToOption();
+         return EfDbContextKeys.GetAlternateKeyProperties<T>(this);
       }
 
-      public Option<IEnumerable<PropertyInfo>> GetPrimaryKeyProperties<T>()
+      public IEnumerable<PropertyInfo> GetPrimaryKeyProperties<T>()
          where T : class
       {
-         return EfDbContextKeys.GetPrimaryKeyProperties<T>(this).ToOption();
+         return EfDbContextKeys.GetPrimaryKeyProperties<T>(this);
       }
 
-      public Option<IQueryable<T>> GetQuery<T>()
+      public IQueryable<T> GetQuery<T>()
          where T : class
       {
          return Set<T>();

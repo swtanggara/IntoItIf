@@ -11,22 +11,22 @@
    {
       IMongoUowDbTransaction GetMongoDbTransaction();
 
-      Option<bool> RegisterChangesWatch<T>(Action<ChangeStreamDocument<T>> action, Option<ChangeStreamOperationType> operationType);
+      Task RegisterChangesWatchAsync<T>(Action<ChangeStreamDocument<T>> action, ChangeStreamOperationType operationType);
 
-      Option<IMongoRepository<T>> SetOf<T>()
+      IMongoRepository<T> SetOf<T>()
          where T : class;
 
-      Option<TResult> SaveChangesForScoped<TResult>(
-         Func<MongoUowScoped, Option<TResult>> func,
-         Func<Exception, Option<TResult>> exceptionFunc);
+      TResult SaveChangesForScoped<TResult>(
+         Func<MongoUowScoped, TResult> func,
+         Func<Exception, TResult> exceptionFunc);
 
-      Task<Option<TResult>> SaveChangesForScopedAsync<TResult>(
-         Func<MongoUowScoped, Task<Option<TResult>>> func,
-         Func<Exception, Task<Option<TResult>>> exceptionFunc);
+      Task<TResult> SaveChangesForScopedAsync<TResult>(
+         Func<MongoUowScoped, Task<TResult>> func,
+         Func<Exception, Task<TResult>> exceptionFunc);
 
-      Task<Option<TResult>> SaveChangesForScopedAsync<TResult>(
-         Func<MongoUowScoped, Task<Option<TResult>>> func,
-         Func<Exception, Task<Option<TResult>>> exceptionFunc,
-         Option<CancellationToken> ctok);
+      Task<TResult> SaveChangesForScopedAsync<TResult>(
+         Func<MongoUowScoped, Task<TResult>> func,
+         Func<Exception, Task<TResult>> exceptionFunc,
+         CancellationToken ctok);
    }
 }

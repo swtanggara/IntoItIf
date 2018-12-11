@@ -1,16 +1,15 @@
 ﻿namespace IntoItIf.MongoDb
 {
-   using Base.Domain.Options;
    using MongoDB.Driver;
 
    public sealed class MongoUowScoped
    {
-      private readonly Option<MongoUow> _uow;
+      private readonly MongoUow _uow;
 
-      public MongoUowScoped(Option<MongoUow> uow, Option<IClientSessionHandle> session)
+      public MongoUowScoped(MongoUow uow, IClientSessionHandle session)
       {
          _uow = uow;
-         Session = session.ReduceOrDefault();
+         Session = session;
       }
 
       public IClientSessionHandle Session { get; }
@@ -18,7 +17,7 @@
       public IMongoRepository<T> SetOf<T>()
          where T : class, IMongoEntity
       {
-         return _uow.MapFlatten(x => x.SetOf<T>()).ReduceOrDefault();
+         return _uow.SetOf<T>();
       }
    }
 }

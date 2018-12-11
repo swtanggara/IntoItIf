@@ -8,9 +8,9 @@
    {
       #region Public Methods and Operators
 
-      Option<int> SaveChanges();
-      Task<Option<int>> SaveChangesAsync();
-      Task<Option<int>> SaveChangesAsync(Option<CancellationToken> ctok);
+      int SaveChanges();
+      Task<int> SaveChangesAsync();
+      Task<int> SaveChangesAsync(CancellationToken ctok);
 
       #endregion
    }

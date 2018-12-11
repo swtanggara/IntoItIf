@@ -2,19 +2,18 @@
 {
    using System.Threading;
    using System.Threading.Tasks;
-   using Domain.Options;
 
-   public interface IRequestHandler<TRequest, TResponse>
+   public interface IRequestHandler<in TRequest, TResponse>
       where TRequest : IRequest<TResponse>
    {
       #region Public Methods and Operators
 
-      Task<Option<TResponse>> HandleAsync(Option<TRequest> request, Option<CancellationToken> ctok);
+      Task<TResponse> HandleAsync(TRequest request, CancellationToken ctok);
 
       #endregion
    }
 
-   public interface IRequestHandler<TRequest> : IRequestHandler<TRequest, bool>
+   public interface IRequestHandler<in TRequest> : IRequestHandler<TRequest, bool>
       where TRequest : IRequest
    {
    }

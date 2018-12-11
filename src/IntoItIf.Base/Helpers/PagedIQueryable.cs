@@ -26,17 +26,19 @@ namespace IntoItIf.Base.Helpers
             pageQuery.SearchFields.Pascalize());
          totalItems = queryable.Count();
          var pageSize = PageQuery.DefaultPageSize;
-         var pageIndex = PageQuery.DefaultIndexFrom.Id;
+         var pageIndex = PageQuery.DefaultIndexFrom;
          if (pageQuery.PageSize > 0) pageSize = pageQuery.PageSize;
          if (pageQuery.PageIndex > 0) pageIndex = pageQuery.PageIndex;
          if (pageQuery.Sorts != null && IsValidSorts<T>(pageQuery.Sorts))
+         {
             queryable = queryable.ApplySorting(pageQuery.Sorts);
+         }
          else
+         {
             queryable = queryable.OrderBy(string.Join(",", defaultSortKeys));
-
-         var result = queryable.Skip((pageIndex - pageQuery.IndexFrom.Id) * pageSize)
+         }
+         return queryable.Skip((pageIndex - pageQuery.IndexFrom.Id) * pageSize)
             .Take(pageSize);
-         return result;
       }
 
       internal static IPaged<T> ToPaged<T>(
@@ -49,10 +51,10 @@ namespace IntoItIf.Base.Helpers
          var items = pagedIQueryable.ToList();
          return new Paged<T>(
             items,
+            totalItemsCount,
             pageQuery.PageIndex,
             pageQuery.PageSize,
-            pageQuery.IndexFrom,
-            totalItemsCount);
+            pageQuery.IndexFrom);
       }
 
       internal static async Task<IPaged<T>> ToPagedAsync<T>(
@@ -67,10 +69,10 @@ namespace IntoItIf.Base.Helpers
          var items = await toListAsync(pagedIQueryable, ctok);
          return new Paged<T>(
             items,
+            totalItemsCount,
             pageQuery.PageIndex,
             pageQuery.PageSize,
-            pageQuery.IndexFrom,
-            totalItemsCount);
+            pageQuery.IndexFrom);
       }
 
       internal static IQueryable<T> WhereByKeyword<T>(

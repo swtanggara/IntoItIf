@@ -1,6 +1,5 @@
 ﻿namespace IntoItIf.Tests.MapperService
 {
-   using Base.Domain.Options;
    using Preparation;
    using Shouldly;
    using Xunit;
@@ -30,44 +29,40 @@
       public void DtoSeed_ToEntity_ShouldNotNull_And_ShouldBeSameAs_ExpectedEntity()
       {
          var entity = MapperTestHelper.DtoSeed.ToEntity<MyEntity>();
-         var reduced = entity.ReduceOrDefault();
          _output.WriteLine(
-            $"DtoSeed: {MapperTestHelper.DtoSeed} => entity: {reduced} => ExpectedEntity: {MapperTestHelper.ExpectedEntity}");
-         reduced.ShouldNotBeNull();
-         reduced.ShouldBe(MapperTestHelper.ExpectedEntity);
+            $"DtoSeed: {MapperTestHelper.DtoSeed} => entity: {entity} => ExpectedEntity: {MapperTestHelper.ExpectedEntity}");
+         entity.ShouldNotBeNull();
+         entity.ShouldBe(MapperTestHelper.ExpectedEntity);
       }
 
       [Fact]
       public void DtoSeed_ToEntity_ShouldNotNull_And_ShouldNotSameAs_UnexpectedEntity()
       {
          var entity = MapperTestHelper.DtoSeed.ToEntity<MyEntity>();
-         var reduced = entity.ReduceOrDefault();
          _output.WriteLine(
-            $"DtoSeed: {MapperTestHelper.DtoSeed} => entity: {reduced} => UnexpectedEntity: {MapperTestHelper.UnexpectedEntity}");
-         reduced.ShouldNotBeNull();
-         reduced.ShouldNotBe(MapperTestHelper.UnexpectedEntity);
+            $"DtoSeed: {MapperTestHelper.DtoSeed} => entity: {entity} => UnexpectedEntity: {MapperTestHelper.UnexpectedEntity}");
+         entity.ShouldNotBeNull();
+         entity.ShouldNotBe(MapperTestHelper.UnexpectedEntity);
       }
 
       [Fact]
       public void EntitySeed_ToDto_ShouldNotNull_And_ShouldBeSameAs_ExpectedDto()
       {
          var dto = MapperTestHelper.EntitySeed.ToDto<MyDto>();
-         var reduced = dto.ReduceOrDefault();
          _output.WriteLine(
-            $"EntitySeed: {MapperTestHelper.EntitySeed} => dto: {reduced} => ExpectedDto: {MapperTestHelper.ExpectedDto}");
-         reduced.ShouldNotBeNull();
-         reduced.ShouldBe(MapperTestHelper.ExpectedDto);
+            $"EntitySeed: {MapperTestHelper.EntitySeed} => dto: {dto} => ExpectedDto: {MapperTestHelper.ExpectedDto}");
+         dto.ShouldNotBeNull();
+         dto.ShouldBe(MapperTestHelper.ExpectedDto);
       }
 
       [Fact]
       public void EntitySeed_ToDt_ShouldNotNull_And_ShouldNotSameAs_UnexpectedDto()
       {
          var dto = MapperTestHelper.EntitySeed.ToDto<MyDto>();
-         var reduced = dto.ReduceOrDefault();
          _output.WriteLine(
-            $"EntitySeed: {MapperTestHelper.EntitySeed} => dto: {reduced} => UnexpectedDto: {MapperTestHelper.UnexpectedDto}");
-         reduced.ShouldNotBeNull();
-         reduced.ShouldNotBe(MapperTestHelper.UnexpectedDto);
+            $"EntitySeed: {MapperTestHelper.EntitySeed} => dto: {dto} => UnexpectedDto: {MapperTestHelper.UnexpectedDto}");
+         dto.ShouldNotBeNull();
+         dto.ShouldNotBe(MapperTestHelper.UnexpectedDto);
       }
 
       #endregion

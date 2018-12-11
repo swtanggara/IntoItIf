@@ -7,7 +7,6 @@
    using System.Threading;
    using System.Threading.Tasks;
    using Base.Domain;
-   using Base.Domain.Options;
    using Base.Helpers;
    using Base.Repositories;
    using MongoDB.Driver;
@@ -17,13 +16,11 @@
    {
       #region Constructors and Destructors
 
-      public MongoRepository(Option<MongoDataContext> dataContext) : this(dataContext.ReduceOrDefault(), None.Value)
+      public MongoRepository(MongoDataContext dataContext) : this(dataContext, null)
       {
       }
 
-      public MongoRepository(Option<MongoDataContext> dataContext, Option<IQueryable<T>> customQuery) : base(
-         dataContext.ReduceOrDefault(),
-         customQuery)
+      public MongoRepository(MongoDataContext dataContext, IQueryable<T> customQuery) : base(dataContext, customQuery)
       {
          MongoDataContext = dataContext;
       }
@@ -32,78 +29,78 @@
 
       #region Properties
 
-      private Option<MongoDataContext> MongoDataContext { get; }
+      private MongoDataContext MongoDataContext { get; }
 
       #endregion
 
       #region Public Methods and Operators
 
-      public override Option<Dictionary<string, object>> Add(Option<T> entity, Func<T, string> existMessageFunc)
+      public override Dictionary<string, object> Add(T entity, Func<T, string> existMessageFunc)
       {
          return Add(entity, existMessageFunc, null);
       }
 
-      public Option<Dictionary<string, object>> Add(
-         Option<T> entity,
+      public Dictionary<string, object> Add(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session)
       {
          return ProcessCreateAndGetResult(GetValidatedEntityForCreate(entity, session), existMessageFunc, session);
       }
 
-      public override Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      public override Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return AddAsync(entity, existMessageFunc, null, ctok);
       }
 
-      public Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session)
       {
-         return AddAsync(entity, existMessageFunc, session, None.Value);
+         return AddAsync(entity, existMessageFunc, session, CancellationToken.None);
       }
 
-      public Task<Option<Dictionary<string, object>>> AddAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> AddAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return ProcessCreateAndGetResultAsync(GetValidatedEntityForCreateAsync(entity, session, ctok), existMessageFunc, session, ctok);
       }
 
-      public Option<Dictionary<string, object>> Change(Option<T> entity, params Expression<Func<T, object>>[] fieldSelections)
+      public Dictionary<string, object> Change(T entity, params Expression<Func<T, object>>[] fieldSelections)
       {
          return Change(entity, null, null, fieldSelections);
       }
 
-      public Option<Dictionary<string, object>> Change(
-         Option<T> entity,
+      public Dictionary<string, object> Change(
+         T entity,
          Func<T, string> existMessageFunc,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return Change(entity, existMessageFunc, null, fieldSelections);
       }
 
-      public Option<Dictionary<string, object>> Change(
-         Option<T> entity,
+      public Dictionary<string, object> Change(
+         T entity,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return Change(entity, null, null, fieldSelections);
       }
 
-      public override Option<Dictionary<string, object>> Change(Option<T> entity, Func<T, string> existMessageFunc)
+      public override Dictionary<string, object> Change(T entity, Func<T, string> existMessageFunc)
       {
          return Change(entity, existMessageFunc, session: null, null);
       }
 
-      public Option<Dictionary<string, object>> Change(
-         Option<T> entity,
+      public Dictionary<string, object> Change(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
@@ -111,84 +108,84 @@
          return ProcessUpdateAndGetResult(GetValidatedEntityForUpdate(entity, session), existMessageFunc, session, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(Option<T> entity, params Expression<Func<T, object>>[] fieldSelections)
+      public Task<Dictionary<string, object>> ChangeAsync(T entity, params Expression<Func<T, object>>[] fieldSelections)
       {
-         return ChangeAsync(entity, null, null, null, fieldSelections);
+         return ChangeAsync(entity, null, null, CancellationToken.None, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return ChangeAsync(entity, null, session, null, fieldSelections);
+         return ChangeAsync(entity, null, session, CancellationToken.None, fieldSelections);
       }
 
-      public override Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public override Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return ChangeAsync(entity, existMessageFunc, null, ctok);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return ChangeAsync(entity, existMessageFunc, session, ctok, null);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
-         Option<CancellationToken> ctok,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return ChangeAsync(entity, null, null, ctok, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return ChangeAsync(entity, existMessageFunc, null, null, fieldSelections);
+         return ChangeAsync(entity, existMessageFunc, null, CancellationToken.None, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return ChangeAsync(entity, null, session, ctok, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return ChangeAsync(entity, existMessageFunc, null, ctok, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return ChangeAsync(entity, existMessageFunc, session, null, fieldSelections);
+         return ChangeAsync(entity, existMessageFunc, session, CancellationToken.None, fieldSelections);
       }
 
-      public Task<Option<Dictionary<string, object>>> ChangeAsync(
-         Option<T> entity,
+      public Task<Dictionary<string, object>> ChangeAsync(
+         T entity,
          Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          return ProcessUpdateAndGetResultAsync(
@@ -199,159 +196,159 @@
             fieldSelections);
       }
 
-      public override Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate)
+      public override T GetFirstOrDefault(Expression<Func<T, bool>> predicate)
       {
          return GetFirstOrDefault(x => x, predicate);
       }
 
-      public Option<T> GetFirstOrDefault(
+      public T GetFirstOrDefault(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort)
       {
          return GetFirstOrDefault(x => x, predicate, sort);
       }
 
-      public Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session)
+      public T GetFirstOrDefault(Expression<Func<T, bool>> predicate, IClientSessionHandle session)
       {
-         return GetFirstOrDefault(predicate, None.Value, session);
+         return GetFirstOrDefault(predicate, sort: null, session);
       }
 
-      public Option<T> GetFirstOrDefault(
+      public T GetFirstOrDefault(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session)
       {
          return GetFirstOrDefault(x => x, predicate, sort, session);
       }
 
-      public override Option<TResult> GetFirstOrDefault<TResult>(
+      public override TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
-         return GetFirstOrDefault(selector, predicate, None.Value, null);
+         return GetFirstOrDefault(selector, predicate, null, null);
       }
 
-      public Option<TResult> GetFirstOrDefault<TResult>(
+      public TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort)
       {
          return GetFirstOrDefault(selector, predicate, sort, null);
       }
 
-      public Option<TResult> GetFirstOrDefault<TResult>(
+      public TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
-         return GetFirstOrDefault(selector, predicate, None.Value, session);
+         return GetFirstOrDefault(selector, predicate, null, session);
       }
 
-      public Option<TResult> GetFirstOrDefault<TResult>(
+      public TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session)
       {
-         return InternalGetFirstOrDefault(selector.ToOption(), predicate, sort, session);
+         return InternalGetFirstOrDefault(selector, predicate, sort, session);
       }
 
-      public override Task<Option<T>> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, Option<CancellationToken> ctok)
+      public override Task<T> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(x => x, predicate, ctok);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
-         return GetFirstOrDefaultAsync(predicate, None.Value, session);
+         return GetFirstOrDefaultAsync(predicate, null, session);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort)
       {
          return GetFirstOrDefaultAsync(predicate, sort, null);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session)
       {
-         return GetFirstOrDefaultAsync(predicate, sort, session, None.Value);
+         return GetFirstOrDefaultAsync(predicate, sort, session, CancellationToken.None);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return GetFirstOrDefaultAsync(predicate, None.Value, session, ctok);
+         return GetFirstOrDefaultAsync(predicate, sort: null, session, ctok);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(x => x, predicate, sort, session, ctok);
       }
 
-      public override Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public override Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, None.Value, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, sort:null, ctok);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort)
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, sort, null, None.Value);
+         return GetFirstOrDefaultAsync(selector, predicate, sort, null,CancellationToken.None);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
-         Option<CancellationToken> ctok)
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(selector, predicate, sort, null, ctok);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, None.Value, session, ctok);
+         return GetFirstOrDefaultAsync(selector, predicate, null, session, ctok);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return InternalGetFirstOrDefaultAsync(selector.ToOption(), predicate, sort, session, ctok);
+         return InternalGetFirstOrDefaultAsync(selector, predicate, sort, session, ctok);
       }
 
-      public override Option<List<TResult>> GetList<TResult>(
+      public override List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
          return GetList(selector, predicate, null);
       }
 
-      public Option<List<TResult>> GetList<TResult>(
+      public List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy)
@@ -359,130 +356,130 @@
          return GetList(selector, predicate, sortBy, null);
       }
 
-      public Option<List<TResult>> GetList<TResult>(
+      public List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          IClientSessionHandle session)
       {
-         return InternalGetList(selector.ToOption(), predicate, sortBy, session);
+         return InternalGetList(selector, predicate, sortBy, session);
       }
 
-      public override Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public override Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetListAsync(selector, predicate, null, ctok);
       }
 
-      public Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetListAsync(selector, predicate, sortBy, null, ctok);
       }
 
-      public Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return InternalGetListAsync(selector.ToOption(), predicate, sortBy, session, ctok);
+         return InternalGetListAsync(selector, predicate, sortBy, session, ctok);
       }
 
-      public override Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public override List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate)
       {
          return GetLookups(idProperty, valueProperty, useValueAsId, predicate, null);
       }
 
-      public Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+      public List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
          return InternalGetLookups(idProperty, valueProperty, useValueAsId, predicate, session);
       }
 
-      public override Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public override Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, null, ctok);
       }
 
-      public Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return InternalGetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, session, ctok);
       }
 
-      public override Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public override IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
       {
          return GetPaged(x => x, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate);
       }
 
-      public override Option<IPaged<TResult>> GetPaged<TResult>(
+      public override IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
       {
          return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null);
       }
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
-         return InternalGetPaged(selector.ToOption(), searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, session);
+         return InternalGetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, session);
       }
 
-      public override Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public override Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetPagedAsync(
             x => x,
@@ -496,16 +493,16 @@
             ctok);
       }
 
-      public override Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public override Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetPagedAsync(
             selector,
@@ -520,20 +517,20 @@
             ctok);
       }
 
-      public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return InternalGetPagedAsync(
-            selector.ToOption(),
+            selector,
             searchFields,
             pageIndex,
             pageSize,
@@ -545,60 +542,60 @@
             ctok);
       }
 
-      public override Option<long> LongCount()
+      public override long LongCount()
       {
-         return LongCount(None.Value);
+         return LongCount(null);
       }
 
-      public Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate)
+      public long LongCount(Expression<Func<T, bool>> predicate)
       {
          return LongCount(predicate, null);
       }
 
-      public Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate, IClientSessionHandle session)
+      public long LongCount(Expression<Func<T, bool>> predicate, IClientSessionHandle session)
       {
          return InternalLongCount(predicate, session);
       }
 
-      public override Task<Option<long>> LongCountAsync(Option<CancellationToken> ctok)
+      public override Task<long> LongCountAsync(CancellationToken ctok)
       {
-         return LongCountAsync(None.Value, ctok);
+         return LongCountAsync(null, ctok);
       }
 
-      public Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate)
+      public Task<long> LongCountAsync(Expression<Func<T, bool>> predicate)
       {
-         return LongCountAsync(predicate, None.Value);
+         return LongCountAsync(predicate, CancellationToken.None);
       }
 
-      public Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate, Option<CancellationToken> ctok)
+      public Task<long> LongCountAsync(Expression<Func<T, bool>> predicate, CancellationToken ctok)
       {
          return LongCountAsync(predicate, null, ctok);
       }
 
-      public Task<Option<long>> LongCountAsync(
-         Option<Expression<Func<T, bool>>> predicate,
+      public Task<long> LongCountAsync(
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return InternalLongCountAsync(predicate, session, ctok);
       }
 
-      public override Option<bool> Remove(Option<T> entity)
+      public override bool Remove(T entity)
       {
          return Remove(entity, null);
       }
 
-      public Option<bool> Remove(Option<T> entity, IClientSessionHandle session)
+      public bool Remove(T entity, IClientSessionHandle session)
       {
          return ProcessDeleteAndGetResult(GetValidatedEntityForDelete(entity, session), session);
       }
 
-      public override Task<Option<bool>> RemoveAsync(Option<T> entity, Option<CancellationToken> ctok)
+      public override Task<bool> RemoveAsync(T entity, CancellationToken ctok)
       {
          return RemoveAsync(entity, null, ctok);
       }
 
-      public Task<Option<bool>> RemoveAsync(Option<T> entity, IClientSessionHandle session, Option<CancellationToken> ctok)
+      public Task<bool> RemoveAsync(T entity, IClientSessionHandle session, CancellationToken ctok)
       {
          return ProcessDeleteAndGetResultAsync(GetValidatedEntityForDeleteAsync(entity, session, ctok), session, ctok);
       }
@@ -613,73 +610,54 @@
       /// <param name="sourceQuery"></param>
       /// <param name="predicate"></param>
       /// <returns></returns>
-      protected override Option<IQueryable<T>> BuildQuery(Option<IQueryable<T>> sourceQuery, Option<Expression<Func<T, bool>>> predicate)
+      protected override IQueryable<T> BuildQuery(IQueryable<T> sourceQuery, Expression<Func<T, bool>> predicate)
       {
          throw new NotImplementedException();
       }
 
-      private static Option<IFindFluent<T, TResult>> GetPerPageFindFluent<TResult>(
-         Option<IMongoCollection<T>> set,
-         Option<FindOptions> findOptions,
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<IPageQuery> pageQuery,
-         Option<string>[] defaultSortKeys,
-         Option<Expression<Func<T, bool>>> predicate,
+      private static IFindFluent<T, TResult> GetPerPageFindFluent<TResult>(
+         IMongoCollection<T> set,
+         FindOptions findOptions,
+         Expression<Func<T, TResult>> selector,
+         IPageQuery pageQuery,
+         string[] defaultSortKeys,
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
-         return set.Combine(findOptions)
-            .Combine(selector)
-            .Combine(pageQuery)
-            .Combine(defaultSortKeys.ToOptionOfArray())
-            .Combine(predicate, true, _ => true)
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1.Item1.Item1,
-                  FindOptions: x.Item1.Item1.Item1.Item1.Item2,
-                  Selector: x.Item1.Item1.Item1.Item2,
-                  PageQuery: x.Item1.Item1.Item2,
-                  DefaultSortKeys: x.Item1.Item2,
-                  Predicate: x.Item2,
-                  Session: session
-               ))
-            .Map(
-               x =>
-               {
-                  var keywordPredicate = SearchInPropertyNames<T>.BuildPredicate(x.PageQuery.Keyword, x.PageQuery.SearchFields.Pascalize());
-                  var exprBody = Expression.AndAlso(x.Predicate, keywordPredicate);
-                  var inPredicate = Expression.Lambda<Func<T, bool>>(exprBody, x.Predicate.Parameters[0]);
-                  var findFluent = x.Session == null
-                     ? x.Set.Find(inPredicate, x.FindOptions)
-                     : x.Set.Find(x.Session, inPredicate, x.FindOptions);
-                  var pageSize = PageQuery.DefaultPageSize;
-                  var pageIndex = PageQuery.DefaultIndexFrom.Id;
-                  if (x.PageQuery.PageSize > 0) pageSize = x.PageQuery.PageSize;
-                  if (x.PageQuery.PageIndex > 0) pageIndex = x.PageQuery.PageIndex;
-                  var sortDefinition = Builders<T>.Sort.Combine();
-                  if (x.PageQuery.Sorts != null && PagedIQueryable.IsValidSorts<T>(x.PageQuery.Sorts))
-                  {
-                     foreach (var sort in x.PageQuery.Sorts)
-                     {
-                        if (sort.StartsWith("+"))
-                           sortDefinition = sortDefinition.Ascending(new StringFieldDefinition<T>(sort.TrimStart('+')));
-                        else if (sort.StartsWith("-"))
-                           sortDefinition = sortDefinition.Descending(new StringFieldDefinition<T>(sort.TrimStart('-')));
-                        else
-                           sortDefinition = sortDefinition.Ascending(new StringFieldDefinition<T>(sort));
-                     }
-                  }
-                  else
-                  {
-                     sortDefinition = x.DefaultSortKeys.Aggregate(
-                        sortDefinition,
-                        (current, defaultSort) => current.Ascending(new StringFieldDefinition<T>(defaultSort)));
-                  }
+         var keywordPredicate = SearchInPropertyNames<T>.BuildPredicate(pageQuery.Keyword, pageQuery.SearchFields.Pascalize());
+         var exprBody = Expression.AndAlso(predicate, keywordPredicate);
+         var inPredicate = Expression.Lambda<Func<T, bool>>(exprBody, predicate.Parameters[0]);
+         var findFluent = session == null
+            ? set.Find(inPredicate, findOptions)
+            : set.Find(session, inPredicate, findOptions);
+         var pageSize = PageQuery.DefaultPageSize;
+         var pageIndex = PageQuery.DefaultIndexFrom;
+         if (pageQuery.PageSize > 0) pageSize = pageQuery.PageSize;
+         if (pageQuery.PageIndex > 0) pageIndex = pageQuery.PageIndex;
+         var sortDefinition = Builders<T>.Sort.Combine();
+         if (pageQuery.Sorts != null && PagedIQueryable.IsValidSorts<T>(pageQuery.Sorts))
+         {
+            foreach (var sort in pageQuery.Sorts)
+            {
+               if (sort.StartsWith("+"))
+                  sortDefinition = sortDefinition.Ascending(new StringFieldDefinition<T>(sort.TrimStart('+')));
+               else if (sort.StartsWith("-"))
+                  sortDefinition = sortDefinition.Descending(new StringFieldDefinition<T>(sort.TrimStart('-')));
+               else
+                  sortDefinition = sortDefinition.Ascending(new StringFieldDefinition<T>(sort));
+            }
+         }
+         else
+         {
+            sortDefinition = defaultSortKeys.Aggregate(
+               sortDefinition,
+               (current, defaultSort) => current.Ascending(new StringFieldDefinition<T>(defaultSort)));
+         }
 
-                  return findFluent.Sort(sortDefinition)
-                     .Skip((pageIndex - x.PageQuery.IndexFrom.Id) * pageSize)
-                     .Limit(pageSize)
-                     .Project(x.Selector);
-               });
+         return findFluent.Sort(sortDefinition)
+            .Skip((pageIndex - pageQuery.IndexFrom.Id) * pageSize)
+            .Limit(pageSize)
+            .Project(selector);
       }
 
       private static UpdateDefinition<T> GetSelectedUpdateDefinition(T entity, IReadOnlyList<Expression<Func<T, object>>> fieldSelections)
@@ -696,907 +674,527 @@
          return updateDefinition;
       }
 
-      private Option<Dictionary<string, object>> CreateAndGetKeyValues(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc)> validated,
+      private Dictionary<string, object> CreateAndGetKeyValues(
+         (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated,
          IClientSessionHandle session)
       {
-         return validated
-            .Map(
-               x => (
-                  IsSuccess: CreateEntry(x.InputEntity, session).ReduceOrDefault(),
-                  x.PropertyNames,
-                  x.InputEntity
-               ))
-            .IfMapFlatten(
-               x => x.IsSuccess,
-               x => RepositoryHelper<T>.GetKeysAndValues(x.PropertyNames, x.InputEntity))
-            .Output;
+         var createSuccess = CreateEntry(validated.InputEntity, session);
+         return createSuccess ? RepositoryHelper<T>.GetKeysAndValues(validated.PropertyNames, validated.InputEntity) : null;
       }
 
-      private async Task<Option<Dictionary<string, object>>> CreateAndGetKeyValuesAsync(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc)> validated,
+      private async Task<Dictionary<string, object>> CreateAndGetKeyValuesAsync(
+         (T MatchValidatedEntity, string[] PropertyNames, T InputEntity, Func<T, string> MessageFunc) validated,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return
-            (await validated
-               .Combine(ctok, true, CancellationToken.None)
-               .Map(x => (Validated: x.Item1, Ctok: x.Item2))
-               .MapAsync(
-                  async x => (
-                     IsSuccess: (await CreateEntryAsync(x.Validated.InputEntity, session, x.Ctok)).ReduceOrDefault(),
-                     x.Validated.PropertyNames,
-                     x.Validated.InputEntity
-                  )))
-            .IfMapFlatten(
-               x => x.IsSuccess,
-               x => RepositoryHelper<T>.GetKeysAndValues(x.PropertyNames, x.InputEntity))
-            .Output;
+         var createSuccess = await CreateEntryAsync(validated.InputEntity, session, ctok);
+         return createSuccess ? RepositoryHelper<T>.GetKeysAndValues(validated.PropertyNames, validated.InputEntity) : null;
       }
 
-      private Option<bool> CreateEntry(Option<T> entry, IClientSessionHandle session)
+      private bool CreateEntry(T entry, IClientSessionHandle session)
       {
-         return MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Execute(
-               x =>
-               {
-                  if (session == null)
-                  {
-                     x.InsertOne(entry.ReduceOrDefault());
-                  }
-                  else
-                  {
-                     x.InsertOne(session, entry.ReduceOrDefault());
-                  }
-               });
+         var set = MongoDataContext.Collection<T>();
+         if (session == null)
+         {
+            set.InsertOne(entry);
+            return true;
+         }
+         set.InsertOne(session, entry);
+         return true;
       }
 
-      private async Task<Option<bool>> CreateEntryAsync(
-         Option<T> entry,
-         IClientSessionHandle sesion,
-         Option<CancellationToken> ctok)
-      {
-         return await MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Set: x.Item1, Session: sesion, Ctok: x.Item2))
-            .ExecuteAsync(
-               async x =>
-               {
-                  var entity = entry.ReduceOrDefault();
-                  if (x.Session == null)
-                  {
-                     await x.Set.InsertOneAsync(entity, cancellationToken: x.Ctok);
-                  }
-                  else
-                  {
-                     await x.Set.InsertOneAsync(x.Session, entity, cancellationToken: x.Ctok);
-                  }
-               });
-      }
-
-      private Option<bool> DeleteEntry(Option<T> exist, IClientSessionHandle session)
-      {
-         return MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault())))
-            .Map(x => (Set: x.Item1, Session: session, x.Item2.Predicate))
-            .Execute(
-               x =>
-               {
-                  if (x.Session == null)
-                  {
-                     x.Set.DeleteOne(x.Predicate);
-                  }
-                  else
-                  {
-                     x.Set.DeleteOne(x.Session, x.Predicate);
-                  }
-               });
-      }
-
-      private async Task<Option<bool>> DeleteEntryAsync(
-         Option<T> exist,
+      private async Task<bool> CreateEntryAsync(
+         T entry,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return await MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault())))
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Set: x.Item1.Item1, Session: session, x.Item1.Item2.Predicate, Ctok: x.Item2))
-            .ExecuteAsync(
-               async x =>
-               {
-                  if (x.Session == null)
-                  {
-                     await x.Set.DeleteOneAsync(x.Predicate, x.Ctok);
-                  }
-                  else
-                  {
-                     await x.Set.DeleteOneAsync(x.Session, x.Predicate, cancellationToken: x.Ctok);
-                  }
-               });
+         var set = MongoDataContext.Collection<T>();
+         if (session == null)
+         {
+            await set.InsertOneAsync(entry, cancellationToken:ctok);
+            return true;
+         }
+         await set.InsertOneAsync(session, entry, cancellationToken: ctok);
+         return true;
       }
 
-      private Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)>
-         GetValidatedEntityForCreate(Option<T> entity, IClientSessionHandle session)
+      private bool DeleteEntry(T exist, IClientSessionHandle session)
       {
-         return MongoDataContext
-            .Combine(entity)
-            .Map(x => (DataContext: x.Item1, InputEntity: x.Item2))
-            .MapFlatten(
-               x =>
-               {
-                  var existByPk = x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
-                     .Map(
-                        y => (
-                           Exist: InternalGetFirstOrDefault(y.Predicate, None.Value, session).ReduceOrDefault(),
-                           y.PropertyNames,
-                           x.InputEntity
-                        ));
-                  var _ = existByPk
-                     .IfMap(
-                        y => y.Exist != null,
-                        y => (MatchValidatedEntity: y.Exist, y.PropertyNames, y.InputEntity))
-                     .ElseMapFlatten(
-                        y =>
-                        {
-                           var existByAk = x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
-                              .Map(
-                                 z => (
-                                    Exist: InternalGetFirstOrDefault(z.Predicate, None.Value, session).ReduceOrDefault(),
-                                    z.PropertyNames,
-                                    y.InputEntity
-                                 ));
-                           return existByAk
-                              .IfMap(
-                                 z => z.Exist != null,
-                                 z => (MatchValidatedEntity: z.Exist, z.PropertyNames, z.InputEntity))
-                              .ElseMap(
-                                 z => (MatchValidatedEntity: (T)null, z.PropertyNames, z.InputEntity))
-                              .Output;
-                        });
-                  return _.Output;
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(exist);
+         var result = session == null
+            ? MongoDataContext.Collection<T>().DeleteOne(pkPredicate.Predicate)
+            : MongoDataContext.Collection<T>().DeleteOne(session, pkPredicate.Predicate);
+         return result.IsAcknowledged && result.DeletedCount > 0;
       }
 
-      private async Task<Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)>>
-         GetValidatedEntityForCreateAsync(
-            Option<T> entity,
-            IClientSessionHandle session,
-            Option<CancellationToken> ctok)
+      private async Task<bool> DeleteEntryAsync(
+         T exist,
+         IClientSessionHandle session,
+         CancellationToken ctok)
       {
-         return await MongoDataContext
-            .Combine(entity)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (DataContext: x.Item1.Item1, InputEntity: x.Item1.Item2, Ctok: x.Item2))
-            .MapFlattenAsync(
-               async x =>
-               {
-                  var existPk = await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
-                     .MapAsync(
-                        async y => (
-                           Exist: (await InternalGetFirstOrDefaultAsync(y.Predicate, None.Value, session, x.Ctok)).ReduceOrDefault(),
-                           y.PropertyNames,
-                           x.InputEntity
-                        ));
-                  var _ = await existPk
-                     .IfMap(
-                        y => y.Exist != null,
-                        y => (MatchValidatedEntity: y.Exist, y.PropertyNames, y.InputEntity))
-                     .ElseMapFlattenAsync(
-                        async y =>
-                        {
-                           var existAk = await x.DataContext.BuildAlternateKeyPredicate(y.InputEntity)
-                              .MapAsync(
-                                 async z => (
-                                    Exist: (await InternalGetFirstOrDefaultAsync(z.Predicate, None.Value, session, x.Ctok))
-                                    .ReduceOrDefault(),
-                                    z.PropertyNames,
-                                    y.InputEntity
-                                 ));
-                           return existAk
-                              .IfMap(
-                                 z => z.Exist != null,
-                                 z => (MatchValidatedEntity: z.Exist, z.PropertyNames, z.InputEntity))
-                              .ElseMap(
-                                 z => (MatchValidatedEntity: (T)null, z.PropertyNames, z.InputEntity))
-                              .Output;
-                        });
-                  return _.Output;
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(exist);
+         var result = session == null
+            ? await MongoDataContext.Collection<T>().DeleteOneAsync(pkPredicate.Predicate, ctok)
+            : await MongoDataContext.Collection<T>().DeleteOneAsync(session, pkPredicate.Predicate, cancellationToken: ctok);
+         return result.IsAcknowledged && result.DeletedCount > 0;
       }
 
-      private Option<(T Entity, T Exist)> GetValidatedEntityForDelete(
-         Option<T> entity,
+      private (T MatchValidatedEntity, string[] PropertyNames, T InputEntity) GetValidatedEntityForCreate(
+         T entity, 
          IClientSessionHandle session)
       {
-         return entity
-            .Combine(MongoDataContext.MapFlatten(x => x.Collection<T>()))
-            .Map(x => (Entity: x.Item1, Predicate: x.Item1.BuildPredicate<T>(), Set: x.Item2))
-            .Map(
-               x =>
-               {
-                  var exist = InternalGetFirstOrDefault(x.Predicate, None.Value, session).ReduceOrDefault();
-                  return (x.Entity, Exist: exist);
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(entity);
+         var pkExist = InternalGetFirstOrDefault(pkPredicate.Predicate, null, session);
+         if (pkExist != null) return (pkExist, pkPredicate.PropertyNames, entity);
+         var akPredicate = MongoDataContext.BuildAlternateKeyPredicate(entity);
+         var akExist = InternalGetFirstOrDefault(akPredicate.Predicate, null, session);
+         return akExist != null ? (akExist, akPredicate.PropertyNames, entity) : (null, akPredicate.PropertyNames, entity);
       }
 
-      private async Task<Option<(T Entity, T Exist)>> GetValidatedEntityForDeleteAsync(
-         Option<T> entity,
+      private async Task<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)> GetValidatedEntityForCreateAsync(
+         T entity,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return await entity
-            .Combine(MongoDataContext.MapFlatten(x => x.Collection<T>()))
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Entity: x.Item1.Item1, Predicate: x.Item1.Item1.BuildPredicate<T>(), Set: x.Item1.Item2, Ctok: x.Item2))
-            .MapAsync(
-               async x =>
-               {
-                  var exist = (await InternalGetFirstOrDefaultAsync(x.Predicate, None.Value, session, x.Ctok)).ReduceOrDefault();
-                  return (x.Entity, Exist: exist);
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(entity);
+         var pkExist = await InternalGetFirstOrDefaultAsync(pkPredicate.Predicate, null, session, ctok);
+         if (pkExist != null) return (pkExist, pkPredicate.PropertyNames, entity);
+         var akPredicate = MongoDataContext.BuildAlternateKeyPredicate(entity);
+         var akExist = await InternalGetFirstOrDefaultAsync(akPredicate.Predicate, null, session, ctok);
+         return akExist != null ? (akExist, akPredicate.PropertyNames, entity) : (null, akPredicate.PropertyNames, entity);
       }
 
-      private Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)>
-         GetValidatedEntityForUpdate(Option<T> entity, IClientSessionHandle session)
-      {
-         return MongoDataContext
-            .Combine(entity)
-            .Map(x => (DataContext: x.Item1, InputEntity: x.Item2))
-            .MapFlatten(
-               x =>
-               {
-                  return RelationalRepositoryHelper<T>.GiveValidatedEntityForUpdateResult(
-                     x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
-                        .Combine(x.DataContext.BuildAlternateKeyPredicate(x.InputEntity))
-                        .Combine( /*Properties are PK or AK*/
-                           y => RelationalRepositoryHelper<T>.GetKeyPropertyNamesInBetween(
-                              y.Item1.PropertyNames,
-                              y.Item2.PropertyNames))
-                        .Map(y => (PkResult: y.Item1.Item1, AkResult: y.Item1.Item2, KeyProperties: y.Item2))
-                        .Map(
-                           y => (
-                              ExistByPkEntity: InternalGetFirstOrDefault(y.PkResult.Predicate, None.Value, session)
-                                 .ReduceOrDefault() /*Search by PK*/,
-                              ExistByAkEntity: InternalGetFirstOrDefault(y.AkResult.Predicate, None.Value, session)
-                                 .ReduceOrDefault() /*Search by AK*/,
-                              RealKeyPropertyNames: y.KeyProperties,
-                              PkPropertyNames: y.PkResult.PropertyNames,
-                              x.InputEntity
-                           )));
-               });
-      }
-
-      private Task<Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)>>
-         GetValidatedEntityForUpdateAsync(Option<T> entity, IClientSessionHandle session, Option<CancellationToken> ctok)
-      {
-         return MongoDataContext
-            .Combine(entity)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (DataContext: x.Item1.Item1, InputEntity: x.Item1.Item2, Ctok: x.Item2))
-            .MapFlattenAsync(
-               async x =>
-               {
-                  return RelationalRepositoryHelper<T>.GiveValidatedEntityForUpdateResult(
-                     await x.DataContext.BuildPrimaryKeyPredicate(x.InputEntity)
-                        .Combine(x.DataContext.BuildAlternateKeyPredicate(x.InputEntity))
-                        .Combine( /*Properties are PK or AK*/
-                           y => RelationalRepositoryHelper<T>.GetKeyPropertyNamesInBetween(
-                              y.Item1.PropertyNames,
-                              y.Item2.PropertyNames))
-                        .Map(y => (PkResult: y.Item1.Item1, AkResult: y.Item1.Item2, KeyProperties: y.Item2))
-                        .MapAsync(
-                           async y => (
-                              ExistByPkEntity:
-                              (await InternalGetFirstOrDefaultAsync(y.PkResult.Predicate, None.Value, session, x.Ctok))
-                              .ReduceOrDefault() /*Search by PK*/,
-                              ExistByAkEntity:
-                              (await InternalGetFirstOrDefaultAsync(y.AkResult.Predicate, None.Value, session, x.Ctok))
-                              .ReduceOrDefault() /*Search by AK*/,
-                              RealKeyPropertyNames: y.KeyProperties,
-                              PkPropertyNames: y.PkResult.PropertyNames,
-                              x.InputEntity
-                           )));
-               });
-      }
-
-      private Option<T> InternalGetFirstOrDefault(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+      private (T Entity, T Exist) GetValidatedEntityForDelete(
+         T entity,
          IClientSessionHandle session)
       {
-         return InternalGetFirstOrDefault(new Some<Expression<Func<T, T>>>(x => x), predicate, sort, session);
+         var predicate = entity.BuildPredicate();
+         var exist = InternalGetFirstOrDefault(predicate, null, session);
+         return (entity, exist);
       }
 
-      private Option<TResult> InternalGetFirstOrDefault<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
+      private async Task<(T Entity, T Exist)> GetValidatedEntityForDeleteAsync(
+         T entity,
+         IClientSessionHandle session,
+         CancellationToken ctok)
+      {
+         var predicate = entity.BuildPredicate();
+         var exist = await InternalGetFirstOrDefaultAsync(predicate, null, session, ctok);
+         return (entity, exist);
+      }
+
+      private (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity) GetValidatedEntityForUpdate(
+         T entity, 
          IClientSessionHandle session)
       {
-         return MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(selector)
-            .Combine(predicate, true, _ => true)
-            .Combine(sort, true, (false, null))
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1,
-                  Selector: x.Item1.Item1.Item2,
-                  Predicate: x.Item1.Item2,
-                  Sort: x.Item2,
-                  Session: session
-               ))
-            .IfMap(
-               x => x.Session == null,
-               x =>
-               {
-                  if (x.Sort.SortBy == null) return x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefault();
-                  return x.Sort.Ascending
-                     ? x.Set.Find(x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefault()
-                     : x.Set.Find(x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefault();
-               })
-            .ElseMap(
-               x =>
-               {
-                  if (x.Sort.SortBy == null) return x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefault();
-                  return x.Sort.Ascending
-                     ? x.Set.Find(x.Session, x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefault()
-                     : x.Set.Find(x.Session, x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefault();
-               })
-            .Output;
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(entity);
+         var akPredicate = MongoDataContext.BuildAlternateKeyPredicate(entity);
+         var keyProperties =
+            RelationalRepositoryHelper<T>.GetKeyPropertyNamesInBetween(pkPredicate.PropertyNames, akPredicate.PropertyNames);
+         var mapped = (
+            ExistByPkEntity: InternalGetFirstOrDefault(pkPredicate.Predicate, null, session),
+            ExistByAkEntity: InternalGetFirstOrDefault(akPredicate.Predicate, null, session),
+            RealKeyPropertyNames: keyProperties,
+            PkPropertyNames: pkPredicate.PropertyNames,
+            InputEntity: entity);
+         return RelationalRepositoryHelper<T>.GiveValidatedEntityForUpdateResult(mapped);
       }
 
-      private Task<Option<T>> InternalGetFirstOrDefaultAsync(
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+      private async Task<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)> GetValidatedEntityForUpdateAsync(
+         T entity, 
+         IClientSessionHandle session, 
+         CancellationToken ctok)
       {
-         return InternalGetFirstOrDefaultAsync(new Some<Expression<Func<T, T>>>(x => x), predicate, sort, session, ctok);
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(entity);
+         var akPredicate = MongoDataContext.BuildAlternateKeyPredicate(entity);
+         var keyProperties =
+            RelationalRepositoryHelper<T>.GetKeyPropertyNamesInBetween(pkPredicate.PropertyNames, akPredicate.PropertyNames);
+         var mapped = (
+            ExistByPkEntity: await InternalGetFirstOrDefaultAsync(pkPredicate.Predicate, null, session, ctok),
+            ExistByAkEntity: await InternalGetFirstOrDefaultAsync(akPredicate.Predicate, null, session, ctok),
+            RealKeyPropertyNames: keyProperties,
+            PkPropertyNames: pkPredicate.PropertyNames,
+            InputEntity: entity);
+         return RelationalRepositoryHelper<T>.GiveValidatedEntityForUpdateResult(mapped);
       }
 
-      private async Task<Option<TResult>> InternalGetFirstOrDefaultAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<(bool Ascending, Expression<Func<T, object>> SortBy)> sort,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok)
-      {
-         return (
-            await MongoDataContext.MapFlatten(x => x.Collection<T>())
-               .Combine(selector)
-               .Combine(predicate, true, _ => true)
-               .Combine(sort, true, (false, null))
-               .Combine(ctok, true, CancellationToken.None)
-               .Map(
-                  x => (
-                     Set: x.Item1.Item1.Item1.Item1,
-                     Selector: x.Item1.Item1.Item1.Item2,
-                     Predicate: x.Item1.Item1.Item2,
-                     Sort: x.Item1.Item2,
-                     Session: session,
-                     Ctok: x.Item2
-                  ))
-               .IfMapAsync(
-                  x => x.Session == null,
-                  x =>
-                  {
-                     if (x.Sort.SortBy == null) return x.Set.Find(x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
-                     return x.Sort.Ascending
-                        ? x.Set.Find(x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok)
-                        : x.Set.Find(x.Predicate).SortByDescending(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
-                  })
-               .ElseMapAsync(
-                  x =>
-                  {
-                     if (x.Sort.SortBy == null) return x.Set.Find(x.Session, x.Predicate).Project(x.Selector).FirstOrDefaultAsync(x.Ctok);
-                     return x.Sort.Ascending
-                        ? x.Set.Find(x.Session, x.Predicate).SortBy(x.Sort.SortBy).Project(x.Selector).FirstOrDefaultAsync(x.Ctok)
-                        : x.Set.Find(x.Session, x.Predicate)
-                           .SortByDescending(x.Sort.SortBy)
-                           .Project(x.Selector)
-                           .FirstOrDefaultAsync(x.Ctok);
-                  })
-         ).Output;
-      }
-
-      private Option<List<TResult>> InternalGetList<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
+      private T InternalGetFirstOrDefault(
+         Expression<Func<T, bool>> predicate,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session)
       {
-         return MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.GetFindOptions())
-            .Combine(selector)
-            .Combine(predicate, true, _ => true)
-            .Combine(sortBy, true)
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1.Item1,
-                  FindOptions: x.Item1.Item1.Item1.Item2,
-                  Selector: x.Item1.Item1.Item2,
-                  Predicate: x.Item1.Item2,
-                  SortBy: x.Item2,
-                  Session: session
-               ))
-            .IfMap(
-               x => x.SortBy != null,
-               x => x.Session == null
-                  ? x.SortBy(x.Set.Find(x.Predicate, x.FindOptions)).Project(x.Selector).ToList()
-                  : x.SortBy(x.Set.Find(x.Session, x.Predicate, x.FindOptions)).Project(x.Selector).ToList())
-            .ElseMap(
-               x => x.Session == null
-                  ? x.Set.Find(x.Predicate, x.FindOptions).Project(x.Selector).ToList()
-                  : x.Set.Find(x.Session, x.Predicate, x.FindOptions).Project(x.Selector).ToList())
-            .Output;
+         return InternalGetFirstOrDefault(x => x, predicate, sort, session);
       }
 
-      private async Task<Option<List<TResult>>> InternalGetListAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>>> sortBy,
-         IClientSessionHandle session,
-         Option<CancellationToken> ctok)
-      {
-         var _ = await MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.GetFindOptions())
-            .Combine(selector)
-            .Combine(predicate, true, x => true)
-            .Combine(sortBy, true)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1.Item1.Item1,
-                  FindOptions: x.Item1.Item1.Item1.Item1.Item2,
-                  Selector: x.Item1.Item1.Item1.Item2,
-                  Predicate: x.Item1.Item1.Item2,
-                  SortBy: x.Item1.Item2,
-                  Session: session,
-                  Ctok: x.Item2
-               ))
-            .IfMapAsync(
-               x => x.SortBy != null,
-               x => x.Session == null
-                  ? x.SortBy(x.Set.Find(x.Predicate, x.FindOptions)).Project(x.Selector).ToListAsync()
-                  : x.SortBy(x.Set.Find(x.Session, x.Predicate, x.FindOptions)).Project(x.Selector).ToListAsync())
-            .ElseMapAsync(
-               x => x.Session == null
-                  ? x.Set.Find(x.Predicate, x.FindOptions).Project(x.Selector).ToListAsync()
-                  : x.Set.Find(x.Session, x.Predicate, x.FindOptions).Project(x.Selector).ToListAsync());
-         return _.Output;
-      }
-
-      private Option<List<KeyValue>> InternalGetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+      private TResult InternalGetFirstOrDefault<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session)
       {
-         return MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.GetFindOptions())
-            .Combine(idProperty)
-            .Combine(valueProperty)
-            .Combine(useValueAsId, true)
-            .Combine(predicate, true, _ => true)
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1.Item1.Item1,
-                  FindOptions: x.Item1.Item1.Item1.Item1.Item2,
-                  IdProperty: x.Item1.Item1.Item1.Item2,
-                  ValueProperty: x.Item1.Item1.Item2,
-                  UseValueAsId: x.Item1.Item2,
-                  Predicate: x.Item2,
-                  OrderByField: x.Item1.Item2 ? x.Item1.Item1.Item2 : x.Item1.Item1.Item1.Item2,
-                  Session: session
-               ))
-            .Map(
-               x =>
-               {
-                  var findFluent = x.Session == null
-                     ? x.Set.Find(x.Predicate, x.FindOptions)
-                     : x.Set.Find(x.Session, x.Predicate, x.FindOptions);
-                  return findFluent
-                     .Sort(Builders<T>.Sort.Ascending(x.OrderByField))
-                     .Project(y => RepositoryHelper<T>.ToKeyValue(y, x.IdProperty, x.ValueProperty, x.UseValueAsId))
-                     .ToList();
-               });
+         var set = MongoDataContext.Collection<T>();
+         var realSort = sort.GetValueOrDefault();
+         if (session == null)
+         {
+            if (!sort.HasValue) return set.Find(predicate).Project(selector).FirstOrDefault();
+            if (realSort.Ascending)
+            {
+               return set.Find(predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefault();
+            }
+
+            return realSort.Ascending
+               ? set.Find(predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefault()
+               : set.Find(predicate).SortByDescending(realSort.SortBy).Project(selector).FirstOrDefault();
+         }
+
+         if (!sort.HasValue) return set.Find(session, predicate).Project(selector).FirstOrDefault();
+         if (realSort.Ascending)
+         {
+            return set.Find(session, predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefault();
+         }
+
+         return realSort.Ascending
+            ? set.Find(session, predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefault()
+            : set.Find(session, predicate).SortByDescending(realSort.SortBy).Project(selector).FirstOrDefault();
       }
 
-      private Task<Option<List<KeyValue>>> InternalGetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
-         Option<Expression<Func<T, bool>>> predicate,
+      private Task<T> InternalGetFirstOrDefaultAsync(
+         Expression<Func<T, bool>> predicate,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(MongoDataContext.GetFindOptions())
-            .Combine(idProperty)
-            .Combine(valueProperty)
-            .Combine(useValueAsId, true)
-            .Combine(predicate, true, x => true)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(
-               x => (
-                  Set: x.Item1.Item1.Item1.Item1.Item1.Item1,
-                  FindOptions: x.Item1.Item1.Item1.Item1.Item1.Item2,
-                  IdProperty: x.Item1.Item1.Item1.Item1.Item2,
-                  ValueProperty: x.Item1.Item1.Item1.Item2,
-                  UseValueAsId: x.Item1.Item1.Item2,
-                  Predicate: x.Item1.Item2,
-                  OrderByField: x.Item1.Item1.Item2 ? x.Item1.Item1.Item1.Item2 : x.Item1.Item1.Item1.Item1.Item2,
-                  Session: session,
-                  Ctok: x.Item2
-               ))
-            .MapAsync(
-               x =>
-               {
-                  var findFluent = x.Session == null
-                     ? x.Set.Find(x.Predicate, x.FindOptions)
-                     : x.Set.Find(x.Session, x.Predicate, x.FindOptions);
-                  return findFluent
-                     .Sort(Builders<T>.Sort.Ascending(x.OrderByField))
-                     .Project(y => RepositoryHelper<T>.ToKeyValue(y, x.IdProperty, x.ValueProperty, x.UseValueAsId))
-                     .ToListAsync(x.Ctok);
-               });
+         return InternalGetFirstOrDefaultAsync(x => x, predicate, sort, session, ctok);
       }
 
-      private Option<IPaged<TResult>> InternalGetPaged<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+      private Task<TResult> InternalGetFirstOrDefaultAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         (bool Ascending, Expression<Func<T, object>> SortBy)? sort,
+         IClientSessionHandle session,
+         CancellationToken ctok)
+      {
+         var set = MongoDataContext.Collection<T>();
+         var realSort = sort.GetValueOrDefault();
+         if (session == null)
+         {
+            if (!sort.HasValue) return set.Find(predicate).Project(selector).FirstOrDefaultAsync(ctok);
+            if (realSort.Ascending)
+            {
+               return set.Find(predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok);
+            }
+
+            return realSort.Ascending
+               ? set.Find(predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok)
+               : set.Find(predicate).SortByDescending(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok);
+         }
+
+         if (!sort.HasValue) return set.Find(session, predicate).Project(selector).FirstOrDefaultAsync(ctok);
+         if (realSort.Ascending)
+         {
+            return set.Find(session, predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok);
+         }
+
+         return realSort.Ascending
+            ? set.Find(session, predicate).SortBy(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok)
+            : set.Find(session, predicate).SortByDescending(realSort.SortBy).Project(selector).FirstOrDefaultAsync(ctok);
+      }
+
+      private List<TResult> InternalGetList<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
+         IClientSessionHandle session)
+      {
+         var set = MongoDataContext.Collection<T>();
+         var findOptions = MongoDataContext.FindOptions;
+         if (session == null)
+         {
+            return sortBy == null
+               ? set.Find(predicate, findOptions).Project(selector).ToList()
+               : sortBy(set.Find(predicate, findOptions)).Project(selector).ToList();
+         }
+
+         return sortBy == null
+            ? set.Find(session, predicate, findOptions).Project(selector).ToList()
+            : sortBy(set.Find(session, predicate, findOptions)).Project(selector).ToList();
+      }
+
+      private Task<List<TResult>> InternalGetListAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         Expression<Func<T, bool>> predicate,
+         Func<IFindFluent<T, T>, IOrderedFindFluent<T, T>> sortBy,
+         IClientSessionHandle session,
+         CancellationToken ctok)
+      {
+         var set = MongoDataContext.Collection<T>();
+         var findOptions = MongoDataContext.FindOptions;
+         if (session == null)
+         {
+            return sortBy == null
+               ? set.Find(predicate, findOptions).Project(selector).ToListAsync(ctok)
+               : sortBy(set.Find(predicate, findOptions)).Project(selector).ToListAsync(ctok);
+         }
+
+         return sortBy == null
+            ? set.Find(session, predicate, findOptions).Project(selector).ToListAsync(ctok)
+            : sortBy(set.Find(session, predicate, findOptions)).Project(selector).ToListAsync(ctok);
+      }
+
+      private List<KeyValue> InternalGetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session)
+      {
+         var set = MongoDataContext.Collection<T>();
+         var findOptions = MongoDataContext.FindOptions;
+         var orderByField = useValueAsId ? valueProperty : idProperty;
+         var findFluent = session == null
+            ? set.Find(predicate, findOptions)
+            : set.Find(session, predicate, findOptions);
+         return findFluent
+            .Sort(Builders<T>.Sort.Ascending(orderByField))
+            .Project(y => RepositoryHelper<T>.ToKeyValue(y, idProperty, valueProperty, useValueAsId))
+            .ToList();
+      }
+
+      private Task<List<KeyValue>> InternalGetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
+         Expression<Func<T, bool>> predicate,
+         IClientSessionHandle session,
+         CancellationToken ctok)
+      {
+         var set = MongoDataContext.Collection<T>();
+         var findOptions = MongoDataContext.FindOptions;
+         var orderByField = useValueAsId ? valueProperty : idProperty;
+         var findFluent = session == null
+            ? set.Find(predicate, findOptions)
+            : set.Find(session, predicate, findOptions);
+         return findFluent
+            .Sort(Builders<T>.Sort.Ascending(orderByField))
+            .Project(y => RepositoryHelper<T>.ToKeyValue(y, idProperty, valueProperty, useValueAsId))
+            .ToListAsync(ctok);
+      }
+
+      private IPaged<TResult> InternalGetPaged<TResult>(
+         Expression<Func<T, TResult>> selector,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session)
       {
          var pageQuery = PageQuery.Get(pageIndex, pageSize, sorts, keyword, indexFrom, searchFields);
-         var defaultSortKeys = RelationalRepositoryHelper<T>.GetSortKeys(MongoDataContext.ReduceOrDefault())
-            .ReduceOrDefault()
-            .ToArrayOfOptions();
-         return GetPerPageFindFluent(
-               MongoDataContext.MapFlatten(x => x.Collection<T>()),
-               MongoDataContext.MapFlatten(x => x.FindOptions),
+         var defaultSortKeys = RelationalRepositoryHelper<T>.GetSortKeys(MongoDataContext);
+         var findFluent = GetPerPageFindFluent(
+               MongoDataContext.Collection<T>(),
+               MongoDataContext.FindOptions,
                selector,
-               pageQuery.ReduceOrDefault(),
+               pageQuery,
                defaultSortKeys,
                predicate,
-               session)
-            .Combine(pageQuery)
-            .Map(x => (FindFluent: x.Item1, PageQuery: x.Item2))
-            .Map(
-               x => new Paged<TResult>(
-                  x.FindFluent.ToList(),
-                  x.PageQuery.PageIndex,
-                  x.PageQuery.PageSize,
-                  x.PageQuery.IndexFrom,
-                  x.FindFluent.CountDocuments()
-               ))
-            .ReduceOrDefault();
+               session);
+         return new Paged<TResult>(findFluent.ToList(), findFluent.CountDocuments(), pageIndex, pageSize, pageQuery.IndexFrom);
       }
 
-      private async Task<Option<IPaged<TResult>>> InternalGetPagedAsync<TResult>(
-         Option<Expression<Func<T, TResult>>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
-         Option<Expression<Func<T, bool>>> predicate,
+      private async Task<IPaged<TResult>> InternalGetPagedAsync<TResult>(
+         Expression<Func<T, TResult>> selector,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          var pageQuery = PageQuery.Get(pageIndex, pageSize, sorts, keyword, indexFrom, searchFields);
-         var defaultSortKeys = RelationalRepositoryHelper<T>.GetSortKeys(MongoDataContext.ReduceOrDefault())
-            .ReduceOrDefault()
-            .ToArrayOfOptions();
-         var _ = await GetPerPageFindFluent(
-               MongoDataContext.MapFlatten(x => x.Collection<T>()),
-               MongoDataContext.MapFlatten(x => x.FindOptions),
-               selector,
-               pageQuery.ReduceOrDefault(),
-               defaultSortKeys,
-               predicate,
-               session)
-            .Combine(pageQuery)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (FindFluent: x.Item1.Item1, PageQuery: x.Item1.Item2, Ctok: x.Item2))
-            .MapAsync(
-               async x => new Paged<TResult>(
-                  await x.FindFluent.ToListAsync(x.Ctok),
-                  x.PageQuery.PageIndex,
-                  x.PageQuery.PageSize,
-                  x.PageQuery.IndexFrom,
-                  await x.FindFluent.CountDocumentsAsync(x.Ctok)
-               ));
-         return _.ReduceOrDefault();
+         var defaultSortKeys = RelationalRepositoryHelper<T>.GetSortKeys(MongoDataContext);
+         var findFluent = GetPerPageFindFluent(
+            MongoDataContext.Collection<T>(),
+            MongoDataContext.FindOptions,
+            selector,
+            pageQuery,
+            defaultSortKeys,
+            predicate,
+            session);
+         return new Paged<TResult>(
+            await findFluent.ToListAsync(ctok),
+            await findFluent.CountDocumentsAsync(ctok),
+            pageIndex,
+            pageSize,
+            pageQuery.IndexFrom);
       }
 
-      private Option<long> InternalLongCount(Option<Expression<Func<T, bool>>> predicate, IClientSessionHandle session)
+      private long InternalLongCount(Expression<Func<T, bool>> predicate, IClientSessionHandle session)
       {
-         return MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(predicate, true)
-            .Map(x => (Set: x.Item1, Predicate: x.Item2, Session: session))
-            .Map(
-               x =>
-               {
-                  var filter = x.Predicate == null ? Builders<T>.Filter.Empty : new ExpressionFilterDefinition<T>(x.Predicate);
-                  return x.Session == null
-                     ? x.Set.CountDocuments(filter)
-                     : x.Set.CountDocuments(x.Session, filter);
-               });
+         var set = MongoDataContext.Collection<T>();
+         var filter = predicate == null ? Builders<T>.Filter.Empty : new ExpressionFilterDefinition<T>(predicate);
+         return session == null
+            ? set.CountDocuments(filter)
+            : set.CountDocuments(session, filter);
       }
 
-      private async Task<Option<long>> InternalLongCountAsync(
-         Option<Expression<Func<T, bool>>> predicate,
+      private Task<long> InternalLongCountAsync(
+         Expression<Func<T, bool>> predicate,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return await MongoDataContext.MapFlatten(x => x.Collection<T>())
-            .Combine(predicate, true)
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Set: x.Item1.Item1, Predicate: x.Item1.Item2, Session: session, Ctok: x.Item2))
-            .MapAsync(
-               x =>
-               {
-                  var filter = x.Predicate == null ? Builders<T>.Filter.Empty : new ExpressionFilterDefinition<T>(x.Predicate);
-                  return x.Session == null
-                     ? x.Set.CountDocumentsAsync(filter, cancellationToken: x.Ctok)
-                     : x.Set.CountDocumentsAsync(x.Session, filter, cancellationToken: x.Ctok);
-               });
+         var set = MongoDataContext.Collection<T>();
+         var filter = predicate == null ? Builders<T>.Filter.Empty : new ExpressionFilterDefinition<T>(predicate);
+         return session == null
+            ? set.CountDocumentsAsync(filter, cancellationToken: ctok)
+            : set.CountDocumentsAsync(session, filter, cancellationToken: ctok);
       }
 
-      private Option<Dictionary<string, object>> ProcessCreateAndGetResult(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)> validated,
-         Option<Func<T, string>> existMessageFunc,
+      private Dictionary<string, object> ProcessCreateAndGetResult(
+         (T MatchValidatedEntity, string[] PropertyNames, T InputEntity) validated,
+         Func<T, string> existMessageFunc,
          IClientSessionHandle session)
       {
-         return validated
-            .Combine(existMessageFunc, true)
-            .Map(
-               x => (
-                  x.Item1.MatchValidatedEntity,
-                  x.Item1.PropertyNames,
-                  x.Item1.InputEntity,
-                  MessageFunc: x.Item2
-               ))
-            .IfMapFlatten(
-               RelationalRepositoryHelper<T>.IfCreateError,
-               x => RepositoryHelper<T>.ThrowCreateErrorExistingEntity(x, DefaultExistMessageFunc))
-            .ElseMapFlatten(x => CreateAndGetKeyValues(x, session))
-            .Output;
+         var mapped = (validated.MatchValidatedEntity, validated.PropertyNames, validated.InputEntity, existMessageFunc);
+         var createError = RelationalRepositoryHelper<T>.IfCreateError(mapped);
+         if (createError)
+         {
+            RepositoryHelper<T>.ThrowCreateErrorExistingEntity(mapped, DefaultExistMessageFunc);
+         }
+
+         return CreateAndGetKeyValues(mapped, session);
       }
 
-      private async Task<Option<Dictionary<string, object>>> ProcessCreateAndGetResultAsync(
-         Task<Option<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)>> asyncValidated,
-         Option<Func<T, string>> existMessageFunc,
+      private async Task<Dictionary<string, object>> ProcessCreateAndGetResultAsync(
+         Task<(T MatchValidatedEntity, string[] PropertyNames, T InputEntity)> asyncValidated,
+         Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          var validated = await asyncValidated;
-         var _ = await validated
-            .Combine(existMessageFunc, true)
-            .Map(
-               x => (
-                  x.Item1.MatchValidatedEntity,
-                  x.Item1.PropertyNames,
-                  x.Item1.InputEntity,
-                  MessageFunc: x.Item2
-               ))
-            .IfMapFlatten(
-               RelationalRepositoryHelper<T>.IfCreateError,
-               x => RepositoryHelper<T>.ThrowCreateErrorExistingEntity(x, DefaultExistMessageFunc))
-            .ElseMapFlattenAsync(x => CreateAndGetKeyValuesAsync(x, session, ctok));
-         return _.Output;
+         var mapped = (validated.MatchValidatedEntity, validated.PropertyNames, validated.InputEntity, existMessageFunc);
+         var createError = RelationalRepositoryHelper<T>.IfCreateError(mapped);
+         if (createError)
+         {
+            RepositoryHelper<T>.ThrowCreateErrorExistingEntity(mapped, DefaultExistMessageFunc);
+         }
+
+         return await CreateAndGetKeyValuesAsync(mapped, session, ctok);
       }
 
-      private Option<bool> ProcessDeleteAndGetResult(Option<(T Entity, T Exist)> validated, IClientSessionHandle session)
+      private bool ProcessDeleteAndGetResult((T Entity, T Exist) validated, IClientSessionHandle session)
       {
-         return validated
-            .IfMapFlatten(
-               x => x.Exist == null,
-               x =>
-               {
-                  var properties = PropertyHelper.GetProperties(x.Entity)
-                     .Where(y => y.GetValue(x.Entity) != null)
-                     .Select(y => y.Name)
-                     .ToArray();
-                  return Fail<bool>.Throw(new KeyNotFoundException(DefaultNotFoundMessageFunc(x.Entity, properties)));
-               })
-            .ElseMapFlatten(x => DeleteEntry(x.Exist, session))
-            .Output;
+         if (validated.Exist != null) return DeleteEntry(validated.Exist, session);
+         var properties = PropertyHelper.GetProperties(validated.Entity)
+            .Where(x => x.GetValue(validated.Entity) != null)
+            .Select(y => y.Name)
+            .ToArray();
+         throw new KeyNotFoundException(DefaultExistMessageFunc(validated.Entity, properties));
       }
 
-      private async Task<Option<bool>> ProcessDeleteAndGetResultAsync(
-         Task<Option<(T Entity, T Exist)>> asyncValidated,
+      private async Task<bool> ProcessDeleteAndGetResultAsync(
+         Task<(T Entity, T Exist)> asyncValidated,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          var validated = await asyncValidated;
-         var _ = await validated
-            .IfMapFlatten(
-               x => x.Exist == null,
-               x =>
-               {
-                  var properties = PropertyHelper.GetProperties(x.Entity)
-                     .Where(y => y.GetValue(x.Entity) != null)
-                     .Select(y => y.Name)
-                     .ToArray();
-                  return Fail<bool>.Throw(new KeyNotFoundException(DefaultNotFoundMessageFunc(x.Entity, properties)));
-               })
-            .ElseMapFlattenAsync(x => DeleteEntryAsync(x.Exist, session, ctok));
-         return _.Output;
+         if (validated.Exist != null) return await DeleteEntryAsync(validated.Exist, session, ctok);
+         var properties = PropertyHelper.GetProperties(validated.Entity)
+            .Where(x => x.GetValue(validated.Entity) != null)
+            .Select(y => y.Name)
+            .ToArray();
+         throw new KeyNotFoundException(DefaultExistMessageFunc(validated.Entity, properties));
       }
 
-      private Option<Dictionary<string, object>> ProcessUpdateAndGetResult(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)> validated,
-         Option<Func<T, string>> existMessageFunc,
+      private Dictionary<string, object> ProcessUpdateAndGetResult(
+         (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity) validated,
+         Func<T, string> existMessageFunc,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return validated.Combine(existMessageFunc, true)
-            .Map(
-               x => (
-                  x.Item1.MatchValidatedEntity,
-                  x.Item1.PropertyNames,
-                  x.Item1.Found,
-                  x.Item1.InputEntity,
-                  MessageFunc: x.Item2
-               ))
-            .IfMapFlatten(
-               RelationalRepositoryHelper<T>.IfUpdateError,
-               x => RepositoryHelper<T>.ThrowUpdateError(x, DefaultExistMessageFunc))
-            .ElseMapFlatten(x => UpdateAndGetKeyValues(x, session, fieldSelections))
-            .Output;
+         var mapped = (validated.MatchValidatedEntity, validated.PropertyNames, validated.Found, validated.InputEntity, existMessageFunc);
+         var updateError = RelationalRepositoryHelper<T>.IfUpdateError(mapped);
+         if (updateError) RepositoryHelper<T>.ThrowUpdateError(mapped, DefaultExistMessageFunc);
+         return UpdateAndGetKeyValues(mapped, session, fieldSelections);
       }
 
-      private async Task<Option<Dictionary<string, object>>> ProcessUpdateAndGetResultAsync(
-         Task<Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)>> asyncValidated,
-         Option<Func<T, string>> existMessageFunc,
+      private async Task<Dictionary<string, object>> ProcessUpdateAndGetResultAsync(
+         Task<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity)> asyncValidated,
+         Func<T, string> existMessageFunc,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
          var validated = await asyncValidated;
-         var _ = await validated
-            .Combine(existMessageFunc, true)
-            .Map(
-               x => (
-                  x.Item1.MatchValidatedEntity,
-                  x.Item1.PropertyNames,
-                  x.Item1.Found,
-                  x.Item1.InputEntity,
-                  MessageFunc: x.Item2
-               ))
-            .IfMapFlatten(
-               RelationalRepositoryHelper<T>.IfUpdateError,
-               x => RepositoryHelper<T>.ThrowUpdateError(x, DefaultExistMessageFunc))
-            .ElseMapFlattenAsync(x => UpdateAndGetKeyValuesAsync(x, session, ctok, fieldSelections));
-         return _.Output;
+         var mapped = (validated.MatchValidatedEntity, validated.PropertyNames, validated.Found, validated.InputEntity, existMessageFunc);
+         var updateError = RelationalRepositoryHelper<T>.IfUpdateError(mapped);
+         if (updateError) RepositoryHelper<T>.ThrowUpdateError(mapped, DefaultExistMessageFunc);
+         return await UpdateAndGetKeyValuesAsync(mapped, session, ctok, fieldSelections);
       }
 
-      private Option<Dictionary<string, object>> UpdateAndGetKeyValues(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)> validated,
+      private Dictionary<string, object> UpdateAndGetKeyValues(
+         (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc) validated,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return validated
-            .Map(
-               x => (
-                  IsSuccess: UpdateEntry(x.InputEntity, x.MatchValidatedEntity, session, fieldSelections).ReduceOrDefault(),
-                  x.PropertyNames,
-                  x.InputEntity
-               ))
-            .IfMapFlatten(
-               y => y.IsSuccess,
-               y => RepositoryHelper<T>.GetKeysAndValues(y.PropertyNames, y.InputEntity))
-            .Output;
+         var updateSuccess = UpdateEntry(validated.InputEntity, validated.MatchValidatedEntity, session, fieldSelections);
+         return updateSuccess ? RepositoryHelper<T>.GetKeysAndValues(validated.PropertyNames, validated.InputEntity) : null;
       }
 
-      private async Task<Option<Dictionary<string, object>>> UpdateAndGetKeyValuesAsync(
-         Option<(T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc)> validated,
+      private async Task<Dictionary<string, object>> UpdateAndGetKeyValuesAsync(
+         (T MatchValidatedEntity, string[] PropertyNames, bool Found, T InputEntity, Func<T, string> MessageFunc) validated,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return
-            (
-               await validated
-                  .MapAsync(
-                     async x => (
-                        IsSuccess: (await UpdateEntryAsync(x.InputEntity, x.MatchValidatedEntity, session, ctok, fieldSelections))
-                        .ReduceOrDefault(),
-                        x.PropertyNames,
-                        x.InputEntity
-                     ))
-            )
-            .IfMapFlatten(
-               y => y.IsSuccess,
-               y => RepositoryHelper<T>.GetKeysAndValues(y.PropertyNames, y.InputEntity))
-            .Output;
+         var updateSuccess = await UpdateEntryAsync(validated.InputEntity, validated.MatchValidatedEntity, session, ctok, fieldSelections);
+         return updateSuccess ? RepositoryHelper<T>.GetKeysAndValues(validated.PropertyNames, validated.InputEntity) : null;
       }
 
-      private Option<bool> UpdateEntry(
-         Option<T> entity,
-         Option<T> exist,
+      private bool UpdateEntry(
+         T entity,
+         T exist,
          IClientSessionHandle session,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Map(x => (Set: x, Session: session))
-            .Execute(
-               x =>
-               {
-                  MongoDataContext
-                     .MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault()))
-                     .Execute(
-                        y =>
-                        {
-                           var realEntity = entity.ReduceOrDefault();
-                           var realEntityUpdateDefinition = GetUpdateDefinitionFromEntity(realEntity);
-                           var selectionsUpdateDefinition = GetSelectedUpdateDefinition(realEntity, fieldSelections);
-                           if (x.Session == null)
-                           {
-                              x.Set.UpdateOne(y.Predicate, selectionsUpdateDefinition ?? realEntityUpdateDefinition);
-                           }
-                           else
-                           {
-                              x.Set.UpdateOne(x.Session, y.Predicate, selectionsUpdateDefinition ?? realEntityUpdateDefinition);
-                           }
-                        });
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(exist);
+         var updateDefinition = GetUpdateDefinitionFromEntity(entity);
+         var selectionUpdateDefinition = GetSelectedUpdateDefinition(entity, fieldSelections);
+         if (session == null)
+         {
+            var _ = MongoDataContext.Collection<T>().UpdateOne(pkPredicate.Predicate, selectionUpdateDefinition ?? updateDefinition);
+            return _.IsAcknowledged && _.ModifiedCount > 0;
+         }
+
+         var __ = MongoDataContext.Collection<T>().UpdateOne(session, pkPredicate.Predicate, selectionUpdateDefinition ?? updateDefinition);
+         return __.IsAcknowledged && __.ModifiedCount > 0;
       }
 
-      private Task<Option<bool>> UpdateEntryAsync(
-         Option<T> entity,
-         Option<T> exist,
+      private async Task<bool> UpdateEntryAsync(
+         T entity,
+         T exist,
          IClientSessionHandle session,
-         Option<CancellationToken> ctok,
+         CancellationToken ctok,
          params Expression<Func<T, object>>[] fieldSelections)
       {
-         return MongoDataContext
-            .MapFlatten(x => x.Collection<T>())
-            .Combine(ctok, true, CancellationToken.None)
-            .Map(x => (Set: x.Item1, Session: session, Ctok: x.Item2))
-            .ExecuteAsync(
-               async x =>
-               {
-                  await MongoDataContext
-                     .MapFlatten(y => y.BuildPrimaryKeyPredicate(exist.ReduceOrDefault()))
-                     .ExecuteAsync(
-                        async y =>
-                        {
-                           var realEntity = entity.ReduceOrDefault();
-                           var realEntityUpdateDefinition = GetUpdateDefinitionFromEntity(realEntity);
-                           var selectionsUpdateDefinition = GetSelectedUpdateDefinition(realEntity, fieldSelections);
-                           if (x.Session == null)
-                           {
-                              await x.Set.UpdateOneAsync(
-                                 y.Predicate,
-                                 selectionsUpdateDefinition ?? realEntityUpdateDefinition,
-                                 cancellationToken: x.Ctok);
-                           }
-                           else
-                           {
-                              await x.Set.UpdateOneAsync(
-                                 x.Session,
-                                 y.Predicate,
-                                 selectionsUpdateDefinition ?? realEntityUpdateDefinition,
-                                 cancellationToken: x.Ctok);
-                           }
-                        });
-               });
+         var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(exist);
+         var updateDefinition = GetUpdateDefinitionFromEntity(entity);
+         var selectionUpdateDefinition = GetSelectedUpdateDefinition(entity, fieldSelections);
+         if (session == null)
+         {
+            var _ = await MongoDataContext.Collection<T>()
+               .UpdateOneAsync(pkPredicate.Predicate, selectionUpdateDefinition ?? updateDefinition, cancellationToken: ctok);
+            return _.IsAcknowledged && _.ModifiedCount > 0;
+         }
+
+         var __ = await MongoDataContext.Collection<T>()
+            .UpdateOneAsync(session, pkPredicate.Predicate, selectionUpdateDefinition ?? updateDefinition, cancellationToken: ctok);
+         return __.IsAcknowledged && __.ModifiedCount > 0;
       }
 
       private static UpdateDefinition<T> GetUpdateDefinitionFromEntity(T entity)

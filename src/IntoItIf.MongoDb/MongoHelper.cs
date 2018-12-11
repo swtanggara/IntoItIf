@@ -2,7 +2,6 @@
 {
    using System;
    using System.Linq.Expressions;
-   using Base.Domain.Options;
    using MongoDB.Bson;
    using MongoDB.Bson.Serialization;
    using MongoDB.Driver;
@@ -37,11 +36,6 @@
       #endregion
 
       #region Methods
-
-      internal static Option<FindOptions> GetFindOptions(this Option<MongoDataContext> mongoContext)
-      {
-         return mongoContext.MapFlatten(x => x.FindOptions);
-      }
 
       private static BsonDocument Render<T>(this IndexKeysDefinition<T> definition)
       {

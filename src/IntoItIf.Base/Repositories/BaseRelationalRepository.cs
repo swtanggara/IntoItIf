@@ -8,19 +8,18 @@ namespace IntoItIf.Base.Repositories
    using System.Threading.Tasks;
    using DataContexts;
    using Domain;
-   using Domain.Options;
 
    public abstract class BaseRelationalRepository<T> : BaseRepository<T>
       where T : class
    {
       #region Constructors and Destructors
 
-      protected BaseRelationalRepository(Option<IRelationalDataContext> dataContext) : this(dataContext, None.Value)
+      protected BaseRelationalRepository(IRelationalDataContext dataContext) : this(dataContext, null)
       {
       }
 
-      protected BaseRelationalRepository(Option<IRelationalDataContext> dataContext, Option<IQueryable<T>> customQuery) : base(
-         (dataContext.ReduceOrDefault() as IDataContext).ToOption(),
+      protected BaseRelationalRepository(IRelationalDataContext dataContext, IQueryable<T> customQuery) : base(
+         dataContext,
          customQuery)
       {
          RelationalDataContext = dataContext;
@@ -30,37 +29,37 @@ namespace IntoItIf.Base.Repositories
 
       #region Properties
 
-      protected Option<IRelationalDataContext> RelationalDataContext { get; }
+      protected IRelationalDataContext RelationalDataContext { get; }
 
       #endregion
 
       #region Public Methods and Operators
 
-      public override Option<T> GetFirstOrDefault(Expression<Func<T, bool>> predicate)
+      public override T GetFirstOrDefault(Expression<Func<T, bool>> predicate)
       {
          return GetFirstOrDefault(predicate, null);
       }
 
-      public Option<T> GetFirstOrDefault(
+      public T GetFirstOrDefault(
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
       {
          return GetFirstOrDefault(predicate, orderBy, null);
       }
 
-      public abstract Option<T> GetFirstOrDefault(
+      public abstract T GetFirstOrDefault(
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include);
 
-      public override Option<TResult> GetFirstOrDefault<TResult>(
+      public override TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
          return GetFirstOrDefault(selector, predicate, null);
       }
 
-      public Option<TResult> GetFirstOrDefault<TResult>(
+      public TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
@@ -68,80 +67,80 @@ namespace IntoItIf.Base.Repositories
          return GetFirstOrDefault(selector, predicate, orderBy, null);
       }
 
-      public abstract Option<TResult> GetFirstOrDefault<TResult>(
+      public abstract TResult GetFirstOrDefault<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include);
 
-      public override Task<Option<T>> GetFirstOrDefaultAsync(
+      public override Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(predicate, null, ctok);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
       {
-         return GetFirstOrDefaultAsync(predicate, orderBy, None.Value);
+         return GetFirstOrDefaultAsync(predicate, orderBy, CancellationToken.None);
       }
 
-      public Task<Option<T>> GetFirstOrDefaultAsync(
+      public Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(predicate, orderBy, null, ctok);
       }
 
-      public abstract Task<Option<T>> GetFirstOrDefaultAsync(
+      public abstract Task<T> GetFirstOrDefaultAsync(
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public override Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public override Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(selector, predicate, null, ctok);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
       {
-         return GetFirstOrDefaultAsync(selector, predicate, orderBy, null, null);
+         return GetFirstOrDefaultAsync(selector, predicate, orderBy, null, CancellationToken.None);
       }
 
-      public Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetFirstOrDefaultAsync(selector, predicate, orderBy, null, ctok);
       }
 
-      public abstract Task<Option<TResult>> GetFirstOrDefaultAsync<TResult>(
+      public abstract Task<TResult> GetFirstOrDefaultAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public override Option<List<TResult>> GetList<TResult>(
+      public override List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate)
       {
          return GetList(selector, predicate, null);
       }
 
-      public Option<List<TResult>> GetList<TResult>(
+      public List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
@@ -149,290 +148,290 @@ namespace IntoItIf.Base.Repositories
          return GetList(selector, predicate, orderBy, null);
       }
 
-      public abstract Option<List<TResult>> GetList<TResult>(
+      public abstract List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include);
 
-      public override Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public override Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetListAsync(selector, predicate, null, ctok);
       }
 
-      public Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
       {
-         return GetListAsync(selector, predicate, orderBy, null, null);
+         return GetListAsync(selector, predicate, orderBy, null, CancellationToken.None);
       }
 
-      public Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetListAsync(selector, predicate, orderBy, null, ctok);
       }
 
-      public abstract Task<Option<List<TResult>>> GetListAsync<TResult>(
+      public abstract Task<List<TResult>> GetListAsync<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public override Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public override List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate)
       {
          return GetLookups(idProperty, valueProperty, useValueAsId, predicate, null);
       }
 
-      public abstract Option<List<KeyValue>> GetLookups(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public abstract List<KeyValue> GetLookups(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include);
 
-      public override Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public override Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, null, ctok);
       }
 
-      public Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, include, None.Value);
+         return GetLookupsAsync(idProperty, valueProperty, useValueAsId, predicate, include, CancellationToken.None);
       }
 
-      public abstract Task<Option<List<KeyValue>>> GetLookupsAsync(
-         Option<string> idProperty,
-         Option<string> valueProperty,
-         Option<bool> useValueAsId,
+      public abstract Task<List<KeyValue>> GetLookupsAsync(
+         string idProperty,
+         string valueProperty,
+         bool useValueAsId,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+      public IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, include);
+         return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, null, include);
       }
 
-      public Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Func<IQueryable<T>, IQueryable<T>> include)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include);
       }
 
-      public override Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public override IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
       {
          return GetPaged(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null);
       }
 
-      public abstract Option<IPaged<T>> GetPaged(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public abstract IPaged<T> GetPaged(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include);
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Func<IQueryable<T>, IQueryable<T>> include)
          where TResult : class
       {
-         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, None.Value, include);
+         return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, null, include);
       }
 
-      public Option<IPaged<TResult>> GetPaged<TResult>(
+      public IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Func<IQueryable<T>, IQueryable<T>> include)
          where TResult : class
       {
          return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include);
       }
 
-      public override Option<IPaged<TResult>> GetPaged<TResult>(
+      public override IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
       {
          return GetPaged(selector, searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null);
       }
 
-      public abstract Option<IPaged<TResult>> GetPaged<TResult>(
+      public abstract IPaged<TResult> GetPaged<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include)
          where TResult : class;
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, include, None.Value);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, null, include, CancellationToken.None);
       }
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, None.Value, include, ctok);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, null, include, ctok);
       }
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Func<IQueryable<T>, IQueryable<T>> include)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include, None.Value);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include, CancellationToken.None);
       }
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, null, include, ctok);
       }
 
-      public Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate)
       {
-         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null, None.Value);
+         return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null, CancellationToken.None);
       }
 
-      public override Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public override Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetPagedAsync(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom, predicate, null, ctok);
       }
 
-      public abstract Task<Option<IPaged<T>>> GetPagedAsync(
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+      public abstract Task<IPaged<T>> GetPagedAsync(
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok);
+         CancellationToken ctok);
 
-      public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
          Func<IQueryable<T>, IQueryable<T>> include)
          where TResult : class
       {
-         return GetPagedAsync(selector, searchFields, pageIndex, pageSize, sorts, keyword, None.Value, include);
+         return GetPagedAsync(selector, searchFields, pageIndex, pageSize, sorts, keyword, null, include);
       }
 
-      public Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Func<IQueryable<T>, IQueryable<T>> include)
          where TResult : class
       {
@@ -446,19 +445,19 @@ namespace IntoItIf.Base.Repositories
             indexFrom,
             null,
             include,
-            None.Value);
+            CancellationToken.None);
       }
 
-      public override Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public override Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
       {
          return GetPagedAsync(
             selector,
@@ -473,53 +472,53 @@ namespace IntoItIf.Base.Repositories
             ctok);
       }
 
-      public abstract Task<Option<IPaged<TResult>>> GetPagedAsync<TResult>(
+      public abstract Task<IPaged<TResult>> GetPagedAsync<TResult>(
          Expression<Func<T, TResult>> selector,
-         Option<string[]> searchFields,
-         Option<int> pageIndex,
-         Option<int> pageSize,
-         Option<string[]> sorts,
-         Option<string> keyword,
-         Option<PageIndexFrom> indexFrom,
+         string[] searchFields,
+         int pageIndex,
+         int pageSize,
+         string[] sorts,
+         string keyword,
+         PageIndexFrom indexFrom,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IQueryable<T>> include,
-         Option<CancellationToken> ctok)
+         CancellationToken ctok)
          where TResult : class;
 
-      public override Option<long> LongCount()
+      public override long LongCount()
       {
-         return LongCount(None.Value);
+         return LongCount(null);
       }
 
-      public abstract Option<long> LongCount(Option<Expression<Func<T, bool>>> predicate);
+      public abstract long LongCount(Expression<Func<T, bool>> predicate);
 
-      public Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate)
+      public Task<long> LongCountAsync(Expression<Func<T, bool>> predicate)
       {
-         return LongCountAsync(predicate, None.Value);
+         return LongCountAsync(predicate, CancellationToken.None);
       }
 
-      public override Task<Option<long>> LongCountAsync(Option<CancellationToken> ctok)
+      public override Task<long> LongCountAsync(CancellationToken ctok)
       {
-         return LongCountAsync(None.Value, ctok);
+         return LongCountAsync(null, ctok);
       }
 
-      public abstract Task<Option<long>> LongCountAsync(Option<Expression<Func<T, bool>>> predicate, Option<CancellationToken> ctok);
+      public abstract Task<long> LongCountAsync(Expression<Func<T, bool>> predicate, CancellationToken ctok);
 
       #endregion
 
       #region Methods
 
-      protected override Option<IQueryable<T>> BuildQuery(
-         Option<IQueryable<T>> sourceQuery,
-         Option<Expression<Func<T, bool>>> predicate)
+      protected override IQueryable<T> BuildQuery(
+         IQueryable<T> sourceQuery,
+         Expression<Func<T, bool>> predicate)
       {
-         return BuildQuery(sourceQuery, predicate, None.Value);
+         return BuildQuery(sourceQuery, predicate, null);
       }
 
-      protected abstract Option<IQueryable<T>> BuildQuery(
-         Option<IQueryable<T>> sourceQuery,
-         Option<Expression<Func<T, bool>>> predicate,
-         Option<Func<IQueryable<T>, IQueryable<T>>> include);
+      protected abstract IQueryable<T> BuildQuery(
+         IQueryable<T> sourceQuery,
+         Expression<Func<T, bool>> predicate,
+         Func<IQueryable<T>, IQueryable<T>> include);
 
       #endregion
    }

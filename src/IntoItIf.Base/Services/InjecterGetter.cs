@@ -1,6 +1,5 @@
 namespace IntoItIf.Base.Services
 {
-   using Domain.Options;
    using Mappers;
    using UnitOfWork;
 
@@ -8,18 +7,16 @@ namespace IntoItIf.Base.Services
    {
       #region Static Fields
 
-      private static Option<IMapperService> _mapperService;
-      private static Option<ISaveUow> _unitOfWork;
+      private static IMapperService _mapperService;
+      private static ISaveUow _unitOfWork;
 
       #endregion
 
       #region Public Methods and Operators
 
-      public static Option<bool> SetBaseMapperService(Option<IMapperService> mapperService)
+      public static bool SetBaseMapperService(IMapperService mapperService)
       {
-         var realClassMapperService = _mapperService.ReduceOrDefault();
-         var realMapperService = mapperService.ReduceOrDefault();
-         if (realClassMapperService == null || realClassMapperService.GetType() != realMapperService.GetType())
+         if (_mapperService == null || _mapperService.GetType() != mapperService.GetType())
          {
             _mapperService = mapperService;
          }
@@ -27,11 +24,9 @@ namespace IntoItIf.Base.Services
          return true;
       }
 
-      public static Option<bool> SetUow(Option<ISaveUow> uow)
+      public static bool SetUow(ISaveUow uow)
       {
-         var realClassUnitOfWork = _unitOfWork.ReduceOrDefault();
-         var realUnitOfWork = uow.ReduceOrDefault();
-         if (realClassUnitOfWork == null || realClassUnitOfWork.GetType() != realUnitOfWork.GetType())
+         if (_unitOfWork == null || _unitOfWork.GetType() != uow.GetType())
          {
             _unitOfWork = uow;
          }
@@ -43,12 +38,12 @@ namespace IntoItIf.Base.Services
 
       #region Methods
 
-      internal static Option<IMapperService> GetBaseMapperService()
+      internal static IMapperService GetBaseMapperService()
       {
          return _mapperService;
       }
 
-      internal static Option<ISaveUow> GetSaveUow()
+      internal static ISaveUow GetSaveUow()
       {
          return _unitOfWork;
       }

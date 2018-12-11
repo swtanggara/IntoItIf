@@ -2,21 +2,20 @@
 {
    using System.Threading.Tasks;
    using Domain;
-   using Domain.Options;
 
    internal sealed class EmptyDataValidator<T> : IDataValidator<T>
       where T : class, IValidationEntity
    {
       #region Public Methods and Operators
 
-      public Option<ValidationResult> Validate(Option<T> toValidate)
+      public ValidationResult Validate(T toValidate)
       {
          return new ValidationResult(true, null);
       }
 
-      public Task<Option<ValidationResult>> ValidateAsync(Option<T> toValidate)
+      public Task<ValidationResult> ValidateAsync(T toValidate)
       {
-         return Validate(toValidate).GetOptionTask();
+         return Task.FromResult(Validate(toValidate));
       }
 
       #endregion

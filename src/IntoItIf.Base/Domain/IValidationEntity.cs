@@ -1,7 +1,6 @@
 namespace IntoItIf.Base.Domain
 {
    using System.Threading.Tasks;
-   using Options;
    using Services;
    using Validations;
 
@@ -9,8 +8,8 @@ namespace IntoItIf.Base.Domain
    {
       #region Public Methods and Operators
 
-      Option<ValidationResult> Validate(params string[] args);
-      Task<Option<ValidationResult>> ValidateAsync(params string[] args);
+      ValidationResult Validate(params string[] args);
+      Task<ValidationResult> ValidateAsync(params string[] args);
 
       #endregion
    }

@@ -1,13 +1,12 @@
 namespace IntoItIf.Base.Domain.Entities
 {
    using System;
-   using Options;
 
    public interface IEntity : IValidationEntity
    {
       #region Public Methods and Operators
 
-      Option<TDto> ToDto<TDto>()
+      TDto ToDto<TDto>()
          where TDto : class, IDto;
 
       #endregion
