@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
+    <ProjectReference Include="..\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
   </ItemGroup>
 
 </Project>
