@@ -63,4 +63,4 @@ exec { & dotnet pack .\src\IntoItIf.Base -c Release -o ..\..\artifacts -p:Packag
 exec { & dotnet pack .\src\IntoItIf.Base.AutoMapper -c Release -o ..\..\artifacts -p:PackageVersion=0.0.$revision }
 exec { & dotnet pack .\src\IntoItIf.Ef -c Release -o ..\..\artifacts -p:PackageVersion=0.0.$revision }
 exec { & dotnet pack .\src\IntoItIf.MongoDb -c Release -o ..\..\artifacts -p:PackageVersion=0.0.$revision }
-exec { & dotnet pack .\src\IntoItIf.MongoDb.AspNetCore -c Release -o ..\..\artifacts -p:PackageVersion=0.0.$revision }
+exec { & dotnet pack .\src\IntoItIf.MongoDb.Configuration -c Release -o ..\..\artifacts -p:PackageVersion=0.0.$revision }
