@@ -3,7 +3,6 @@
    using System;
    using System.Threading;
    using System.Threading.Tasks;
-   using Base.Domain.Options;
    using Base.UnitOfWork;
    using MongoDB.Driver;
 
