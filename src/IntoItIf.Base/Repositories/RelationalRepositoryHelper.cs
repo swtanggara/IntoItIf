@@ -20,14 +20,14 @@
                x => new
                {
                   PropertyName = x,
-                  PkValue = existByPkEntity.GetPropertyValue(x)
+                  PkValue = existByPkEntity?.GetPropertyValue(x)
                })
             .Select(
                x => new
                {
                   x.PropertyName,
                   x.PkValue,
-                  AkValue = existByAkEntity.GetPropertyValue(x.PropertyName)
+                  AkValue = existByAkEntity?.GetPropertyValue(x.PropertyName)
                })
             .Where(x => x.PkValue != x.AkValue && (x.PkValue == null || !x.PkValue.Equals(x.AkValue)))
             .Select(x => x.PkValue)

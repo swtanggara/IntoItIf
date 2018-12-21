@@ -12,7 +12,7 @@ namespace IntoItIf.Ef.Helpers
 
    internal static class EfQueryableExtensions
    {
-      #region Methods
+#region Methods
 
       internal static Task<bool> ResolvedAllAsync<T>(
          IQueryable<T> query,
@@ -385,7 +385,7 @@ namespace IntoItIf.Ef.Helpers
          return query.ToListAsync(ctok);
       }
 
-      #endregion
+#endregion
    }
 }
 #endif
