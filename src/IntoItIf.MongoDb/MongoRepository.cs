@@ -745,7 +745,8 @@
       {
          var pkPredicate = MongoDataContext.BuildPrimaryKeyPredicate(entity);
          var pkExist = InternalGetFirstOrDefault(pkPredicate.Predicate, null, session);
-         if (pkExist != null) return (pkExist, pkPredicate.PropertyNames, entity);
+         if (pkExist != null) return (pkExist, 
+            pkPredicate.PropertyNames, entity);
          var akPredicate = MongoDataContext.BuildAlternateKeyPredicate(entity);
          var akExist = InternalGetFirstOrDefault(akPredicate.Predicate, null, session);
          return akExist != null ? (akExist, akPredicate.PropertyNames, entity) : (null, akPredicate.PropertyNames, entity);

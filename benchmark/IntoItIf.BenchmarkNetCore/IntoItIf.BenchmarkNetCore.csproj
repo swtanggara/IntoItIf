@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\IntoItIf.Base.AutoMapper\IntoItIf.Base.AutoMapper.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.Ef\IntoItIf.Ef.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.MongoDb.Configuration\IntoItIf.MongoDb.Configuration.csproj" />
+    <ProjectReference Include="..\..\test\IntoItIf.Tests.Preparation\IntoItIf.Tests.Preparation.csproj" />
+  </ItemGroup>
+
+</Project>

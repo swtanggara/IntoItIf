@@ -16,13 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\IntoItIf.Base.AutoMapper\IntoItIf.Base.AutoMapper.csproj" />
-    <ProjectReference Include="..\..\src\IntoItIf.Ef\IntoItIf.Ef.csproj" />
-    <ProjectReference Include="..\..\src\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="MongoDb\" />
+    <ProjectReference Include="..\IntoItIf.Tests.Preparation\IntoItIf.Tests.Preparation.csproj" />
   </ItemGroup>
 
 </Project>

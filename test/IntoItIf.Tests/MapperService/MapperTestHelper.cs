@@ -3,6 +3,7 @@
    using Base.AutoMapper;
    using Base.Services;
    using Preparation;
+   using Preparation.Preparation;
 
    internal class MapperTestHelper
    {

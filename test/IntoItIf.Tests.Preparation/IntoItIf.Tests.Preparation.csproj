@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\IntoItIf.Base.AutoMapper\IntoItIf.Base.AutoMapper.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.Ef\IntoItIf.Ef.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.MongoDb.Configuration\IntoItIf.MongoDb.Configuration.csproj" />
+    <ProjectReference Include="..\..\src\IntoItIf.MongoDb\IntoItIf.MongoDb.csproj" />
+  </ItemGroup>
+
+</Project>
