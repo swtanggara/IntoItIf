@@ -1,5 +1,6 @@
 ﻿namespace IntoItIf.AspNetMvc.Autofac
 {
+   using System.Reflection;
    using global::Autofac;
 
    public class TestModule : Module
