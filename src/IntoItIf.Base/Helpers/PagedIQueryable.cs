@@ -4,6 +4,7 @@ namespace IntoItIf.Base.Helpers
    using System.Collections.Generic;
    using System.Linq;
    using System.Linq.Dynamic.Core;
+   using System.Linq.Expressions;
    using System.Threading;
    using System.Threading.Tasks;
    using Domain;
@@ -21,24 +22,37 @@ namespace IntoItIf.Base.Helpers
          where T : class
       {
          if (pageQuery == null) throw new ArgumentNullException(nameof(pageQuery));
-         queryable = queryable.WhereByKeyword(
-            pageQuery.Keyword,
-            pageQuery.SearchFields.Pascalize());
+         if (!string.IsNullOrWhiteSpace(pageQuery.Keyword))
+         {
+            queryable = queryable.WhereByKeyword(
+               pageQuery.Keyword,
+               pageQuery.SearchFields.Pascalize());
+         }
          totalItems = queryable.Count();
          var pageSize = PageQuery.DefaultPageSize;
-         var pageIndex = PageQuery.DefaultIndexFrom;
-         if (pageQuery.PageSize > 0) pageSize = pageQuery.PageSize;
-         if (pageQuery.PageIndex > 0) pageIndex = pageQuery.PageIndex;
+         var pageIndex = pageQuery.IndexFrom.Id;
+         if (pageQuery.PageSize > 0)
+         {
+            pageSize = pageQuery.PageSize > PageQuery.MaxPageSize ? PageQuery.MaxPageSize : pageQuery.PageSize;
+         }
+         if (pageQuery.PageIndex > pageQuery.IndexFrom)
+         {
+            pageIndex = pageQuery.PageIndex;
+         }
          if (pageQuery.Sorts != null && IsValidSorts<T>(pageQuery.Sorts))
          {
             queryable = queryable.ApplySorting(pageQuery.Sorts);
          }
          else
          {
-            queryable = queryable.OrderBy(string.Join(",", defaultSortKeys));
+            if (defaultSortKeys.Any())
+            {
+               queryable = queryable.OrderBy(string.Join(",", defaultSortKeys));
+            }
          }
-         return queryable.Skip((pageIndex - pageQuery.IndexFrom.Id) * pageSize)
+         var result = queryable.Skip((pageIndex - pageQuery.IndexFrom.Id) * pageSize)
             .Take(pageSize);
+         return result;
       }
 
       internal static IPaged<T> ToPaged<T>(
@@ -51,10 +65,33 @@ namespace IntoItIf.Base.Helpers
          var items = pagedIQueryable.ToList();
          return new Paged<T>(
             items,
+            ObjectDictionaryHelpers.GetPublicPropertyNames<T>(),
+            defaultSortKeys,
             totalItemsCount,
             pageQuery.PageIndex,
             pageQuery.PageSize,
-            pageQuery.IndexFrom);
+            pageQuery.IndexFrom,
+            true);
+      }
+
+      internal static IPaged<TResult> ToPaged<T, TResult>(
+         this IQueryable<T> queryable,
+         Expression<Func<T, TResult>> selector,
+         IPageQuery pageQuery,
+         string[] defaultSortKeys)
+         where T : class
+      {
+         var pagedIQueryable = queryable.GetPerPageIQueryable(pageQuery, defaultSortKeys, out var totalItemsCount);
+         var items = pagedIQueryable.Select(selector).ToList();
+         return new Paged<TResult>(
+            items,
+            ObjectDictionaryHelpers.GetPublicPropertyNames<TResult>(),
+            defaultSortKeys,
+            totalItemsCount,
+            pageQuery.PageIndex,
+            pageQuery.PageSize,
+            pageQuery.IndexFrom,
+            true);
       }
 
       internal static async Task<IPaged<T>> ToPagedAsync<T>(
@@ -69,10 +106,35 @@ namespace IntoItIf.Base.Helpers
          var items = await toListAsync(pagedIQueryable, ctok);
          return new Paged<T>(
             items,
+            ObjectDictionaryHelpers.GetPublicPropertyNames<T>(),
+            defaultSortKeys,
             totalItemsCount,
             pageQuery.PageIndex,
             pageQuery.PageSize,
-            pageQuery.IndexFrom);
+            pageQuery.IndexFrom,
+            true);
+      }
+
+      internal static async Task<IPaged<TResult>> ToPagedAsync<T, TResult>(
+         this IQueryable<T> queryable,
+         Expression<Func<T, TResult>> selector,
+         Func<IQueryable<TResult>, CancellationToken, Task<List<TResult>>> toListAsync,
+         IPageQuery pageQuery,
+         string[] defaultSortKeys,
+         CancellationToken ctok = default)
+         where T : class
+      {
+         var pagedIQueryable = queryable.GetPerPageIQueryable(pageQuery, defaultSortKeys, out var totalItemsCount);
+         var items = await toListAsync(pagedIQueryable.Select(selector), ctok);
+         return new Paged<TResult>(
+            items,
+            ObjectDictionaryHelpers.GetPublicPropertyNames<TResult>(),
+            defaultSortKeys,
+            totalItemsCount,
+            pageQuery.PageIndex,
+            pageQuery.PageSize,
+            pageQuery.IndexFrom,
+            true);
       }
 
       internal static IQueryable<T> WhereByKeyword<T>(

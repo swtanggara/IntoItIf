@@ -12,11 +12,11 @@ namespace IntoItIf.Ef.Helpers
    using Microsoft.EntityFrameworkCore;
    using UnitOfWork;
 
-   internal static class EfCoreDbContextExtensions
+   public static class EfCoreDbContextExtensions
    {
       #region Methods
 
-      internal static bool AddEntry<T>(this ItsDbContext dataContext, T entity)
+      public static bool AddEntry<T>(this IItsDbContext dataContext, T entity)
          where T : class
       {
          try
@@ -30,24 +30,24 @@ namespace IntoItIf.Ef.Helpers
          }
       }
 
-      internal static int ExecuteSqlCommand(
-         this ItsDbContext dataContext,
+      public static int ExecuteSqlCommand(
+         this IItsDbContext dataContext,
          string sql,
          params object[] parameters)
       {
          return dataContext.Database.ExecuteSqlCommand(sql, parameters);
       }
 
-      internal static Task<int> ExecuteSqlCommandAsync(
-         this ItsDbContext dataContext,
+      public static Task<int> ExecuteSqlCommandAsync(
+         this IItsDbContext dataContext,
          string sql,
          params object[] parameters)
       {
          return dataContext.ExecuteSqlCommandAsync(CancellationToken.None, sql, parameters);
       }
 
-      internal static Task<int> ExecuteSqlCommandAsync(
-         this ItsDbContext dataContext,
+      public static Task<int> ExecuteSqlCommandAsync(
+         this IItsDbContext dataContext,
          CancellationToken ctok,
          string sql,
          params object[] parameters)
@@ -55,8 +55,8 @@ namespace IntoItIf.Ef.Helpers
          return dataContext.Database.ExecuteSqlCommandAsync(sql, parameters, ctok);
       }
 
-      internal static List<T> FromSql<T>(
-         this ItsDbContext dataContext,
+      public static List<T> FromSql<T>(
+         this IItsDbContext dataContext,
          string sql,
          params object[] parameters)
          where T : class
@@ -64,8 +64,8 @@ namespace IntoItIf.Ef.Helpers
          return dataContext.Set<T>().FromSql(sql, parameters).ToList();
       }
 
-      internal static Task<List<T>> FromSqlAsync<T>(
-         this ItsDbContext dataContext,
+      public static Task<List<T>> FromSqlAsync<T>(
+         this IItsDbContext dataContext,
          string sql,
          params object[] parameters)
          where T : class
@@ -74,7 +74,7 @@ namespace IntoItIf.Ef.Helpers
       }
 
       internal static Task<List<T>> FromSqlAsync<T>(
-         this ItsDbContext dataContext,
+         this IItsDbContext dataContext,
          CancellationToken ctok,
          string sql,
          params object[] parameters)
@@ -83,13 +83,13 @@ namespace IntoItIf.Ef.Helpers
          return dataContext.Set<T>().FromSql(sql, parameters).ToListAsync(ctok);
       }
 
-      internal static IUowDbTransaction GetUowDbTransaction(this ItsDbContext dataContext)
+      public static IUowDbTransaction GetUowDbTransaction(this IItsDbContext dataContext)
       {
          var trx = dataContext.Database.BeginTransaction();
          return new UowCoreDbTransaction(trx);
       }
 
-      internal static bool RemoveEntry<T>(this ItsDbContext dataContext, T exist)
+      public static bool RemoveEntry<T>(this IItsDbContext dataContext, T exist)
          where T : class
       {
          try
@@ -103,25 +103,25 @@ namespace IntoItIf.Ef.Helpers
          }
       }
 
-      internal static int SaveChanges(this ItsDbContext dataContext)
+      public static int SaveChanges(this IItsDbContext dataContext)
       {
          return dataContext.SaveChanges();
       }
 
-      internal static Task<int> SaveChangesAsync(this ItsDbContext dataContext)
+      public static Task<int> SaveChangesAsync(this IItsDbContext dataContext)
       {
-         return dataContext.SaveChangesAsync();
+         return dataContext.SaveChangesAsync(CancellationToken.None);
       }
 
-      internal static Task<int> SaveChangesAsync(
-         this ItsDbContext dataContext,
+      public static Task<int> SaveChangesAsync(
+         this IItsDbContext dataContext,
          CancellationToken ctok)
       {
          return dataContext.SaveChangesAsync(ctok);
       }
 
-      internal static bool UpdateEntry<T>(
-         this ItsDbContext dataContext,
+      public static bool UpdateEntry<T>(
+         this IItsDbContext dataContext,
          T entity,
          T exist)
          where T : class

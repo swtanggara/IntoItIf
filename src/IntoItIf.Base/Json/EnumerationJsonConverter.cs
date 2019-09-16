@@ -1,4 +1,4 @@
-﻿namespace IntoItIf.Base.Mappers
+﻿namespace IntoItIf.Base.Json
 {
    using System;
    using Domain;

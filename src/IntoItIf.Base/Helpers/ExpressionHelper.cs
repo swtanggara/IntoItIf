@@ -15,9 +15,9 @@
          return GetMemberName(expression.Body);
       }
 
-      public static List<string> GetMemberNames<T>(this Expression<Func<T, object>>[] expressions)
+      public static List<string> GetMemberNames<T>(this IEnumerable<Expression<Func<T, object>>> expressions)
       {
-         return expressions.Select(cExpression => GetMemberName(cExpression.Body)).ToList();
+         return expressions.Select(x => GetMemberName(x.Body)).ToList();
       }
 
       public static string GetMemberName<T>(this Expression<Action<T>> expression)

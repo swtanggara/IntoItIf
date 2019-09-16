@@ -221,7 +221,7 @@
             : x.Query.Select(selector).ResolvedFirstOrDefaultAsync(ctok);
       }
 
-      public Option<List<TResult>> GetList<TResult>(
+      public List<TResult> GetList<TResult>(
          Expression<Func<T, TResult>> selector,
          Expression<Func<T, bool>> predicate,
          Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
@@ -713,7 +713,7 @@
          var pageQuery = RepositoryHelper<T>.GetPageQueryMapping(searchFields, pageIndex, pageSize, sorts, keyword, indexFrom);
          var query = BuildQuery(GetBaseQuery(), predicate, include, disableTracking);
          var sortKeys = RelationalRepositoryHelper<T>.GetSortKeys(RelationalDataContext);
-         return RepositoryHelper<T>.GetPagedBuiltByParameters(query.Select(selector), pageQuery, sortKeys);
+         return RepositoryHelper<T>.GetPagedBuiltByParameters(query, selector, pageQuery, sortKeys);
       }
 
       public Task<IPaged<T>> GetPagedAsync(
@@ -1173,7 +1173,8 @@
          var query = BuildQuery(GetBaseQuery(), predicate, include, disableTracking);
          var sortKeys = RelationalRepositoryHelper<T>.GetSortKeys(RelationalDataContext);
          return RepositoryHelper<T>.GetPagedBuiltByParametersAsync(
-            query.Select(selector),
+            query,
+            selector,
             GetToListAsyncFunc<TResult>(),
             pageQuery,
             sortKeys,
@@ -1314,18 +1315,18 @@
          IQueryable<T> query,
          T entity)
       {
-         var primaryKeysPredicate = dbContext.BuildPrimaryKeyPredicate(entity);
-         var alternateKeysPredicate = dbContext.BuildAlternateKeyPredicate(entity);
+         var (pkPredicate, pkPropertyNames) = dbContext.BuildPrimaryKeyPredicate(entity);
+         var (akPredicate, akPropertyNames) = dbContext.BuildAlternateKeyPredicate(entity);
          var keysProperties = RelationalRepositoryHelper<T>.GetKeyPropertyNamesInBetween(
-            primaryKeysPredicate.PropertyNames,
-            alternateKeysPredicate.PropertyNames);
-         var pkQuery = BuildQuery(query, primaryKeysPredicate.Predicate, true);
-         var akQuery = BuildQuery(query, alternateKeysPredicate.Predicate, true);
+            pkPropertyNames,
+            akPropertyNames);
+         var pkQuery = BuildQuery(query, pkPredicate, true);
+         var akQuery = BuildQuery(query, akPredicate, true);
          var map = (
             ExistByPkEntity: pkQuery.FirstOrDefault(),
             ExistByAkEntity: akQuery.FirstOrDefault(),
             RealKeyPropertyNames: keysProperties,
-            PkPropertyNames: primaryKeysPredicate.PropertyNames,
+            PkPropertyNames: pkPropertyNames,
             entity
          );
          return RelationalRepositoryHelper<T>.GiveValidatedEntityForUpdateResult(map);

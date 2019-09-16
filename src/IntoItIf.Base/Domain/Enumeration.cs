@@ -10,7 +10,7 @@ namespace IntoItIf.Base.Domain
    using System.Linq;
    using System.Reflection;
    using System.Runtime.Serialization;
-   using Mappers;
+   using Json;
 
    [Serializable]
    [DebuggerDisplay("{Name} - {Id}")]
@@ -129,7 +129,7 @@ namespace IntoItIf.Base.Domain
 
       public int CompareTo(TEnumeration other)
       {
-         return Id.CompareTo(other == default(TEnumeration) ? default : other.Id);
+         return Id.CompareTo(other == default(TEnumeration) ? default(TEnumeration) : other.Id);
       }
 
       public override bool Equals(object obj)
@@ -140,6 +140,20 @@ namespace IntoItIf.Base.Domain
       public bool Equals(TEnumeration other)
       {
          return other != null && ValueEquals(other.Id);
+      }
+
+      public TEnum ToEnum<TEnum>()
+          where TEnum : struct, Enum
+      {
+         Enum.TryParse(Name, out TEnum result);
+         return result;
+      }
+
+      public TEnum ToEnum<TEnum>(TEnum @default)
+         where TEnum : struct, Enum
+      {
+         var success = Enum.TryParse(Name, out TEnum result);
+         return !success ? @default : result;
       }
 
       public override int GetHashCode()

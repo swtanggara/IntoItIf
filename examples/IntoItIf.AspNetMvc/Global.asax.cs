@@ -6,8 +6,8 @@ using System.Web.Routing;
 namespace IntoItIf.AspNetMvc
 {
    using System.Reflection;
-   using Autofac;
-   using Autofac.Integration.WebApi;
+   using global::Autofac;
+   using global::Autofac.Integration.WebApi;
 
    public class WebApiApplication : System.Web.HttpApplication
    {

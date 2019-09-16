@@ -6,13 +6,12 @@ namespace IntoItIf.Ef.DbContexts
    using System.Linq;
    using System.Linq.Expressions;
    using System.Reflection;
-   using Base.DataContexts;
    using Base.Domain.Entities;
    using Base.Helpers;
    using Helpers;
    using Microsoft.EntityFrameworkCore;
 
-   public class ItsDbContext : DbContext, IRelationalDataContext
+   public class ItsDbContext : DbContext, IItsDbContext
    {
       #region Constructors and Destructors
 

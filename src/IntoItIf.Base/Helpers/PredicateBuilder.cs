@@ -2,7 +2,6 @@
 {
    using System;
    using System.Linq.Expressions;
-   using Domain.Options;
 
    public static class PredicateBuilder
    {
@@ -21,7 +20,7 @@
 
       #region Methods
 
-      internal static Expression<Func<T, bool>> BuildPredicate<T>(this T source)
+      public static Expression<Func<T, bool>> BuildPredicate<T>(this T source)
          where T : class
       {
          return source.BuildPredicate(false);

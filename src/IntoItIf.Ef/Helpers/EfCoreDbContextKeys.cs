@@ -9,11 +9,11 @@ namespace IntoItIf.Ef.Helpers
    using Base.Helpers;
    using Microsoft.EntityFrameworkCore;
 
-   internal static class EfCoreDbContextKeys
+   public static class EfCoreDbContextKeys
    {
       #region Methods
 
-      internal static (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildAlternateKeyPredicate<T>(
+      public static (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildAlternateKeyPredicate<T>(
          this DbContext dbContext,
          T entity)
          where T : class
@@ -25,7 +25,7 @@ namespace IntoItIf.Ef.Helpers
          return (result, akProperties);
       }
 
-      internal static (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildPrimaryKeyPredicate<T>(
+      public static (Expression<Func<T, bool>> Predicate, string[] PropertyNames) BuildPrimaryKeyPredicate<T>(
          this DbContext dbContext,
          T entity)
          where T : class
@@ -37,13 +37,13 @@ namespace IntoItIf.Ef.Helpers
          return (result, pkProperties);
       }
 
-      internal static IEnumerable<PropertyInfo> GetAlternateKeyProperties<T>(this DbContext dbContext)
+      public static IEnumerable<PropertyInfo> GetAlternateKeyProperties<T>(this DbContext dbContext)
       {
          var result = dbContext.GetAlternateKeyProperties(typeof(T));
          return result;
       }
 
-      internal static IEnumerable<PropertyInfo> GetPrimaryKeyProperties<T>(this DbContext dbContext)
+      public static IEnumerable<PropertyInfo> GetPrimaryKeyProperties<T>(this DbContext dbContext)
          where T : class
       {
          var result = dbContext.GetPrimaryKeyProperties(typeof(T));

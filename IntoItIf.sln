@@ -45,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{F1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntoItIf.AspNetMvc", "examples\IntoItIf.AspNetMvc\IntoItIf.AspNetMvc.csproj", "{F7D5BEBB-A580-4F44-9D91-CB6606A2139C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntoItIf.AspNetCore.Identity", "src\IntoItIf.AspNetCore.Identity\IntoItIf.AspNetCore.Identity.csproj", "{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{F7D5BEBB-A580-4F44-9D91-CB6606A2139C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7D5BEBB-A580-4F44-9D91-CB6606A2139C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7D5BEBB-A580-4F44-9D91-CB6606A2139C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{A9AC3B33-490E-4433-B7FA-6981CE039E35} = {DBA08B1D-6514-4240-BF62-BD0B565747BC}
 		{1D155776-F5DE-4BD7-BA97-0E6909BD2C55} = {A50C36F9-B54A-4E48-8923-12E6A9197D01}
 		{F7D5BEBB-A580-4F44-9D91-CB6606A2139C} = {F13139DC-2EED-4E44-8CEE-A2634ABA94F2}
+		{A00EAB96-06CE-4397-B4C8-EAC60B4EDCB5} = {0B3CFC2C-0607-40CA-A2B1-1C473EA60E82}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B14342F1-6A48-42E7-8548-0A11E364A7D8}

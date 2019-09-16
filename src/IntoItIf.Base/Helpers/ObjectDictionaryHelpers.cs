@@ -4,10 +4,44 @@ namespace IntoItIf.Base.Helpers
    using System.Collections.Generic;
    using System.Linq;
    using System.Linq.Expressions;
+   using System.Reflection;
    using Humanizer;
 
    public static class ObjectDictionaryHelpers
    {
+      #region Public Methods and Operators
+
+      public static Expression<Func<T, bool>> BuildPredicate<T>(
+         this object source,
+         bool includeDefaultOrNull = false,
+         params string[] excludedProperties)
+         where T : class
+      {
+         var queryDictionary = source.ToDictionary();
+         return queryDictionary.BuildPredicate<T>(includeDefaultOrNull, excludedProperties);
+      }
+
+      public static IDictionary<string, object> ToDictionary(this object source)
+      {
+         var queryDictionary = new Dictionary<string, object>();
+         if (source == null) return queryDictionary;
+         foreach (var propertyHelper in PropertyHelper.GetProperties(source))
+            queryDictionary.Add(propertyHelper.Name, propertyHelper.GetValue(source));
+
+         return queryDictionary;
+      }
+
+      public static IDictionary<string, string> GetPublicPropertyNames<T>()
+      {
+         var result = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(x => x.GetGetMethod() != null)
+            .ToDictionary(x => x.Name, x => x.Name.Humanize(LetterCasing.Title));
+         return result;
+      }
+
+
+      #endregion
+
       #region Methods
 
       internal static Expression<Func<T, bool>> BuildPredicate<T>(
@@ -23,6 +57,7 @@ namespace IntoItIf.Base.Helpers
          {
             propertyNames = propertyNames.Where(x => !excludedProperties.Contains(x)).ToList();
          }
+
          var pascalizedPropertyNames = propertyNames.Select(x => x.Pascalize()).ToArray();
          Expression body = null;
          foreach (var propertyName in pascalizedPropertyNames.GetValidatedPropertyNames<T>())
@@ -45,16 +80,6 @@ namespace IntoItIf.Base.Helpers
 
          if (body == null) return x => false;
          return Expression.Lambda<Func<T, bool>>(body, entityParameterExpr);
-      }
-
-      public static Expression<Func<T, bool>> BuildPredicate<T>(
-         this object source,
-         bool includeDefaultOrNull = false,
-         params string[] excludedProperties)
-         where T : class
-      {
-         var queryDictionary = source.ToDictionary();
-         return queryDictionary.BuildPredicate<T>(includeDefaultOrNull, excludedProperties);
       }
 
       internal static T GetObjectFromValidatedProperties<T>(this T arg, params string[] validPropertyNames)
@@ -82,16 +107,6 @@ namespace IntoItIf.Base.Helpers
 
          var result = newDict.ToObject<T>();
          return result;
-      }
-
-      internal static IDictionary<string, object> ToDictionary(this object source)
-      {
-         var queryDictionary = new Dictionary<string, object>();
-         if (source == null) return queryDictionary;
-         foreach (var propertyHelper in PropertyHelper.GetProperties(source))
-            queryDictionary.Add(propertyHelper.Name, propertyHelper.GetValue(source));
-
-         return queryDictionary;
       }
 
       internal static T ToObject<T>(this IDictionary<string, object> source)

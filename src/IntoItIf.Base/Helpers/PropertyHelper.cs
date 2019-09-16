@@ -6,7 +6,7 @@ namespace IntoItIf.Base.Helpers
    using System.Linq;
    using System.Reflection;
 
-   internal sealed class PropertyHelper
+   public sealed class PropertyHelper
    {
       #region Static Fields
 
@@ -49,18 +49,27 @@ namespace IntoItIf.Base.Helpers
 
       #endregion
 
-      #region Properties
+      #region Public Properties
 
-      internal string Name { get; }
+      public string Name { get; }
+
+      #endregion
+
+      #region Public Methods and Operators
+
+      public static PropertyHelper[] GetProperties(object instance)
+      {
+         return GetProperties(instance, CreateInstance, ReflectionCache);
+      }
+
+      public object GetValue(object instance)
+      {
+         return _valueGetter(instance);
+      }
 
       #endregion
 
       #region Methods
-
-      internal static PropertyHelper[] GetProperties(object instance)
-      {
-         return GetProperties(instance, CreateInstance, ReflectionCache);
-      }
 
       internal static Func<object, object> MakeFastPropertyGetter(PropertyInfo propertyInfo)
       {
@@ -94,11 +103,6 @@ namespace IntoItIf.Base.Helpers
                typeof(Action<TDeclaringType, object>),
                setMethod.CreateDelegate(typeof(Action<,>).MakeGenericType(reflectedType, parameterType)),
                CallPropertySetterOpenGenericMethod.MakeGenericMethod(reflectedType, parameterType));
-      }
-
-      internal object GetValue(object instance)
-      {
-         return _valueGetter(instance);
       }
 
       // ReSharper disable once UnusedMember.Local
